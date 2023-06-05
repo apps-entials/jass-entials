@@ -1,3 +1,6 @@
+script:
+  - java -version
+
 container:
   image: cirrusci/android-sdk:30
   cpu: 4
