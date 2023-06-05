@@ -49,8 +49,6 @@ class SidiBarahniPregameActivity : ComponentActivity() {
 fun BettingRound() {
     val context = LocalContext.current
 
-    // Show 4 players: one at the top, one on the left, one on the right, one at the bottom
-
     Column(
         modifier = Modifier
             .fillMaxSize()
