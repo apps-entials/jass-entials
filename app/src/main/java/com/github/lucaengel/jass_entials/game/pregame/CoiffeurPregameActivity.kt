@@ -15,7 +15,7 @@ class CoiffeurPregameActivity : ComponentActivity() {
         setContent {
             JassentialsTheme {
                 Surface(color = MaterialTheme.colorScheme.background) {
-
+                    // todo: implement
                 }
             }
         }
