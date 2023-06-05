@@ -46,6 +46,12 @@
             android:label="Sidi Barahni Pregame Activity"
             android:theme="@style/Theme.Jassentials" >
         </activity>
+        <activity
+            android:name=".game.JassRoundActivity"
+            android:exported="true"
+            android:label="Jass Round Activity"
+            android:theme="@style/Theme.Jassentials" >
+        </activity>
     </application>
 
 </manifest>
