@@ -1,10 +1,8 @@
 container:
-  image: cirrusci/android-sdk:30
+  image: cirrusci/android-sdk:31
   cpu: 4
   memory: 16G
   kvm: true
-  environment:
-    JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
 
 check_android_task:
   name: Run Android tests
