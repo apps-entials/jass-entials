@@ -1,26 +1,22 @@
 package com.github.lucaengel.jass_entials.cards
 
-enum class Suit {
-    CLUBS,
-    DIAMONDS,
-    HEARTS,
-    SPADES,
+enum class Suit(val toString: String) {
+    CLUBS("Clubs"),
+    DIAMONDS("Diamonds"),
+    HEARTS("Hearts"),
+    SPADES("Spades"),
 }
 
-enum class Rank {
-    TWO,
-    THREE,
-    FOUR,
-    FIVE,
-    SIX,
-    SEVEN,
-    EIGHT,
-    NINE,
-    TEN,
-    JACK,
-    QUEEN,
-    KING,
-    ACE,
+enum class Rank(val toString: String) {
+    SIX("6"),
+    SEVEN("7"),
+    EIGHT("8"),
+    NINE("9"),
+    TEN("10"),
+    JACK("J"),
+    QUEEN("Q"),
+    KING("K"),
+    ACE("A"),
 }
 
 data class Card(

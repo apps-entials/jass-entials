@@ -31,7 +31,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.github.lucaengel.jass_entials.cards.Card
 import com.github.lucaengel.jass_entials.data.jass.JassTypes
 import com.github.lucaengel.jass_entials.game.SelectGameActivity.TestTags.Buttons.Companion.BACK
 import com.github.lucaengel.jass_entials.game.pregame.CoiffeurPregameActivity
@@ -76,61 +75,61 @@ class SelectGameActivity: ComponentActivity() {
         setContent {
             JassentialsTheme {
                 Surface(color = MaterialTheme.colorScheme.background) {
-                    SelectGameView()
+                    SelectGameView { finish() }
                 }
             }
         }
     }
+}
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SelectGameView(finishActivity: () -> Unit = {}) {
+    val context = LocalContext.current
 
-    @OptIn(ExperimentalMaterial3Api::class)
-    @Composable
-    fun SelectGameView() {
-        val context = LocalContext.current
+    fun onGameTypeClicked(gameType: JassTypes) {
+        when (gameType) {
+            JassTypes.SCHIEBER -> {
+                val activity = SchieberPregameActivity::class.java
+                Intent(context, SchieberPregameActivity::class.java).also {
+                    context.startActivity(it)
+                }
+            }
 
-        fun onGameTypeClicked(gameType: JassTypes) {
-            when (gameType) {
-                JassTypes.SCHIEBER -> {
-                    val activity = SchieberPregameActivity::class.java
-                    Intent(context, SchieberPregameActivity::class.java).also {
-                        context.startActivity(it)
-                    }
+            JassTypes.COIFFEUR ->
+                Intent(context, CoiffeurPregameActivity::class.java).also {
+                    context.startActivity(it)
                 }
 
-                JassTypes.COIFFEUR ->
-                    Intent(context, CoiffeurPregameActivity::class.java).also {
-                        context.startActivity(it)
-                    }
-
-                JassTypes.SIDI_BARAHNI ->
-                    Intent(context, SidiBarahniPregameActivity::class.java).also {
-                        context.startActivity(it)
-                    }
-            }
+            JassTypes.SIDI_BARAHNI ->
+                Intent(context, SidiBarahniPregameActivity::class.java).also {
+                    context.startActivity(it)
+                }
         }
+    }
 
-        val gameTypes = JassTypes.values().toList()
+    val gameTypes = JassTypes.values().toList()
 
-        Scaffold(
-            modifier = Modifier.testTag(SelectGameActivity.TestTags.SCAFFOLD),
-            topBar = {
-                TopAppBar(
-                    title = {
-                        Text(
-                            text = "Select a game mode",
-                            modifier = Modifier.testTag(SelectGameActivity.TestTags.Texts.ACTIVITY_TITLE)
-                        )
-                    },
-                    navigationIcon = {
-                        IconButton(
-                            onClick = {
-                                finish()
-                            },
-                            modifier = Modifier.testTag(BACK)
-                        ) {
-                            Icon(Icons.Filled.ArrowBack, "Back")
-                        }
-                    },
+    Scaffold(
+        modifier = Modifier.testTag(SelectGameActivity.TestTags.SCAFFOLD),
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "Select a game mode",
+                        modifier = Modifier.testTag(SelectGameActivity.TestTags.Texts.ACTIVITY_TITLE)
+                    )
+                },
+                navigationIcon = {
+                    IconButton(
+                        onClick = {
+                            finishActivity()
+                        },
+                        modifier = Modifier.testTag(BACK)
+                    ) {
+                        Icon(Icons.Filled.ArrowBack, "Back")
+                    }
+                },
 //                actions = {
 //                    IconButton(
 //                        onClick = {
@@ -141,67 +140,66 @@ class SelectGameActivity: ComponentActivity() {
 //                        Icon(Icons.Filled.Done, "Done",)
 //                    }
 //                },
-                    colors = smallTopAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        scrolledContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                        navigationIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                        titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                        actionIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                    )
+                colors = smallTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    scrolledContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    actionIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                 )
-            }
-        ) { padding ->
-            Surface(
-                color = MaterialTheme.colorScheme.background,
+            )
+        }
+    ) { padding ->
+        Surface(
+            color = MaterialTheme.colorScheme.background,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
+            // TODO: uncomment this to enable dark mode for maxkeppeler sheets
+            //CoachMeMaterial3Theme {
+            val scrollState = rememberScrollState()
+            Column(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
+                    .padding(horizontal = 10.dp)
+                    .verticalScroll(scrollState)
             ) {
-                // TODO: uncomment this to enable dark mode for maxkeppeler sheets
-                //CoachMeMaterial3Theme {
-                val scrollState = rememberScrollState()
-                Column(
-                    modifier = Modifier
-                        .padding(horizontal = 10.dp)
-                        .verticalScroll(scrollState)
-                ) {
 
-                    gameTypes.map {
-                        TextRow(
-                            testTag = it.jassName,
-                            text = it.jassName,
-                            onClick = {
-                                onGameTypeClicked(it)
-                            }
-                        )
+                gameTypes.map {
+                    TextRow(
+                        testTag = it.jassName,
+                        text = it.jassName,
+                        onClick = {
+                            onGameTypeClicked(it)
+                        }
+                    )
 
-                        Divider()
-                    }
+                    Divider()
                 }
             }
         }
     }
+}
 
-    @Composable
-    fun TextRow(testTag: String, text: String, onClick: () -> Unit) {
-        Column(
-            modifier = Modifier
-                .clickable {
-                    onClick()
-                }
-                .fillMaxWidth()
-                .padding(20.dp, 10.dp, 20.dp, 10.dp),
-            horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.Bottom
-        ) {
-            Text(
-                modifier = Modifier.testTag(testTag)
-                    .padding(10.dp),
-                text = text,
-                style = MaterialTheme.typography.bodyLarge,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
+@Composable
+fun TextRow(testTag: String, text: String, onClick: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .clickable {
+                onClick()
+            }
+            .fillMaxWidth()
+            .padding(20.dp, 10.dp, 20.dp, 10.dp),
+        horizontalAlignment = Alignment.Start,
+        verticalArrangement = Arrangement.Bottom
+    ) {
+        Text(
+            modifier = Modifier.testTag(testTag)
+                .padding(10.dp),
+            text = text,
+            style = MaterialTheme.typography.bodyLarge,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
     }
 }
