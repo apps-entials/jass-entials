@@ -3,6 +3,9 @@ container:
   cpu: 4
   memory: 16G
   kvm: true
+  setup_script:
+    - sudo apt-get update
+    - sudo apt-get install -y openjdk-17-jdk
 
 check_android_task:
   name: Run Android tests
