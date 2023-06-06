@@ -1,3 +1,19 @@
+ext.isCiServer = System.getenv().containsKey("CIRRUS_CI")
+ext.isMasterBranch = System.getenv()["CIRRUS_BRANCH"] == "master"
+ext.buildCacheHost = System.getenv().getOrDefault("CIRRUS_HTTP_CACHE_HOST", "localhost:12321")
+
+buildCache {
+    local {
+        enabled = !isCiServer
+    }
+    remote(HttpBuildCache) {
+        url = "http://${buildCacheHost}/"
+        enabled = isCiServer
+        push = isMasterBranch
+    }
+}
+
+
 pluginManagement {
     repositories {
         google()
@@ -14,18 +30,3 @@ dependencyResolutionManagement {
 }
 rootProject.name = "Jass-entials"
 include ':app'
-
-ext.isCiServer = System.getenv().containsKey("CIRRUS_CI")
-ext.isMasterBranch = System.getenv()["CIRRUS_BRANCH"] == "main"
-ext.buildCacheHost = System.getenv().getOrDefault("CIRRUS_HTTP_CACHE_HOST", "localhost:12321")
-
-buildCache {
-    local {
-        enabled = !isCiServer
-    }
-    remote(HttpBuildCache) {
-        url = "http://${buildCacheHost}/"
-        enabled = isCiServer
-        push = isMasterBranch
-    }
-}
