@@ -40,4 +40,38 @@ class SelectGameActivityTest {
             Intents.release()
         }
     }
+
+    @Test
+    fun schieberClickOpensTheSchieberPregameActivity() {
+        ActivityScenario.launch<SelectGameActivity>(selectGameDefaultIntent).use {
+            Intents.init()
+
+            composeTestRule.onNodeWithText("Schieber")
+                .assertIsDisplayed()
+                .performClick()
+
+            Intents.intended(
+                hasComponent(SchieberPregameActivity::class.java.name)
+            )
+
+            Intents.release()
+        }
+    }
+
+    @Test
+    fun coiffeurClickOpensTheCoiffeurPregameActivity() {
+        ActivityScenario.launch<SelectGameActivity>(selectGameDefaultIntent).use {
+            Intents.init()
+
+            composeTestRule.onNodeWithText("Coiffeur")
+                .assertIsDisplayed()
+                .performClick()
+
+            Intents.intended(
+                hasComponent(CoiffeurPregameActivity::class.java.name)
+            )
+
+            Intents.release()
+        }
+    }
 }
