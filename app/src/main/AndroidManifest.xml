@@ -41,7 +41,7 @@
             android:theme="@style/Theme.Jassentials" >
         </activity>
         <activity
-            android:name=".game.pregame.SidiBarahniPregameActivity"
+            android:name=".game.pregame.SidiBarahniPreRoundActivity"
             android:exported="true"
             android:label="Sidi Barahni Pregame Activity"
             android:theme="@style/Theme.Jassentials" >

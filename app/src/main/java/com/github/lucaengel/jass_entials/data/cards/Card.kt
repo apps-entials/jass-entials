@@ -1,10 +1,10 @@
-package com.github.lucaengel.jass_entials.cards
+package com.github.lucaengel.jass_entials.data.cards
 
-enum class Suit(val toString: String) {
-    CLUBS("Clubs"),
-    DIAMONDS("Diamonds"),
-    HEARTS("Hearts"),
-    SPADES("Spades"),
+enum class Suit(val toString: String, val symbol: Char) {
+    CLUBS("Clubs", '\u2663'),
+    DIAMONDS("Diamonds", '\u2666'),
+    HEARTS("Hearts", '\u2665'),
+    SPADES("Spades", '\u2660'),
 }
 
 enum class Rank(val toString: String) {

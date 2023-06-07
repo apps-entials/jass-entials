@@ -36,7 +36,7 @@ import com.github.lucaengel.jass_entials.data.jass.JassTypes
 import com.github.lucaengel.jass_entials.game.SelectGameActivity.TestTags.Buttons.Companion.BACK
 import com.github.lucaengel.jass_entials.game.pregame.CoiffeurPregameActivity
 import com.github.lucaengel.jass_entials.game.pregame.SchieberPregameActivity
-import com.github.lucaengel.jass_entials.game.pregame.SidiBarahniPregameActivity
+import com.github.lucaengel.jass_entials.game.pregame.SidiBarahniPreRoundActivity
 import com.github.lucaengel.jass_entials.ui.theme.JassentialsTheme
 
 class SelectGameActivity: ComponentActivity() {
@@ -104,7 +104,7 @@ fun SelectGameView(finishActivity: () -> Unit = {}) {
                 }
 
             JassTypes.SIDI_BARAHNI ->
-                Intent(context, SidiBarahniPregameActivity::class.java).also {
+                Intent(context, SidiBarahniPreRoundActivity::class.java).also {
                     context.startActivity(it)
                 }
         }
