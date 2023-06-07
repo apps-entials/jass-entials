@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "85585009235",
+    "firebase_url": "https://jass-entials-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "jass-entials",
+    "storage_bucket": "jass-entials.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:85585009235:android:c2ca4fd40373b14e44c4a6",
+        "android_client_info": {
+          "package_name": "com.github.lucaengel.jass_entials"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "85585009235-nrni4dmphvjmfdja8s94cvp60f0jge17.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDGeuOKbioOx97FJxZgfrJkFPXEwDYnKHA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "85585009235-nrni4dmphvjmfdja8s94cvp60f0jge17.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

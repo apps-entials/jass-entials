@@ -69,16 +69,30 @@ class SelectGameActivity: ComponentActivity() {
         }
     }
 
+    private var currentEmail = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        intent.getStringExtra("email")?.let {
+            currentEmail = it
+        }
+
         setContent {
-            JassentialsTheme {
-                Surface(color = MaterialTheme.colorScheme.background) {
-                    SelectGameView { finish() }
-                }
-            }
+            GroundTheme() { finish() }
+        }
+    }
+}
+
+/**
+ * The main theme of the app.
+ */
+@Preview
+@Composable
+fun GroundTheme(finishActivity: () -> Unit = {}) {
+    JassentialsTheme {
+        Surface(color = MaterialTheme.colorScheme.background) {
+            SelectGameView { finishActivity }
         }
     }
 }
@@ -89,14 +103,13 @@ class SelectGameActivity: ComponentActivity() {
 fun SelectGameView(finishActivity: () -> Unit = {}) {
     val context = LocalContext.current
 
+
     fun onGameTypeClicked(gameType: JassTypes) {
         when (gameType) {
-            JassTypes.SCHIEBER -> {
-                val activity = SchieberPregameActivity::class.java
+            JassTypes.SCHIEBER ->
                 Intent(context, SchieberPregameActivity::class.java).also {
                     context.startActivity(it)
                 }
-            }
 
             JassTypes.COIFFEUR ->
                 Intent(context, CoiffeurPregameActivity::class.java).also {
@@ -196,7 +209,8 @@ fun TextRow(testTag: String, text: String, onClick: () -> Unit) {
         verticalArrangement = Arrangement.Bottom
     ) {
         Text(
-            modifier = Modifier.testTag(testTag)
+            modifier = Modifier
+                .testTag(testTag)
                 .padding(10.dp),
             text = text,
             style = MaterialTheme.typography.bodyLarge,
