@@ -13,13 +13,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
-import com.github.lucaengel.jass_entials.auth.Authenticator
 import com.github.lucaengel.jass_entials.auth.GoogleAuthenticator
 import com.github.lucaengel.jass_entials.game.SelectGameActivity
 import com.github.lucaengel.jass_entials.ui.theme.JassentialsTheme
@@ -28,7 +26,7 @@ class MainActivity : ComponentActivity() {
 
     private var currentUserEmail = ""
 
-    private lateinit var authenticator: Authenticator
+    private lateinit var authenticator: GoogleAuthenticator
 
     // Register the launcher to handle the result of Google Authentication
     private val signInLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(

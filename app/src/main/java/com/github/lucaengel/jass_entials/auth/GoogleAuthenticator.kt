@@ -13,7 +13,7 @@ import java.util.function.Consumer
 /**
  * Class that handles the Google sign in process
  */
-class GoogleAuthenticator : Authenticator {
+class GoogleAuthenticator {
 
     /**
      * Creates a sign in intent and launches it using the given launcher
@@ -33,7 +33,7 @@ class GoogleAuthenticator : Authenticator {
         signInLauncher.launch(signInIntent)
     }
 
-    override fun onSignInResult(
+    fun onSignInResult(
         result: FirebaseAuthUIAuthenticationResult?,
         onSuccess: Consumer<String?>?,
         onFailure: Consumer<String?>?
@@ -42,7 +42,6 @@ class GoogleAuthenticator : Authenticator {
             onFailure!!.accept("login error")
         } else if (result.resultCode == Activity.RESULT_OK) {
             // Successfully signed in
-            println("Successfully signed in")
             val user = FirebaseAuth.getInstance().currentUser
                 ?: throw IllegalStateException("User is null")
             onSuccess!!.accept(user.email)
@@ -57,23 +56,23 @@ class GoogleAuthenticator : Authenticator {
         }
     }
 
-    override fun signIn(signInLauncher: ActivityResultLauncher<Intent>) {
+    fun signIn(signInLauncher: ActivityResultLauncher<Intent>) {
         createSignInIntent(signInLauncher)
     }
 
-    override fun delete(context: Context?, onComplete: Runnable?) {
+    fun delete(context: Context?, onComplete: Runnable?) {
         AuthUI.getInstance()
             .delete(context!!)
             .addOnCompleteListener { onComplete!!.run() }
     }
 
-    override fun signOut(context: Context?, onComplete: Runnable?) {
+    fun signOut(context: Context?, onComplete: Runnable?) {
         AuthUI.getInstance()
             .signOut(context!!)
             .addOnCompleteListener { onComplete!!.run() }
     }
 
-    override fun isSignedIn(): Boolean {
+    fun isSignedIn(): Boolean {
         return FirebaseAuth.getInstance().currentUser != null
     }
 }
