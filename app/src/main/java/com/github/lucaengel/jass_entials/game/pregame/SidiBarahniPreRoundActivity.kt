@@ -1,7 +1,6 @@
 package com.github.lucaengel.jass_entials.game.pregame
 
 import android.os.Bundle
-import android.text.Html
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -20,8 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewParameter
-import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import com.github.lucaengel.jass_entials.data.cards.Deck
 import com.github.lucaengel.jass_entials.data.cards.Player
@@ -40,58 +37,82 @@ class SidiBarahniPreRoundActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        println("SidiBarahniPreRoundActivity.onCreate()")
+
         setContent {
-            JassentialsTheme {
-                Surface(color = MaterialTheme.colorScheme.background) {
-                    BettingRound(
-                        BettingState(
-                            listOf(Player(0, "first_1", "second_1", Deck.STANDARD_DECK.cards.subList(0, 9), 0, "123")),
-                            Player(0, "first_1", "second_1", Deck.STANDARD_DECK.cards.subList(0, 9), 0, "123"),
-                            JassTypes.SIDI_BARAHNI,
-                            listOf(),
-                            GameState()
-                        )
-                    )
-                }
-            }
+            MyPreview()
         }
     }
 }
 
-/**
- * Provides a [BettingState] for previewing.
- */
-class BettingRoundProvider : PreviewParameterProvider<BettingState> {
-    override val values: Sequence<BettingState> = sequenceOf(
-        BettingState(
-            listOf(Player(0, "first_1", "second_1", Deck.STANDARD_DECK.cards.subList(0, 9), 0, "123")),
-            Player(0, "first_1", "second_1", Deck.STANDARD_DECK.cards.subList(0, 9), 0, "123"),
-            JassTypes.SIDI_BARAHNI,
-            listOf(
-                Bet(Player(0, "first_1", "second_1", Deck.STANDARD_DECK.cards.subList(0, 9), 0, "123"), Suit.CLUBS, 40)
-            ),
-            GameState()
-        )
-    )
-}
 
 @Preview
 @Composable
+fun MyPreview() {
+
+    val player1 = Player("email_1", 0, "first_1", "second_1", Deck.STANDARD_DECK.cards.subList(0, 9), 0, "123")
+    val player2 = Player("email_2", 0, "first_2", "second_2", Deck.STANDARD_DECK.cards.subList(9, 18), 0, "123")
+    val player3 = Player("email_3", 0, "first_3", "second_3", Deck.STANDARD_DECK.cards.subList(18, 27), 0, "123")
+    val player4 = Player("email_4", 0, "first_4", "second_4", Deck.STANDARD_DECK.cards.subList(27, 36), 0, "123")
+
+
+    val currentPlayer = player1
+
+    JassentialsTheme {
+        Surface(color = MaterialTheme.colorScheme.background) {
+            BettingRound(
+                currentPlayer,
+                BettingState(
+                    listOf(player1, player2, player3, player4),
+                    player1,
+                    JassTypes.SIDI_BARAHNI,
+                    listOf(
+                        Bet(player1, Suit.CLUBS, 40)
+                    ),
+                    GameState()
+                )
+            )
+        }
+    }
+}
+
+///**
+// * Provides a [BettingState] for previewing.
+// */
+//class BettingRoundProvider : PreviewParameterProvider<BettingState> {
+//    override val values: Sequence<BettingState> = sequenceOf(
+//        BettingState(
+//            listOf(Player(0, "first_1", "second_1", Deck.STANDARD_DECK.cards.subList(0, 9), 0, "123")),
+//            Player(0, "first_1", "second_1", Deck.STANDARD_DECK.cards.subList(0, 9), 0, "123"),
+//            JassTypes.SIDI_BARAHNI,
+//            listOf(
+//                Bet(Player(0, "first_1", "second_1", Deck.STANDARD_DECK.cards.subList(0, 9), 0, "123"), Suit.CLUBS, 40)
+//            ),
+//            GameState()
+//        )
+//    )
+//}
+
+@Composable
 fun BettingRound(
-    @PreviewParameter(BettingRoundProvider::class) bettingState: BettingState,
+    currentPlayer: Player,
+    bettingState: BettingState,
 ) {
     val context = LocalContext.current
+    val currentPlayerIdx = bettingState.players.indexOfFirst { it.email == currentPlayer.email }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
     ) {
+
+        val topPlayer = bettingState.players[(currentPlayerIdx + 2) % 4]
         Text(
-            text = "Player 1",
+            text = "${topPlayer.firstName} ${topPlayer.lastName}",
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
                 .background(
-                    MaterialTheme.colorScheme.surface,
+                    MaterialTheme.colorScheme.primaryContainer,
                     shape = RoundedCornerShape(0.dp, 10.dp, 10.dp, 10.dp)
                 )
                 .padding(5.dp),
@@ -99,16 +120,16 @@ fun BettingRound(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        MiddleRowInfo(bettingState)
+        MiddleRowInfo(bettingState, currentPlayerIdx)
 
         Spacer(modifier = Modifier.weight(1f))
 
         Text(
-            text = "Player 3",
+            text = "You",
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
                 .background(
-                    MaterialTheme.colorScheme.surface,
+                    MaterialTheme.colorScheme.primaryContainer,
                     shape = RoundedCornerShape(10.dp, 10.dp, 10.dp, 0.dp)
                 )
                 .padding(5.dp),
@@ -117,14 +138,16 @@ fun BettingRound(
 }
 
 @Composable
-private fun MiddleRowInfo(bettingState: BettingState) {
+private fun MiddleRowInfo(bettingState: BettingState, currentPlayerIdx: Int) {
     Row {
+
+        val leftPlayer = bettingState.players[(currentPlayerIdx + 3) % 4]
         Text(
-            text = "Player 2",
+            text = "${leftPlayer.firstName} ${leftPlayer.lastName}",
             modifier = Modifier
                 .align(Alignment.CenterVertically)
                 .background(
-                    MaterialTheme.colorScheme.surface,
+                    MaterialTheme.colorScheme.primaryContainer,
                     shape = RoundedCornerShape(10.dp, 10.dp, 10.dp, 0.dp)
                 )
                 .padding(5.dp),
@@ -156,12 +179,13 @@ private fun MiddleRowInfo(bettingState: BettingState) {
 
         Spacer(modifier = Modifier.weight(1f))
 
+        val rightPlayer = bettingState.players[(currentPlayerIdx + 1) % 4]
         Text(
-            text = "Player 4",
+            text = "${rightPlayer.firstName} ${rightPlayer.lastName}",
             modifier = Modifier
                 .align(Alignment.CenterVertically)
                 .background(
-                    MaterialTheme.colorScheme.surface,
+                    MaterialTheme.colorScheme.primaryContainer,
                     shape = RoundedCornerShape(10.dp, 10.dp, 0.dp, 10.dp)
                 )
                 .padding(5.dp),

@@ -1,6 +1,7 @@
 package com.github.lucaengel.jass_entials.data.cards
 
 data class Player(
+    val email: String,
     val playerIdx: Int,
     val firstName: String,
     val lastName: String,
@@ -9,6 +10,7 @@ data class Player(
     val token: String,
 ) {
     constructor() : this(
+        email = "",
         playerIdx = 0,
         firstName = "",
         lastName = "",
