@@ -3,12 +3,17 @@ package com.github.lucaengel.jass_entials.game.pregame
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -16,10 +21,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Devices.AUTOMOTIVE_1024p
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.github.lucaengel.jass_entials.data.cards.Card
 import com.github.lucaengel.jass_entials.data.cards.Deck
 import com.github.lucaengel.jass_entials.data.cards.Player
 import com.github.lucaengel.jass_entials.data.cards.Suit
@@ -45,8 +54,9 @@ class SidiBarahniPreRoundActivity : ComponentActivity() {
     }
 }
 
-
-@Preview
+// Landscape mode:
+@Preview(device = AUTOMOTIVE_1024p, widthDp = 720, heightDp = 360)
+//@Preview
 @Composable
 fun MyPreview() {
 
@@ -107,16 +117,13 @@ fun BettingRound(
     ) {
 
         val topPlayer = bettingState.players[(currentPlayerIdx + 2) % 4]
-        Text(
-            text = "${topPlayer.firstName} ${topPlayer.lastName}",
+        Box(
             modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .background(
-                    MaterialTheme.colorScheme.primaryContainer,
-                    shape = RoundedCornerShape(0.dp, 10.dp, 10.dp, 10.dp)
-                )
-                .padding(5.dp),
-        )
+                .fillMaxWidth(),
+            contentAlignment = Alignment.Center
+        ) {
+            PlayerBox(player = topPlayer, bettingState = bettingState, playerSpot = 2)
+        }
 
         Spacer(modifier = Modifier.weight(1f))
 
@@ -124,16 +131,13 @@ fun BettingRound(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        Text(
-            text = "You",
+        Box(
             modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .background(
-                    MaterialTheme.colorScheme.primaryContainer,
-                    shape = RoundedCornerShape(10.dp, 10.dp, 10.dp, 0.dp)
-                )
-                .padding(5.dp),
-        )
+                .fillMaxWidth(),
+            contentAlignment = Alignment.Center
+        ) {
+            CurrentPlayerBox(player = currentPlayer, bettingState = bettingState, playerSpot = 0)
+        }
     }
 }
 
@@ -142,54 +146,104 @@ private fun MiddleRowInfo(bettingState: BettingState, currentPlayerIdx: Int) {
     Row {
 
         val leftPlayer = bettingState.players[(currentPlayerIdx + 3) % 4]
-        Text(
-            text = "${leftPlayer.firstName} ${leftPlayer.lastName}",
+        Box(
             modifier = Modifier
-                .align(Alignment.CenterVertically)
-                .background(
-                    MaterialTheme.colorScheme.primaryContainer,
-                    shape = RoundedCornerShape(10.dp, 10.dp, 10.dp, 0.dp)
-                )
-                .padding(5.dp),
-            textAlign = TextAlign.End,
-        )
+                .fillMaxHeight(0.5F)
+                .fillMaxWidth(0.25F)
+                .weight(1f),
+            contentAlignment = Alignment.Center
+        ) {
+            PlayerBox(player = leftPlayer, bettingState = bettingState, playerSpot = 3)
+        }
 
-        Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.weight(0.1f))
 
-        Column(
+        Box(
             modifier = Modifier
                 .align(Alignment.CenterVertically)
                 .background(
                     MaterialTheme.colorScheme.surface,
                     shape = RoundedCornerShape(10.dp)
                 )
-                .padding(5.dp),
+                .padding(5.dp)
+                .fillMaxWidth(0.5F)
+                .weight(1f),
+            contentAlignment = Alignment.Center
         ) {
 
             if (bettingState.bets.isEmpty()) {
-                Text(text = "No bets yet")
+                Text(
+                    text = "No bets yet",
+                    textAlign = TextAlign.Center
+                )
             } else {
                 val lastBet = bettingState.bets.last()
 
-                Text(text = "Current bet: ${lastBet.bet} ${lastBet.suit.symbol}\n" +
-                        "by ${lastBet.player.firstName} ${lastBet.player.lastName}"
+                Text(
+                    text = "${lastBet.bet} ${lastBet.suit.symbol} by\n" +
+                        "${lastBet.player.firstName} ${lastBet.player.lastName}",
+                    textAlign = TextAlign.Center
                 )
             }
         }
 
-        Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.weight(0.1f))
 
         val rightPlayer = bettingState.players[(currentPlayerIdx + 1) % 4]
-        Text(
-            text = "${rightPlayer.firstName} ${rightPlayer.lastName}",
+
+        Box(
             modifier = Modifier
-                .align(Alignment.CenterVertically)
-                .background(
-                    MaterialTheme.colorScheme.primaryContainer,
-                    shape = RoundedCornerShape(10.dp, 10.dp, 0.dp, 10.dp)
-                )
-                .padding(5.dp),
-            textAlign = TextAlign.Start,
+                .fillMaxHeight(0.5F)
+                .fillMaxWidth(0.25F)
+                .weight(1f),
+            contentAlignment = Alignment.Center
+        ) {
+            PlayerBox (player = rightPlayer, bettingState = bettingState, playerSpot = 1)
+        }
+    }
+}
+
+/**
+ * Player box for displaying information
+ *
+ * @param player The player to display
+ * @param bettingState The current betting state
+ * @param playerSpot The spot of the player in the game (0 = bottom, 1 = right, 2 = top, 3 = left)
+ */
+@Composable
+fun PlayerBox(player: Player, bettingState: BettingState, playerSpot: Int) {
+    val isCurrentUser = playerSpot == 0
+    Box(
+        modifier = Modifier
+            .background(
+                MaterialTheme.colorScheme.primaryContainer,
+                shape = RoundedCornerShape(10.dp)
+            )
+            .padding(5.dp)
+    ) {
+        Text(
+            text = if (isCurrentUser) "You" else "${player.firstName} ${player.lastName}",
+            textAlign = TextAlign.Center,
         )
     }
 }
+
+@Composable
+fun CurrentPlayerBox(player: Player, bettingState: BettingState, playerSpot: Int) {
+    PlayerBox(player = player, bettingState = bettingState, playerSpot = playerSpot)
+
+    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+    Row {
+        for (card in player.cards) {
+            Image(
+                painter = painterResource(id = Card.getCardImage(card)),
+                contentDescription = card.toString(),
+                modifier = Modifier
+                    .width(screenWidth / 10)
+                    .padding(0.dp)
+
+            )
+        }
+    }
+}
+
