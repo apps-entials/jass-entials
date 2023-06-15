@@ -1,6 +1,7 @@
 package com.github.lucaengel.jass_entials.data.cards
 
 import com.github.lucaengel.jass_entials.R
+import com.github.lucaengel.jass_entials.data.jass.Trump
 
 enum class Suit(val toString: String, val symbol: Char) {
     CLUBS("Clubs", '\u2663'),
@@ -31,10 +32,35 @@ data class Card(
 ) {
     constructor() : this(Rank.TEN, Suit.HEARTS)
 
+    fun points(trump: Trump): Int {
+        if ((trump == Trump.OBE_ABE || trump == Trump.UNGER_UFE) && rank == Rank.EIGHT) return 8
+
+        if (trump == Trump.UNGER_UFE) {
+            if (rank == Rank.SIX) return 11
+            if (rank == Rank.ACE) return 0
+        }
+
+        if (Trump.isSuitTrumpSuit(suit, trump)) {
+            if (rank == Rank.JACK) return 20
+            if (rank == Rank.NINE) return 14
+        }
+
+        return when (rank) {
+            Rank.TEN -> 10
+            Rank.JACK -> 2
+            Rank.QUEEN -> 3
+            Rank.KING -> 4
+            Rank.ACE -> 11
+            else -> 0
+        }
+    }
+
     override fun toString(): String {
         return "$rank${suit.symbol}"
     }
+
     companion object {
+
         private val cardImageMap = mapOf(
 //            Card(Rank.SIX, Suit.CLUBS) to R.drawable.club_six,
 //            Card(Rank.SEVEN, Suit.CLUBS) to R.drawable.club_seven,
