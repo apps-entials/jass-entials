@@ -3,13 +3,17 @@ package com.github.lucaengel.jass_entials.data.jass
 import com.github.lucaengel.jass_entials.data.cards.Card
 import com.github.lucaengel.jass_entials.data.cards.Suit
 
-enum class Trump {
-    DIAMONDS,
-    HEARTS,
-    SPADES,
-    CLUBS,
-    UNGER_UFE,
-    OBE_ABE;
+enum class Trump(private val asString: String) {
+    DIAMONDS(asString = Suit.DIAMONDS.symbol.toString()),
+    HEARTS(asString = Suit.HEARTS.symbol.toString()),
+    SPADES(asString = Suit.SPADES.symbol.toString()),
+    CLUBS(asString = Suit.CLUBS.symbol.toString()),
+    UNGER_UFE(asString = "\u2191"),
+    OBE_ABE(asString = "\u2193");
+
+    override fun toString(): String {
+        return asString
+    }
 
     companion object {
 

@@ -1,6 +1,5 @@
 package com.github.lucaengel.jass_entials.data.jass
 
-import com.github.lucaengel.jass_entials.data.cards.Card
 import com.github.lucaengel.jass_entials.data.cards.Deck
 import com.github.lucaengel.jass_entials.data.cards.Suit
 import junit.framework.TestCase.assertFalse

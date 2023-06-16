@@ -1,5 +1,7 @@
 package com.github.lucaengel.jass_entials.data.cards
 
+import java.io.Serializable
+
 /**
  * A player in a game of Jass.
  */
@@ -11,7 +13,7 @@ data class Player(
     val cards: List<Card>,
     val teamNb: Int,
     val token: String,
-) {
+) : Serializable {
     constructor() : this(
         email = "",
         playerIdx = 0,

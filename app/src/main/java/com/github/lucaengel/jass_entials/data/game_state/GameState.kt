@@ -4,6 +4,7 @@ import com.github.lucaengel.jass_entials.data.cards.Card
 import com.github.lucaengel.jass_entials.data.cards.Deck
 import com.github.lucaengel.jass_entials.data.cards.Player
 import com.github.lucaengel.jass_entials.data.cards.Suit
+import java.io.Serializable
 
 data class GameState(
     val players: List<Player> = listOf(),
@@ -13,7 +14,7 @@ data class GameState(
     val currentTrickNumber: Int = 0,
     val currentTrump: Suit = Suit.CLUBS,
     val playerCards: Map<Player, List<Card>> = mapOf(),
-) {
+) : Serializable {
 
     constructor() : this(
         players = listOf(),

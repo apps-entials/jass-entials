@@ -2,15 +2,16 @@ package com.github.lucaengel.jass_entials.data.cards
 
 import com.github.lucaengel.jass_entials.R
 import com.github.lucaengel.jass_entials.data.jass.Trump
+import java.io.Serializable
 
-enum class Suit(val toString: String, val symbol: Char) {
+enum class Suit(val toString: String, val symbol: Char) : Serializable  {
     CLUBS("Clubs", '\u2663'),
     DIAMONDS("Diamonds", '\u2666'),
     HEARTS("Hearts", '\u2665'),
     SPADES("Spades", '\u2660'),
 }
 
-enum class Rank(private val rank: String, normalHeight: Int, val trumpHeight: Int) {
+enum class Rank(private val rank: String, normalHeight: Int, val trumpHeight: Int) : Serializable  {
     SIX("6", 6, 6),
     SEVEN("7", 7, 7),
     EIGHT("8", 8, 8),
@@ -29,7 +30,7 @@ enum class Rank(private val rank: String, normalHeight: Int, val trumpHeight: In
 data class Card(
     val rank: Rank,
     val suit: Suit,
-) {
+) : Serializable {
     constructor() : this(Rank.TEN, Suit.HEARTS)
 
     fun points(trump: Trump): Int {
