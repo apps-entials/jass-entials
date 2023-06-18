@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.github.lucaengel.jass_entials.data.game_state.GameState
+import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
 import com.github.lucaengel.jass_entials.ui.theme.JassentialsTheme
 
 class JassRoundActivity : ComponentActivity() {
@@ -18,14 +19,9 @@ class JassRoundActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        try {
+        val gameState = GameStateHolder.gameState
 
-            val gameState = intent.getSerializableExtra("gameState") as GameState
-            println("retrieved data form intent: $gameState")
-        } catch (e: Exception) {
-            println("error retrieving data from intent!!!!!!!!!!!!!!!!!")
-            println("error retrieving data from intent: ${e.message}")
-        }
+        println("gameState: $gameState")
 //        intent.getSerializableExtra("test", Test::class.java)
 
         setContent {

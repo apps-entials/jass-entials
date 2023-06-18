@@ -47,9 +47,12 @@ import androidx.compose.ui.unit.dp
 import com.github.lucaengel.jass_entials.data.cards.Card
 import com.github.lucaengel.jass_entials.data.cards.Deck
 import com.github.lucaengel.jass_entials.data.cards.Player
+import com.github.lucaengel.jass_entials.data.cards.Rank
+import com.github.lucaengel.jass_entials.data.cards.Suit
 import com.github.lucaengel.jass_entials.data.game_state.Bet
 import com.github.lucaengel.jass_entials.data.game_state.BettingState
 import com.github.lucaengel.jass_entials.data.game_state.GameState
+import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
 import com.github.lucaengel.jass_entials.data.jass.JassTypes
 import com.github.lucaengel.jass_entials.data.jass.Trump
 import com.github.lucaengel.jass_entials.game.JassRoundActivity
@@ -173,7 +176,7 @@ fun BettingRound(
 
         if (bettingState.currentBetter == currentPlayer) {
             val simulatePlayers: () -> Unit = {
-                sleep(3000)
+                sleep(500)
                 bettingState = bettingState.nextPlayer()
                 bettingState = bettingState.nextPlayer()
                 bettingState = bettingState.nextPlayer()
@@ -193,7 +196,11 @@ fun BettingRound(
                     val gameState = bettingState.startGame()
 
                     val intent = Intent(context, JassRoundActivity::class.java)
-//                    intent.putExtra("gameState", gameState)
+
+                    GameStateHolder.gameState = gameState
+                    //TODO: adapt to new betting state for the next potential round???
+                    GameStateHolder.bettingState = BettingState()
+
                     context.startActivity(intent)
                 }
             )
@@ -343,11 +350,11 @@ fun CurrentPlayerBox(player: Player, bettingState: BettingState, playerSpot: Int
                         translationX = /*xTranslate*/(idx - middle) * cardWidth * (-0.5f)
                     }
                     .requiredWidth(cardWidth.dp)
-                    .requiredHeight(cardHeight.dp)
-                    .background(
-                        MaterialTheme.colorScheme.primaryContainer,
-                        shape = RoundedCornerShape(10.dp)
-                    ),
+                    .requiredHeight(cardHeight.dp),
+//                    .background(
+//                        MaterialTheme.colorScheme.primaryContainer,
+//                        shape = RoundedCornerShape(10.dp)
+//                    ),
                 contentAlignment = Alignment.BottomCenter
 
             ) {
