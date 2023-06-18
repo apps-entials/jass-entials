@@ -1,5 +1,6 @@
 package com.github.lucaengel.jass_entials.game.pregame
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -15,6 +16,8 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeight
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -33,6 +36,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -48,6 +52,7 @@ import com.github.lucaengel.jass_entials.data.game_state.BettingState
 import com.github.lucaengel.jass_entials.data.game_state.GameState
 import com.github.lucaengel.jass_entials.data.jass.JassTypes
 import com.github.lucaengel.jass_entials.data.jass.Trump
+import com.github.lucaengel.jass_entials.game.JassRoundActivity
 import com.github.lucaengel.jass_entials.ui.theme.JassentialsTheme
 import java.lang.Thread.sleep
 
@@ -187,9 +192,9 @@ fun BettingRound(
                 onStartGame = {
                     val gameState = bettingState.startGame()
 
-//                    val intent = Intent(context, JassRoundActivity::class.java)
+                    val intent = Intent(context, JassRoundActivity::class.java)
 //                    intent.putExtra("gameState", gameState)
-//                    context.startActivity(intent)
+                    context.startActivity(intent)
                 }
             )
         } else {
@@ -200,13 +205,7 @@ fun BettingRound(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth(),
-            contentAlignment = Alignment.Center
-        ) {
-            CurrentPlayerBox(player = currentPlayer, bettingState = bettingState, playerSpot = 0)
-        }
+        CurrentPlayerBox(player = currentPlayer, bettingState = bettingState, playerSpot = 0)
     }
 }
 
@@ -300,21 +299,87 @@ fun PlayerBox(player: Player, bettingState: BettingState, playerSpot: Int) {
 
 @Composable
 fun CurrentPlayerBox(player: Player, bettingState: BettingState, playerSpot: Int) {
-    PlayerBox(player = player, bettingState = bettingState, playerSpot = playerSpot)
 
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
-    Row {
-        for (card in player.cards) {
-            Image(
-                painter = painterResource(id = Card.getCardImage(card)),
-                contentDescription = card.toString(),
-                modifier = Modifier
-                    .width(screenWidth / 10)
-                    .padding(0.dp)
+    println("screenwdth: $screenWidth")
 
-            )
+    /*Row(
+        Modifier.fillMaxWidth()
+            .horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        val middle = (player.cards.size / 2f) - 0.5f
+        player.cards.forEachIndexed { idx, card ->
+            Box(
+                modifier = Modifier
+                    .requiredWidth(screenWidth / 10)
+                    .graphicsLayer {
+                        rotationZ = (idx - middle) * 5f
+                        translationY = (idx - middle) * (idx - middle) * 2f
+                        translationX = (middle - idx) * 25f
+                    }
+            ) {
+                Image(
+                    painter = painterResource(id = Card.getCardImage(card)),
+                    contentDescription = card.toString(),
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+        }
+    }*/
+
+    Row(
+        Modifier.fillMaxWidth()
+            .width(screenWidth),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.Bottom
+    ) {
+
+        val cardWidth = screenWidth / 10
+        val cardHeight = cardWidth * 1.5f
+
+        val middle = (player.cards.size / 2f) - 0.5f
+        player.cards.mapIndexed { idx, card ->
+            // index in the list of cards
+            Box(
+                modifier = Modifier
+                    .requiredWidth(cardWidth)
+                    .requiredHeight(cardHeight)
+                    .graphicsLayer {
+                        rotationZ = (idx - middle) * 5f
+                        translationY = (idx - middle)*(idx - middle)*2f
+                        translationX = (middle - idx) * 25f
+                    }
+                    .background(
+                        MaterialTheme.colorScheme.primaryContainer,
+                        shape = RoundedCornerShape(10.dp)
+                    ),
+                contentAlignment = Alignment.BottomCenter
+//                    .graphicsLayer {
+//                        rotationZ = (idx - middle) * 5f
+//                        translationY = /*-50f*/ + (idx - middle)*(idx - middle)*2f
+//                        translationX = (middle - idx) * 25f
+//                    }
+
+
+            ) {
+                Image(
+                    painter = painterResource(id = Card.getCardImage(card)),
+                    contentDescription = card.toString(),
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .align(Alignment.BottomCenter)
+                        .fillMaxSize()
+//                        .graphicsLayer {
+//                            rotationZ = (idx - middle) * 5f
+//                            translationY = (idx - middle)*(idx - middle)*2f
+//                            translationX = (middle - idx) * 25f
+//                        }
+                )
+            }
         }
     }
+//    PlayerBox(player = player, bettingState = bettingState, playerSpot = playerSpot)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
