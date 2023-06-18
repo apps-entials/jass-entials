@@ -37,6 +37,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -301,32 +304,6 @@ fun PlayerBox(player: Player, bettingState: BettingState, playerSpot: Int) {
 fun CurrentPlayerBox(player: Player, bettingState: BettingState, playerSpot: Int) {
 
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
-    println("screenwdth: $screenWidth")
-
-    /*Row(
-        Modifier.fillMaxWidth()
-            .horizontalScroll(rememberScrollState()),
-        horizontalArrangement = Arrangement.Center
-    ) {
-        val middle = (player.cards.size / 2f) - 0.5f
-        player.cards.forEachIndexed { idx, card ->
-            Box(
-                modifier = Modifier
-                    .requiredWidth(screenWidth / 10)
-                    .graphicsLayer {
-                        rotationZ = (idx - middle) * 5f
-                        translationY = (idx - middle) * (idx - middle) * 2f
-                        translationX = (middle - idx) * 25f
-                    }
-            ) {
-                Image(
-                    painter = painterResource(id = Card.getCardImage(card)),
-                    contentDescription = card.toString(),
-                    modifier = Modifier.fillMaxSize()
-                )
-            }
-        }
-    }*/
 
     Row(
         Modifier.fillMaxWidth()
@@ -335,21 +312,45 @@ fun CurrentPlayerBox(player: Player, bettingState: BettingState, playerSpot: Int
         verticalAlignment = Alignment.Bottom
     ) {
 
-        val cardWidth = screenWidth / 10
+        val edgeSpace = screenWidth.value / 10 / 2f
+
+        val cardWidth = screenWidth.value / 10 //* 1.5f
         val cardHeight = cardWidth * 1.5f
 
+
+        val adjustments = listOf(
+            edgeSpace + cardWidth/2,
+            -cardWidth*0.5f + edgeSpace + cardWidth/2,
+            -cardWidth*1f + edgeSpace + cardWidth/2,
+            -cardWidth*1.5f + edgeSpace + cardWidth/2,
+            -cardWidth*2f + edgeSpace + cardWidth/2,
+            -cardWidth*2.5f + edgeSpace + cardWidth/2,
+            -cardWidth*2.5f + cardWidth/2,
+            -cardWidth*2f - edgeSpace + cardWidth/2,
+            -cardWidth*1.5f - edgeSpace + cardWidth/2,
+        )
+
         val middle = (player.cards.size / 2f) - 0.5f
+//        player.cards.zip(adjustments).mapIndexed { idx, (card, xTranslate) ->
         player.cards.mapIndexed { idx, card ->
+//            val card = pair.first
+//            val xTranslate = pair.second
             // index in the list of cards
+            var cardTranslationX = 0f
+            var cardTranslationY = 0f
+
             Box(
+
+
                 modifier = Modifier
-                    .requiredWidth(cardWidth)
-                    .requiredHeight(cardHeight)
                     .graphicsLayer {
                         rotationZ = (idx - middle) * 5f
-                        translationY = (idx - middle)*(idx - middle)*2f
-                        translationX = (middle - idx) * 25f
+                        translationY = (idx - middle)*(idx - middle)*0.05f*cardHeight
+//                        translationX = cardTranslationX
+                        translationX = /*xTranslate*/(idx - middle) * cardWidth * (-0.5f)
                     }
+                    .requiredWidth(cardWidth.dp)
+                    .requiredHeight(cardHeight.dp)
                     .background(
                         MaterialTheme.colorScheme.primaryContainer,
                         shape = RoundedCornerShape(10.dp)
