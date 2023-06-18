@@ -37,9 +37,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInParent
-import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -333,15 +330,11 @@ fun CurrentPlayerBox(player: Player, bettingState: BettingState, playerSpot: Int
         val middle = (player.cards.size / 2f) - 0.5f
 //        player.cards.zip(adjustments).mapIndexed { idx, (card, xTranslate) ->
         player.cards.mapIndexed { idx, card ->
-//            val card = pair.first
-//            val xTranslate = pair.second
             // index in the list of cards
             var cardTranslationX = 0f
             var cardTranslationY = 0f
 
             Box(
-
-
                 modifier = Modifier
                     .graphicsLayer {
                         rotationZ = (idx - middle) * 5f
@@ -356,12 +349,6 @@ fun CurrentPlayerBox(player: Player, bettingState: BettingState, playerSpot: Int
                         shape = RoundedCornerShape(10.dp)
                     ),
                 contentAlignment = Alignment.BottomCenter
-//                    .graphicsLayer {
-//                        rotationZ = (idx - middle) * 5f
-//                        translationY = /*-50f*/ + (idx - middle)*(idx - middle)*2f
-//                        translationX = (middle - idx) * 25f
-//                    }
-
 
             ) {
                 Image(
@@ -371,11 +358,6 @@ fun CurrentPlayerBox(player: Player, bettingState: BettingState, playerSpot: Int
                         .fillMaxHeight()
                         .align(Alignment.BottomCenter)
                         .fillMaxSize()
-//                        .graphicsLayer {
-//                            rotationZ = (idx - middle) * 5f
-//                            translationY = (idx - middle)*(idx - middle)*2f
-//                            translationX = (middle - idx) * 25f
-//                        }
                 )
             }
         }
