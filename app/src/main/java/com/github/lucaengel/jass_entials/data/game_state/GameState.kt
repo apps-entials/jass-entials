@@ -3,7 +3,7 @@ package com.github.lucaengel.jass_entials.data.game_state
 import com.github.lucaengel.jass_entials.data.cards.Card
 import com.github.lucaengel.jass_entials.data.cards.Deck
 import com.github.lucaengel.jass_entials.data.cards.Player
-import com.github.lucaengel.jass_entials.data.cards.Suit
+import com.github.lucaengel.jass_entials.data.jass.Trump
 import java.io.Serializable
 
 data class GameState(
@@ -12,7 +12,7 @@ data class GameState(
     val currentRound: Int,
     val currentTrick: Map<Player, Card> = mapOf(),
     val currentTrickNumber: Int = 0,
-    val currentTrump: Suit = Suit.CLUBS,
+    val currentTrump: Trump = Trump.CLUBS,
     val playerCards: Map<Player, List<Card>> = mapOf(),
 ) : Serializable {
 
@@ -22,7 +22,7 @@ data class GameState(
         currentRound = 0,
         currentTrick = mapOf(),
         currentTrickNumber = 0,
-        currentTrump = Suit.CLUBS,
+        currentTrump = Trump.CLUBS,
         playerCards = mapOf(),
     )
     fun nextTrick(): GameState {
@@ -48,9 +48,9 @@ data class GameState(
         )
     }
 
-    fun setTrump(suit: Suit): GameState {
+    fun setTrump(trump: Trump): GameState {
         return this.copy(
-            currentTrump = suit,
+            currentTrump = trump,
         )
     }
 }
