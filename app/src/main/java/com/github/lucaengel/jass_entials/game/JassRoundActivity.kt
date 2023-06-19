@@ -1,9 +1,11 @@
 package com.github.lucaengel.jass_entials.game
 
+import androidx.compose.foundation.Image
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,6 +14,9 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeight
+import androidx.compose.foundation.layout.requiredWidth
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -24,11 +29,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.github.lucaengel.jass_entials.data.cards.Card
 import com.github.lucaengel.jass_entials.data.cards.Deck
 import com.github.lucaengel.jass_entials.data.cards.Player
 import com.github.lucaengel.jass_entials.data.game_state.GameState
@@ -66,6 +75,7 @@ fun JassRoundPreview() {
 
 
     val currentPlayer = player1
+    val players = listOf(player1, player2, player3, player4)
 
     JassentialsTheme {
         Surface(color = MaterialTheme.colorScheme.background) {
@@ -73,13 +83,15 @@ fun JassRoundPreview() {
                 currentPlayer,
 //                GameStateHolder.gameState
                 GameState(
-                    listOf(player1, player2, player3, player4),
+                    players,
                     player1,
                     1,
-                    mapOf(),
+                    players.mapIndexed { index, player ->
+                        player to Deck.STANDARD_DECK.cards[index]
+                    }.toMap(),
                     1,
                     Trump.UNGER_UFE,
-                    Deck.STANDARD_DECK.dealCards(listOf(player1, player2, player3, player4))
+                    Deck.STANDARD_DECK.dealCards(players),
                 )
             )
         }
@@ -166,35 +178,9 @@ private fun JassMiddleRowInfo(gameState: GameState, currentPlayerIdx: Int) {
 
         Spacer(modifier = Modifier.weight(0.1f))
 
-        Box(
-            modifier = Modifier
-                .align(Alignment.CenterVertically)
-                .background(
-                    MaterialTheme.colorScheme.surface,
-                    shape = RoundedCornerShape(10.dp)
-                )
-                .padding(5.dp)
-                .fillMaxWidth(0.5F)
-                .weight(1f),
-            contentAlignment = Alignment.Center
-        ) {
 
-//            if (gameState.bets.isEmpty()) {
-                Text(
-                    text = "No bets yet",
-                    textAlign = TextAlign.Center
-                )
-//            } else {
-//                val lastBet = gameState.bets.last()
-//
-//                Text(
-//                    text = "${lastBet.bet} ${lastBet.suit} by\n" +
-//                            "${lastBet.player.firstName} ${lastBet.player.lastName}",
-//                    textAlign = TextAlign.Center,
-//                    maxLines = 3,
-//                )
-//            }
-        }
+        CurrentTrick(gameState = gameState, currentPlayerIdx = currentPlayerIdx)
+
 
         Spacer(modifier = Modifier.weight(0.1f))
 
@@ -206,3 +192,84 @@ private fun JassMiddleRowInfo(gameState: GameState, currentPlayerIdx: Int) {
             .weight(1f))
     }
 }
+
+/**
+ * Displays the 0-4 cards that are currently in the middle of the table.
+ *
+ * @param gameState The current game state.
+ **/
+@Composable
+fun CurrentTrick(gameState: GameState, currentPlayerIdx: Int) {
+
+    val currentTrick = gameState.currentTrick
+    println("currentTrick: $currentTrick")
+
+    // 0 is bottom, 1 is right, 2 is top, 3 is left
+    val idxToCards = (0 .. 3)
+        .map { idx -> idx to gameState.players[(currentPlayerIdx + idx) % 4] }
+        .map { (i, player) -> i to currentTrick.getOrDefault(player, null) }
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+
+
+        val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+        val cardWidth = screenWidth.value / 10
+        val cardHeight = cardWidth * 1.5f
+
+        CardBox(card = idxToCards[3].second)
+
+        Row {
+            CardBox(
+                card = idxToCards[2].second,
+                modifier = Modifier
+                    .graphicsLayer {
+                    translationY = - cardHeight / 2
+                }
+            )
+
+            Spacer(modifier = Modifier.width((cardWidth / 2).dp))
+
+            CardBox(
+                card = idxToCards[1].second,
+                modifier = Modifier
+                    .graphicsLayer {
+                        translationY = - cardHeight / 2
+                    }
+            )
+        }
+
+        CardBox(
+            card = idxToCards[0].second,
+            modifier = Modifier
+                .graphicsLayer {
+                    translationY = - cardHeight
+                },
+        )
+    }
+}
+
+@Composable
+fun CardBox(card: Card?, modifier: Modifier = Modifier) {
+    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+    val cardWidth = screenWidth.value / 10 //* 1.5f
+    val cardHeight = cardWidth * 1.5f
+
+    Box(modifier = modifier
+        .requiredWidth(cardWidth.dp)
+        .requiredHeight(cardHeight.dp)
+    ) {
+        if (card != null) {
+            Image(
+                painter = painterResource(id = Card.getCardImage(card)),
+                contentDescription = card.toString(),
+                modifier = Modifier
+                    .fillMaxHeight()
+//                        .align(Alignment.BottomCenter)
+                    .fillMaxSize(),
+            )
+        }
+    }
+}
+
