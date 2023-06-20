@@ -52,6 +52,7 @@ data class BettingState(
         return GameState(
             players = players,
             currentPlayer = bets.last().player,
+            startingPlayer = bets.last().player,
             currentRound = 0,
             currentTrick = mapOf(),
             currentTrickNumber = 0,

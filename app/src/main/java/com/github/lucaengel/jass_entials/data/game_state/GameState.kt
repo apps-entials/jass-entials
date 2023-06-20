@@ -8,7 +8,8 @@ import java.io.Serializable
 
 data class GameState(
     val players: List<Player> = listOf(),
-    val currentPlayer: Player,
+    val currentPlayer: Player, // player that has to play the next card
+    val startingPlayer: Player, // player that started the current trick
     val currentRound: Int,
     val currentTrick: Map<Player, Card> = mapOf(),
     val currentTrickNumber: Int = 0,
@@ -19,6 +20,7 @@ data class GameState(
     constructor() : this(
         players = listOf(),
         currentPlayer = Player(),
+        startingPlayer = Player(),
         currentRound = 0,
         currentTrick = mapOf(),
         currentTrickNumber = 0,

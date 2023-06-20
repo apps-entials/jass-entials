@@ -16,6 +16,7 @@ class GameStateHolder {
         var gameState: GameState = GameState(
             players,
             player1,
+            player3,
             1,
             players.mapIndexed { index, player ->
                 player to Deck.STANDARD_DECK.cards[index]

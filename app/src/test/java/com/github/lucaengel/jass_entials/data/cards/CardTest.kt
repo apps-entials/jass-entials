@@ -64,6 +64,11 @@ class CardTest {
         }
     }
 
+    @Test
+    fun checkThis() {
+        //check this
+        assertThat(Math.floorMod(2-3, 4), `is`(3))
+    }
 
     @Test
     fun pointsCalculatesNonTrumpCardsCorrectly() {

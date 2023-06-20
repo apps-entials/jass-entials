@@ -1,26 +1,23 @@
 package com.github.lucaengel.jass_entials.game
 
-import androidx.compose.foundation.Image
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -29,14 +26,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import com.github.lucaengel.jass_entials.data.cards.Card
 import com.github.lucaengel.jass_entials.data.cards.Deck
 import com.github.lucaengel.jass_entials.data.cards.Player
@@ -85,6 +81,7 @@ fun JassRoundPreview() {
                 GameState(
                     players,
                     player1,
+                    player3,
                     1,
                     players.mapIndexed { index, player ->
                         player to Deck.STANDARD_DECK.cards[index]
@@ -157,16 +154,10 @@ fun JassRound(
 
 @Composable
 private fun JassMiddleRowInfo(gameState: GameState, currentPlayerIdx: Int) {
-    Row {
+    Row() {
 
         val leftPlayer = gameState.players[(currentPlayerIdx + 3) % 4]
-//        Box(
-//            modifier = Modifier
-//                .fillMaxHeight(0.5F)
-//                .fillMaxWidth(0.25F)
-//                .weight(1f),
-//            contentAlignment = Alignment.Center
-//        ) {
+
         JassComposables.PlayerBox(
             player = leftPlayer,
             playerSpot = 3,
@@ -174,7 +165,6 @@ private fun JassMiddleRowInfo(gameState: GameState, currentPlayerIdx: Int) {
                 .fillMaxHeight(0.5F)
                 .fillMaxWidth(0.25F)
                 .weight(1f))
-//        }
 
         Spacer(modifier = Modifier.weight(0.1f))
 
@@ -204,49 +194,37 @@ fun CurrentTrick(gameState: GameState, currentPlayerIdx: Int) {
     val currentTrick = gameState.currentTrick
     println("currentTrick: $currentTrick")
 
+    val startingPlayerIdx = gameState.players.indexOf(gameState.startingPlayer)
     // 0 is bottom, 1 is right, 2 is top, 3 is left
-    val idxToCards = (0 .. 3)
-        .map { idx -> idx to gameState.players[(currentPlayerIdx + idx) % 4] }
-        .map { (i, player) -> i to currentTrick.getOrDefault(player, null) }
-
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-
+    val idxToCards = (0..3)
+        .map { idx -> Triple(idx, gameState.players[(currentPlayerIdx + idx) % 4], Math.floorMod(currentPlayerIdx + idx - startingPlayerIdx, 4)) }
+        .associate { (i, player, zIndex) -> i to Pair(currentTrick.getOrDefault(player, null), zIndex) }
 
         val screenWidth = LocalConfiguration.current.screenWidthDp.dp
         val cardWidth = screenWidth.value / 10
         val cardHeight = cardWidth * 1.5f
 
-        CardBox(card = idxToCards[3].second)
+    BoxWithConstraints(
+        contentAlignment = Alignment.TopCenter
+    ) {
 
-        Row {
-            CardBox(
-                card = idxToCards[2].second,
-                modifier = Modifier
-                    .graphicsLayer {
-                    translationY = - cardHeight / 2
-                }
-            )
+        Column {
+            CardBox(card = idxToCards[2]?.first, modifier = Modifier.zIndex(idxToCards[3]?.second?.toFloat() ?: 0f))
 
-            Spacer(modifier = Modifier.width((cardWidth / 2).dp))
-
-            CardBox(
-                card = idxToCards[1].second,
-                modifier = Modifier
-                    .graphicsLayer {
-                        translationY = - cardHeight / 2
-                    }
-            )
+            CardBox(card = idxToCards[0]?.first, modifier = Modifier.zIndex(idxToCards[3]?.second?.toFloat() ?: 0f))
         }
 
-        CardBox(
-            card = idxToCards[0].second,
-            modifier = Modifier
-                .graphicsLayer {
-                    translationY = - cardHeight
-                },
-        )
+        Column {
+            Spacer(modifier = Modifier.height((cardHeight / 2).dp))
+
+            Row() {
+                CardBox(card = idxToCards[3]?.first, modifier = Modifier.zIndex(idxToCards[3]?.second?.toFloat() ?: 0f))
+
+                Spacer(modifier = Modifier.width((cardWidth / 4).dp))
+
+                CardBox(card = idxToCards[1]?.first, modifier = Modifier.zIndex(idxToCards[3]?.second?.toFloat() ?: 0f))
+            }
+        }
     }
 }
 
@@ -266,7 +244,6 @@ fun CardBox(card: Card?, modifier: Modifier = Modifier) {
                 contentDescription = card.toString(),
                 modifier = Modifier
                     .fillMaxHeight()
-//                        .align(Alignment.BottomCenter)
                     .fillMaxSize(),
             )
         }
