@@ -40,18 +40,34 @@ class JassComposables {
             val cardHeight = cardWidth * 1.5f
 
             val nbCards = player.cards.size
-            val displacements = (0 until nbCards)
-                .map { (it - (nbCards / 2)).absoluteValue * (cardWidth * 1.2) }// - if (nbCards % 2 == 0) cardWidth / 2 else 0f }
+            val cardNbIsEven = nbCards % 2 == 0
+
+
+            // offset, rotation
+            val displacements = (if (!cardNbIsEven) (0 until nbCards) else (0 .. nbCards).filter { it != nbCards / 2 })
+                .map {
+                    // move cards closer to the middle (to compensate for the 'missing' middle card)
+                    val evenCardsCorrection = if (cardNbIsEven) cardWidth / 2 * 1.1f else 0f
+                    Pair(
+                        (it - (nbCards / 2)).absoluteValue * (1.2 * cardWidth) - 1.2 * evenCardsCorrection,
+                        (it - (nbCards / 2)) * 5f
+                    )
+                } //- if (nbCards % 2 == 0) cardWidth / 2 else 0f }
+//                .mapIndexed{ idx, offset -> Pair(offset, (idx - (nbCards / 2)) * 5f) }
+            println("displacements = $displacements")
+            println((if (!cardNbIsEven) (0 until nbCards) else (0..nbCards).filter { it != nbCards / 2 }))
 
             BoxWithConstraints(
                 contentAlignment = Alignment.BottomCenter,
             ) {
                 player.cards.mapIndexed { idx, card ->
+                    val spaceBefore = idx >= nbCards / 2
                     Row {
-                        if (idx > nbCards / 2) Spacer(modifier = Modifier.width(displacements[idx].dp))
+                        if (spaceBefore) Spacer(modifier = Modifier.width(displacements[idx].first.dp))
 
                         Column {
-                            Spacer(modifier = Modifier.height(((idx - nbCards / 2).absoluteValue * (cardHeight / 9f)).dp))
+                            val heightLevel = if (cardNbIsEven && idx >= nbCards / 2) (idx+1 - nbCards / 2).absoluteValue else (idx - nbCards / 2).absoluteValue
+                            Spacer(modifier = Modifier.height((heightLevel * (cardHeight / 9f)).dp))
 
                             Image(
                                 painter = painterResource(id = Card.getCardImage(card)),
@@ -60,12 +76,13 @@ class JassComposables {
                                     .requiredHeight((cardHeight).dp)
                                     .requiredWidth(cardWidth.dp)
                                     .graphicsLayer {
-                                        rotationZ = (idx - (nbCards / 2)) * 5f
+                                        rotationZ =
+                                            displacements[idx].second //(idx - (nbCards / 2)) * 5f
                                     }
                                     .clickable { onPlayCard(card) },
                             )
                         }
-                        if (idx <= nbCards / 2) Spacer(modifier = Modifier.width(displacements[idx].dp))
+                        if (!spaceBefore) Spacer(modifier = Modifier.width(displacements[idx].first.dp))
 
                     }
                 }
