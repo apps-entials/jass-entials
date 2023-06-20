@@ -44,8 +44,6 @@ class JassComposables {
 //                verticalAlignment = Alignment.Bottom
 //            ) {
 
-                val edgeSpace = screenWidth.value / 10 / 2f
-
                 val cardWidth = screenWidth.value / 10 * 1.5f
                 val cardHeight = cardWidth * 1.5f
 
@@ -71,7 +69,7 @@ class JassComposables {
                                         .requiredHeight((cardHeight).dp)
                                         .requiredWidth(cardWidth.dp)
                                         .graphicsLayer {
-                                            rotationZ = (idx - (nbCards / 2f)) * 5f
+                                            rotationZ = (idx - (nbCards / 2)) * 5f
                                         },
                                 )
                             }

@@ -18,7 +18,7 @@ class GameStateHolder {
             player1,
             player3,
             1,
-            players.mapIndexed { index, player ->
+            players/*.subList(0,2)*/.mapIndexed { index, player ->
                 player to Deck.STANDARD_DECK.cards[index]
             }.toMap(),
             1,
