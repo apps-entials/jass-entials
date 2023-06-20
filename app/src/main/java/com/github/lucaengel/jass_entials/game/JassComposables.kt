@@ -61,12 +61,15 @@ class JassComposables {
                 contentAlignment = Alignment.BottomCenter,
             ) {
                 player.cards.mapIndexed { idx, card ->
-                    val spaceBefore = idx >= nbCards / 2
+                    val shouldPlaceCardRight = idx >= nbCards / 2
                     Row {
-                        if (spaceBefore) Spacer(modifier = Modifier.width(displacements[idx].first.dp))
+                        if (shouldPlaceCardRight) Spacer(modifier = Modifier.width(displacements[idx].first.dp))
 
                         Column {
-                            val heightLevel = if (cardNbIsEven && idx >= nbCards / 2) (idx+1 - nbCards / 2).absoluteValue else (idx - nbCards / 2).absoluteValue
+                            val heightLevel = (
+                                    if (cardNbIsEven && idx >= nbCards / 2) (idx+1 - nbCards / 2)
+                                    else (idx - nbCards / 2)
+                                ).absoluteValue
                             Spacer(modifier = Modifier.height((heightLevel * (cardHeight / 9f)).dp))
 
                             Image(
@@ -82,7 +85,7 @@ class JassComposables {
                                     .clickable { onPlayCard(card) },
                             )
                         }
-                        if (!spaceBefore) Spacer(modifier = Modifier.width(displacements[idx].first.dp))
+                        if (!shouldPlaceCardRight) Spacer(modifier = Modifier.width(displacements[idx].first.dp))
 
                     }
                 }
