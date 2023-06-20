@@ -84,16 +84,18 @@ fun JassRoundPreview() {
 
 @Composable
 fun JassRound(
-    currentPlayer: Player,
+    currPlayer: Player,
     gState: GameState,
 ) {
     var currentPlayerIdx by remember { mutableStateOf(0) }
 
     var gameState by remember { mutableStateOf(GameStateHolder.gameState) }
+    var currentPlayer by remember { mutableStateOf(GameStateHolder.currentPlayer) }
 
     LaunchedEffect(key1 = true) {
         gameState = gState
-        currentPlayerIdx = gameState.players.indexOfFirst { it.email == currentPlayer.email }
+        currentPlayer = currPlayer
+        currentPlayerIdx = gameState.players.indexOfFirst { it.email == currPlayer.email }
     }
 
     Column(
@@ -109,14 +111,21 @@ fun JassRound(
         JassMiddleRowInfo(gameState = gameState, currentPlayerIdx = currentPlayerIdx)
         Spacer(modifier = Modifier.weight(1f))
 
-        JassComposables.CurrentPlayerBox(player = currentPlayer)
+        JassComposables.CurrentPlayerBox(
+            player = currentPlayer,
+            onPlayCard = {
+                if (!gameState.currentTrick.containsKey(currentPlayer)) {
+                    gameState = gameState.playCard(currentPlayer, it)
+                    currentPlayer = currentPlayer.copy(cards = currentPlayer.cards.filter { card -> card != it })
+                }
+            },
+        )
     }
 }
 
 @Composable
 private fun JassMiddleRowInfo(gameState: GameState, currentPlayerIdx: Int) {
     Row() {
-
         val leftPlayer = gameState.players[(currentPlayerIdx + 3) % 4]
         JassComposables.PlayerBox(
             player = leftPlayer,
@@ -151,6 +160,7 @@ private fun JassMiddleRowInfo(gameState: GameState, currentPlayerIdx: Int) {
 fun CurrentTrick(gameState: GameState, currentPlayerIdx: Int) {
 
     val currentTrick = gameState.currentTrick
+    println("currentTrick: $currentTrick")
 
     val startingPlayerIdx = gameState.players.indexOf(gameState.startingPlayer)
 

@@ -2,6 +2,7 @@ package com.github.lucaengel.jass_entials.game
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -32,89 +33,43 @@ class JassComposables {
 
     companion object {
         @Composable
-        fun CurrentPlayerBox(player: Player, isPlayingRound: Boolean = false) {
+        fun CurrentPlayerBox(player: Player, onPlayCard: (Card) -> Unit = {}, isPlayingRound: Boolean = false) {
 
             val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+            val cardWidth = screenWidth.value / 10 * 1.5f
+            val cardHeight = cardWidth * 1.5f
 
-//            Row(
-//                Modifier
-//                    .fillMaxWidth()
-//                    .width(screenWidth),
-////                horizontalArrangement = Arrangement.Center,
-//                verticalAlignment = Alignment.Bottom
-//            ) {
+            val nbCards = player.cards.size
+            val displacements = (0 until nbCards)
+                .map { (it - (nbCards / 2)).absoluteValue * (cardWidth * 1.2) }// - if (nbCards % 2 == 0) cardWidth / 2 else 0f }
 
-                val cardWidth = screenWidth.value / 10 * 1.5f
-                val cardHeight = cardWidth * 1.5f
+            BoxWithConstraints(
+                contentAlignment = Alignment.BottomCenter,
+            ) {
+                player.cards.mapIndexed { idx, card ->
+                    Row {
+                        if (idx > nbCards / 2) Spacer(modifier = Modifier.width(displacements[idx].dp))
 
-                val nbCards = player.cards.size
-                val displacements = (0 until nbCards)
-                    .map { (it - (nbCards / 2)).absoluteValue * (cardWidth * 1.2) }// - if (nbCards % 2 == 0) cardWidth / 2 else 0f }
+                        Column {
+                            Spacer(modifier = Modifier.height(((idx - nbCards / 2).absoluteValue * (cardHeight / 9f)).dp))
 
-                println("displacements: $displacements")
-                BoxWithConstraints(
-                    contentAlignment = Alignment.BottomCenter,
-                ) {
-                    player.cards.mapIndexed { idx, card ->
-                        Row {
-                            if (idx > nbCards / 2) Spacer(modifier = Modifier.width(displacements[idx].dp))
-
-                            Column {
-                                Spacer(modifier = Modifier.height(((idx - nbCards / 2).absoluteValue * (cardHeight / 9f)).dp))
-
-                                Image(
-                                    painter = painterResource(id = Card.getCardImage(card)),
-                                    contentDescription = card.toString(),
-                                    modifier = Modifier
-                                        .requiredHeight((cardHeight).dp)
-                                        .requiredWidth(cardWidth.dp)
-                                        .graphicsLayer {
-                                            rotationZ = (idx - (nbCards / 2)) * 5f
-                                        },
-                                )
-                            }
-                            if (idx <= nbCards / 2) Spacer(modifier = Modifier.width(displacements[idx].dp))
-
+                            Image(
+                                painter = painterResource(id = Card.getCardImage(card)),
+                                contentDescription = card.toString(),
+                                modifier = Modifier
+                                    .requiredHeight((cardHeight).dp)
+                                    .requiredWidth(cardWidth.dp)
+                                    .graphicsLayer {
+                                        rotationZ = (idx - (nbCards / 2)) * 5f
+                                    }
+                                    .clickable { onPlayCard(card) },
+                            )
                         }
+                        if (idx <= nbCards / 2) Spacer(modifier = Modifier.width(displacements[idx].dp))
+
                     }
                 }
-
-//                val middle = (player.cards.size / 2f) - 0.5f
-////        player.cards.zip(adjustments).mapIndexed { idx, (card, xTranslate) ->
-//                player.cards.mapIndexed { idx, card ->
-//                    // index in the list of cards
-//                    var cardTranslationX = 0f
-//                    var cardTranslationY = 0f
-//
-//                    Box(
-//                        modifier = Modifier
-//                            .graphicsLayer {
-//                                rotationZ = (idx - middle) * 5f
-//                                translationY = (idx - middle)*(idx - middle)*0.05f*cardHeight
-////                        translationX = cardTranslationX
-//                                translationX = /*xTranslate*/(idx - middle) * cardWidth * (-0.5f)
-//                            }
-//                            .requiredWidth(cardWidth.dp)
-//                            .requiredHeight(cardHeight.dp),
-////                    .background(
-////                        MaterialTheme.colorScheme.primaryContainer,
-////                        shape = RoundedCornerShape(10.dp)
-////                    ),
-//                        contentAlignment = Alignment.BottomCenter
-//
-//                    ) {
-//                        Image(
-//                            painter = painterResource(id = Card.getCardImage(card)),
-//                            contentDescription = card.toString(),
-//                            modifier = Modifier
-//                                .fillMaxHeight()
-//                                .align(Alignment.BottomCenter)
-//                                .fillMaxSize()
-//                        )
-//                    }
-//                }
-//            }
-//    PlayerBox(player = player, bettingState = bettingState, playerSpot = playerSpot)
+            }
         }
 
         /**

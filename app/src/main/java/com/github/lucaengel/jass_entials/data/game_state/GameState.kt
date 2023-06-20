@@ -45,8 +45,12 @@ data class GameState(
     }
 
     fun playCard(player: Player, card: Card): GameState {
+
+        val newPlayer = player.copy(cards = player.cards.filter { c -> c != card })
         return this.copy(
-            currentTrick = currentTrick + (player to card),
+            currentTrick = currentTrick + (newPlayer to card),
+            players = players.map { if (it == player) newPlayer else it },
+            playerCards = playerCards.map { if (it.key == player) newPlayer to newPlayer.cards else it.key to it.value }.toMap(),
         )
     }
 
