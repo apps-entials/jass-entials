@@ -38,5 +38,15 @@ enum class Trump(private val asString: String) {
                     suit == Suit.SPADES && trump == SPADES ||
                     suit == Suit.CLUBS && trump == CLUBS
         }
+
+        fun asSuit(trump: Trump): Suit? {
+            return when (trump) {
+                DIAMONDS -> Suit.DIAMONDS
+                HEARTS -> Suit.HEARTS
+                SPADES -> Suit.SPADES
+                CLUBS -> Suit.CLUBS
+                else -> null
+            }
+        }
     }
 }

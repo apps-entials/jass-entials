@@ -2,6 +2,7 @@ package com.github.lucaengel.jass_entials.data.game_state
 
 import com.github.lucaengel.jass_entials.data.cards.Deck
 import com.github.lucaengel.jass_entials.data.cards.Player
+import com.github.lucaengel.jass_entials.data.cards.Trick
 import com.github.lucaengel.jass_entials.data.jass.JassTypes
 import com.github.lucaengel.jass_entials.data.jass.Trump
 
@@ -54,7 +55,7 @@ data class BettingState(
             currentPlayer = bets.last().player,
             startingPlayer = bets.last().player,
             currentRound = 0,
-            currentTrick = mapOf(),
+            currentTrick = Trick(),
             currentTrickNumber = 0,
             currentTrump = Trump.CLUBS,
             playerCards = Deck.STANDARD_DECK.shuffled().dealCards(players),

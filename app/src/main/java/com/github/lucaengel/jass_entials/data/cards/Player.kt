@@ -1,5 +1,6 @@
 package com.github.lucaengel.jass_entials.data.cards
 
+import com.github.lucaengel.jass_entials.data.jass.Trump
 import java.io.Serializable
 
 /**
@@ -31,25 +32,42 @@ data class Player(
      * @param trump the trump suit
      * @return the cards that can be played
      */
-    fun playableCards(trick: Trick, trump: Suit): List<Card> {
+    fun playableCards(trick: Trick, trump: Trump): List<Card> {
         val firstCard = trick.cards
             .firstOrNull()
             ?: return cards
 
-        val trumpCards = cardsOfSuit(trump)
+        val trumpSuit = Trump.asSuit(trump)
+        val trumpCards: List<Card>
+        if (trumpSuit != null) {
+            trumpCards = cardsOfSuit(trumpSuit)
 
-        // hold suit
-        if (firstCard.suit == trump) {
+            if (firstCard.suit == trumpSuit) {
+                if (trumpCards.isNotEmpty())
+                    return trumpCards
+
+                // no trump cards
+                return cards
+            }
             if (trumpCards.isNotEmpty())
                 return trumpCards
-
-            // no trump cards
-            return cards
+        } else {
+            trumpCards = listOf()
         }
+//        val trumpCards = Trump.asSuit(trump).let { if (it != null) cardsOfSuit(it) else listOf() }
+//
+//        // hold suit
+//        if (firstCard.suit == trump) {
+//            if (trumpCards.isNotEmpty())
+//                return trumpCards
+//
+//            // no trump cards
+//            return cards
+//        }
 
         val firstCardSuitCards = cardsOfSuit(firstCard.suit)
 
-        val playableTrumpCards = playableTrumpCards(trumpCards, trick, trump)
+        val playableTrumpCards = playableTrumpCards(trumpCards, trick, trumpSuit)
 
         val playableCards = firstCardSuitCards + playableTrumpCards
 
@@ -62,8 +80,10 @@ data class Player(
     private fun playableTrumpCards(
         trumpCards: List<Card>,
         trick: Trick,
-        trump: Suit
+        trump: Suit?
     ): List<Card> {
+        if (trump == null) return listOf()
+
         var playableTrumpCards = trumpCards
 
         return when (trick.cards.indexOfFirst { it.suit == trump }) {

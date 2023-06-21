@@ -2,6 +2,7 @@ package com.github.lucaengel.jass_entials.data.game_state
 
 import com.github.lucaengel.jass_entials.data.cards.Deck
 import com.github.lucaengel.jass_entials.data.cards.Player
+import com.github.lucaengel.jass_entials.data.cards.Trick
 import com.github.lucaengel.jass_entials.data.jass.Trump
 
 class GameStateHolder {
@@ -18,9 +19,7 @@ class GameStateHolder {
             player1,
             player3,
             1,
-            players/*.subList(0,2)*/.mapIndexed { index, player ->
-                player to Deck.STANDARD_DECK.cards[index]
-            }.toMap(),
+            Trick(Deck.STANDARD_DECK.cards.subList(0, 2)),
             1,
             Trump.UNGER_UFE,
             Deck.STANDARD_DECK.dealCards(players),

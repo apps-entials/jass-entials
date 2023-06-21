@@ -1,6 +1,7 @@
 package com.github.lucaengel.jass_entials.game
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -27,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
@@ -87,6 +89,7 @@ fun JassRound(
     currPlayer: Player,
     gState: GameState,
 ) {
+    val context = LocalContext.current
     var currentPlayerIdx by remember { mutableStateOf(0) }
 
     var gameState by remember { mutableStateOf(GameStateHolder.gameState) }
@@ -114,10 +117,30 @@ fun JassRound(
         JassComposables.CurrentPlayerBox(
             player = currentPlayer,
             onPlayCard = {
-                if (!gameState.currentTrick.containsKey(currentPlayer)) {
-                    gameState = gameState.playCard(currentPlayer, it)
-                    currentPlayer = currentPlayer.copy(cards = currentPlayer.cards.filter { card -> card != it })
+                if (gameState.currentTrick.cards.size != currentPlayerIdx) {
+                    Toast.makeText(
+                        context,
+                        "It is not your turn",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return@CurrentPlayerBox
                 }
+
+                if (!currentPlayer
+                        .playableCards(gameState.currentTrick, gameState.currentTrump)
+                        .contains(it)) {
+                    Toast.makeText(
+                        context,
+                        "You can't play this card",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return@CurrentPlayerBox
+                }
+
+                gameState = gameState.playCard(currentPlayer, it)
+                currentPlayer = currentPlayer.copy(
+                    cards = currentPlayer.cards.filter { card -> card != it }
+                )
             },
         )
     }
@@ -160,14 +183,12 @@ private fun JassMiddleRowInfo(gameState: GameState, currentPlayerIdx: Int) {
 fun CurrentTrick(gameState: GameState, currentPlayerIdx: Int) {
 
     val currentTrick = gameState.currentTrick
-    println("currentTrick: $currentTrick")
-
     val startingPlayerIdx = gameState.players.indexOf(gameState.startingPlayer)
 
     // 0 is bottom, 1 is right, 2 is top, 3 is left
     val idxToCards = (0..3)
-        .map { idx -> Triple(idx, gameState.players[(currentPlayerIdx + idx) % 4], Math.floorMod(currentPlayerIdx + idx - startingPlayerIdx, 4)) }
-        .associate { (i, player, zIndex) -> i to Pair(currentTrick.getOrDefault(player, null), zIndex) }
+        .map { idx -> Triple(idx, /*gameState.players[(currentPlayerIdx + idx) % 4]*/(currentPlayerIdx + idx) % 4, Math.floorMod(currentPlayerIdx + idx - startingPlayerIdx, 4)) }
+        .associate { (i, playerIdx, zIndex) -> i to Pair(currentTrick.cards.getOrNull(playerIdx), zIndex) }
 
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val cardWidth = screenWidth.value / 10

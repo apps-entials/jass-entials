@@ -3,6 +3,7 @@ package com.github.lucaengel.jass_entials.data.game_state
 import com.github.lucaengel.jass_entials.data.cards.Card
 import com.github.lucaengel.jass_entials.data.cards.Deck
 import com.github.lucaengel.jass_entials.data.cards.Player
+import com.github.lucaengel.jass_entials.data.cards.Trick
 import com.github.lucaengel.jass_entials.data.jass.Trump
 import java.io.Serializable
 
@@ -11,7 +12,7 @@ data class GameState(
     val currentPlayer: Player, // player that has to play the next card
     val startingPlayer: Player, // player that started the current trick
     val currentRound: Int,
-    val currentTrick: Map<Player, Card> = mapOf(),
+    val currentTrick: Trick = Trick(),
     val currentTrickNumber: Int = 0,
     val currentTrump: Trump = Trump.CLUBS,
     val playerCards: Map<Player, List<Card>> = mapOf(),
@@ -22,7 +23,7 @@ data class GameState(
         currentPlayer = Player(),
         startingPlayer = Player(),
         currentRound = 0,
-        currentTrick = mapOf(),
+        currentTrick = Trick(),
         currentTrickNumber = 0,
         currentTrump = Trump.CLUBS,
         playerCards = mapOf(),
@@ -32,7 +33,7 @@ data class GameState(
             return this.nextRound()
 
         return this.copy(
-            currentTrick = mapOf(),
+            currentTrick = Trick(),
             currentTrickNumber = currentTrickNumber + 1,
         )
     }
@@ -48,7 +49,7 @@ data class GameState(
 
         val newPlayer = player.copy(cards = player.cards.filter { c -> c != card })
         return this.copy(
-            currentTrick = currentTrick + (newPlayer to card),
+            currentTrick = currentTrick.copy(cards = currentTrick.cards + card),
             players = players.map { if (it == player) newPlayer else it },
             playerCards = playerCards.map { if (it.key == player) newPlayer to newPlayer.cards else it.key to it.value }.toMap(),
         )
