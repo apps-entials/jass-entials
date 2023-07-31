@@ -22,8 +22,9 @@ class JassRoundActivityTest {
     @Test
     fun correctInitialScreenContent() {
         ActivityScenario.launch<JassRoundActivity>(defaultJassRoundIntent).use {
-            composeTestRule.onNodeWithText("Jass Round Activity!")
-                .assertExists()
+            composeTestRule.onNodeWithText("first_2 second_2").assertExists()
+            composeTestRule.onNodeWithText("first_3 second_3").assertExists()
+            composeTestRule.onNodeWithText("first_4 second_4").assertExists()
         }
     }
 }
