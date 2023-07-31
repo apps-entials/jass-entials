@@ -4,6 +4,13 @@ container:
   memory: 16G
   kvm: true
 
+matrix:
+  # add more JDK versions here
+  - name: Cirrus - JDK17
+    env:
+      OPENJDK_VERSION: "17.0.0"
+      OPENJDK_PATH: "jdk-17"
+
 env:
   CC_TEST_REPORTER_ID: ENCRYPTED[!942125cb3ea65a81b33ed29fae738238f9060dfe3594af3e63b76f040c72b321905507ae5822965c7b031109cf07e3c8!]
 
