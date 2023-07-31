@@ -1,6 +1,5 @@
 package com.github.lucaengel.jass_entials.data.game_state
 
-import com.github.lucaengel.jass_entials.data.cards.Deck
 import com.github.lucaengel.jass_entials.data.cards.Player
 import com.github.lucaengel.jass_entials.data.cards.Trick
 import com.github.lucaengel.jass_entials.data.jass.JassTypes
