@@ -23,6 +23,10 @@ steps:
     command: echo "org.gradle.java.home=$JAVA_HOME" >> /tmp/cirrus-ci-build/gradle.properties
     shell: bash
 
+  - name: Set Java version for Gradle wrapper
+    command: ./gradlew wrapper --gradle-version 7.1 --distribution-type all --continue
+    working_directory: /tmp/cirrus-ci-build
+
   - name: Build Debug Android Test
     command: ./gradlew assembleDebugAndroidTest
     working_directory: /tmp/cirrus-ci-build
