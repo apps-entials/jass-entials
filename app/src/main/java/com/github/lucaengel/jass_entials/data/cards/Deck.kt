@@ -12,6 +12,7 @@ data class Deck(val cards: List<Card> = listOf()) {
         return players.zip(cards.chunked(9)).toMap()
     }
 
+
     companion object {
         val STANDARD_DECK = Deck(
             Suit.values().flatMap { suit ->
@@ -20,5 +21,9 @@ data class Deck(val cards: List<Card> = listOf()) {
                 }
             }
         )
+
+        fun sortPlayerCards(cards: List<Card>): List<Card> {
+            return cards.sortedWith(compareBy({ it.suit }, { -it.rank.ordinal }))
+        }
     }
 }
