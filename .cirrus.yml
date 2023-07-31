@@ -27,6 +27,8 @@ steps:
     command: ./gradlew assembleDebugAndroidTest
     working_directory: /tmp/cirrus-ci-build
 
+
+
 env:
   CC_TEST_REPORTER_ID: ENCRYPTED[!942125cb3ea65a81b33ed29fae738238f9060dfe3594af3e63b76f040c72b321905507ae5822965c7b031109cf07e3c8!]
 
