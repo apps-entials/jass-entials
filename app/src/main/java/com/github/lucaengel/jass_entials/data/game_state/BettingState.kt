@@ -46,11 +46,12 @@ data class BettingState(
         return Trump.values().toList()
     }
 
-    fun startGame(): GameState { // TODO: make sure to have the same random seed for every player!!!
+    fun startGame(currentPlayerIdx: Int): GameState { // TODO: make sure to have the same random seed for every player!!!
         if (bets.isEmpty()) // TODO: handle this case better! (restart betting phase)
             throw IllegalStateException("Cannot start game without bets")
 
         return GameState(
+            currentPlayerIdx,
             players = players,
             currentPlayer = bets.last().player,
             startingPlayer = bets.last().player,
@@ -58,7 +59,7 @@ data class BettingState(
             currentTrick = Trick(),
             currentTrickNumber = 0,
             currentTrump = Trump.CLUBS,
-            playerCards = Deck.STANDARD_DECK.shuffled().dealCards(players),
+            playerCards = players.zip(players.map { it.cards }).toMap(),
         )
     }
 }

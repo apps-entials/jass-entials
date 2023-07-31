@@ -72,11 +72,12 @@ class SidiBarahniPreRoundActivity : ComponentActivity() {
 //@Preview
 @Composable
 fun MyPreview() {
+    val shuffledDeck = Deck.STANDARD_DECK.shuffled()
 
-    val player1 = Player("email_1", 0, "first_1", "second_1", Deck.STANDARD_DECK.cards.subList(0, 9), 0, "123")
-    val player2 = Player("email_2", 0, "first_2", "second_2", Deck.STANDARD_DECK.cards.subList(9, 18), 0, "123")
-    val player3 = Player("email_3", 0, "first_3", "second_3", Deck.STANDARD_DECK.cards.subList(18, 27), 0, "123")
-    val player4 = Player("email_4", 0, "first_4", "second_4", Deck.STANDARD_DECK.cards.subList(27, 36), 0, "123")
+    val player1 = Player("email_1", 0, "first_1", "second_1", Deck.sortPlayerCards(shuffledDeck.cards.subList(0, 9)), 0, "123")
+    val player2 = Player("email_2", 0, "first_2", "second_2", Deck.sortPlayerCards(shuffledDeck.cards.subList(9, 18)), 0, "123")
+    val player3 = Player("email_3", 0, "first_3", "second_3", Deck.sortPlayerCards(shuffledDeck.cards.subList(18, 27)), 0, "123")
+    val player4 = Player("email_4", 0, "first_4", "second_4", Deck.sortPlayerCards(shuffledDeck.cards.subList(27, 36)), 0, "123")
 
 
     val currentPlayer = player1
@@ -143,7 +144,7 @@ fun BettingRound(
 //    var bettingState by remember { mutableStateOf(state) }
     // -----------------------------
 
-    var bettingState by remember { mutableStateOf(BettingState()) }
+    var bettingState by remember { mutableStateOf(GameStateHolder.bettingState/*BettingState()*/) }
 
     LaunchedEffect(key1 = true) {
         bettingState = bState
@@ -181,7 +182,8 @@ fun BettingRound(
                     simulatePlayers()
                 },
                 onStartGame = {
-                    val gameState = bettingState.startGame()
+                    val gameState = bettingState.startGame(currentPlayerIdx)
+                    println("gamestate: $gameState")
 
                     val intent = Intent(context, JassRoundActivity::class.java)
 
@@ -216,7 +218,11 @@ private fun MiddleRowInfo(bettingState: BettingState, currentPlayerIdx: Int) {
 //                .weight(1f),
 //            contentAlignment = Alignment.Center
 //        ) {
-        JassComposables.PlayerBox(player = leftPlayer, playerSpot = 3, Modifier.fillMaxHeight(0.5F).fillMaxWidth(0.25f).weight(1f))
+        JassComposables.PlayerBox(player = leftPlayer, playerSpot = 3,
+            Modifier
+                .fillMaxHeight(0.5F)
+                .fillMaxWidth(0.25f)
+                .weight(1f))
 //        }
 
         Spacer(modifier = Modifier.weight(0.1f))

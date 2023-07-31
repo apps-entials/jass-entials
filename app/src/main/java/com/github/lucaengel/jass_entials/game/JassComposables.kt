@@ -65,11 +65,11 @@ class JassComposables {
                     Row {
                         if (shouldPlaceCardRight) Spacer(modifier = Modifier.width(displacements[idx].first.dp))
 
-                        Column {
-                            val heightLevel = (
-                                    if (cardNbIsEven && idx >= nbCards / 2) (idx+1 - nbCards / 2)
-                                    else (idx - nbCards / 2)
-                                ).absoluteValue
+                        val heightLevel = (
+                                if (cardNbIsEven && idx >= nbCards / 2) (idx+1 - nbCards / 2)
+                                else (idx - nbCards / 2)
+                            ).absoluteValue
+                        Column(modifier = Modifier.height(((heightLevel * (cardHeight / 9f)) + cardHeight).dp)) {
                             Spacer(modifier = Modifier.height((heightLevel * (cardHeight / 9f)).dp))
 
                             Image(

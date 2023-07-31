@@ -22,8 +22,27 @@ data class Deck(val cards: List<Card> = listOf()) {
             }
         )
 
+        /**
+         * Sorts the cards of a player in a way that the cards of the same suit are next to each other \
+         * and the red and black suits are alternating.
+         *
+         * @param cards the cards of a player
+         * @return the sorted cards
+         */
         fun sortPlayerCards(cards: List<Card>): List<Card> {
-            return cards.sortedWith(compareBy({ it.suit }, { -it.rank.ordinal }))
+
+            // create list of lists of cards, where each list contains cards of the same suit
+            val sortedCardsBySuit = cards.sortedWith(compareBy({ it.suit }, { -it.rank.ordinal })).groupBy { it.suit }.values.toList()
+
+            val (redSuits, blackSuits) = sortedCardsBySuit.partition { it[0].suit in setOf(Suit.HEARTS, Suit.DIAMONDS) }
+
+            // extend shorter list with empty list to make sure both lists have the same size
+            // (2 empty lists added for the case where the player has only 2 red suits or 2 black suits)
+            val zipped =
+                if (redSuits.size > blackSuits.size) redSuits.zip(blackSuits + listOf(listOf(), listOf()))
+                else blackSuits.zip(redSuits + listOf(listOf(), listOf()))
+
+            return zipped.map { it.first + it.second }.flatten()
         }
     }
 }

@@ -76,8 +76,6 @@ fun JassRoundPreview() {
     JassentialsTheme {
         Surface(color = MaterialTheme.colorScheme.background) {
             JassRound(
-                currentPlayer,
-                GameStateHolder.gameState
             )
         }
     }
@@ -85,20 +83,14 @@ fun JassRoundPreview() {
 
 
 @Composable
-fun JassRound(
-    currPlayer: Player,
-    gState: GameState,
-) {
+fun JassRound() {
     val context = LocalContext.current
-    var currentPlayerIdx by remember { mutableStateOf(0) }
+    var currentPlayerIdx by remember { mutableStateOf(GameStateHolder.gameState.currentPlayerIdx) }
 
     var gameState by remember { mutableStateOf(GameStateHolder.gameState) }
     var currentPlayer by remember { mutableStateOf(GameStateHolder.currentPlayer) }
 
     LaunchedEffect(key1 = true) {
-        gameState = gState
-        currentPlayer = currPlayer
-        currentPlayerIdx = gameState.players.indexOfFirst { it.email == currPlayer.email }
     }
 
     Column(

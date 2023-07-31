@@ -16,6 +16,7 @@ class GameStateHolder {
 
         var currentPlayer = player1
         var gameState: GameState = GameState(
+            0,
             players,
             player1,
             player3,

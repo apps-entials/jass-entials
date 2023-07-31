@@ -8,6 +8,7 @@ import com.github.lucaengel.jass_entials.data.jass.Trump
 import java.io.Serializable
 
 data class GameState(
+    val currentPlayerIdx: Int,
     val players: List<Player> = listOf(),
     val currentPlayer: Player, // player that has to play the next card
     val startingPlayer: Player, // player that started the current trick
@@ -19,6 +20,7 @@ data class GameState(
 ) : Serializable {
 
     constructor() : this(
+        currentPlayerIdx = 0,
         players = listOf(),
         currentPlayer = Player(),
         startingPlayer = Player(),
