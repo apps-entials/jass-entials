@@ -5,6 +5,10 @@ plugins {
     id 'com.google.gms.google-services'
 }
 
+kotlin {
+    jvmToolchain(17)
+}
+
 android {
     namespace 'com.github.lucaengel.jass_entials'
     compileSdk 33
