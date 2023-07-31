@@ -11,43 +11,13 @@ task:
       env:
         OPENJDK_VERSION: "17.0.0"
         OPENJDK_PATH: "jdk-17"
-  env:
-    # disable ANSI output for picocli (may affect tests)
-#    NO_COLOR: "1"
-#    # https://stackoverflow.com/questions/42024619/maven-build-gets-connection-reset-when-downloading-artifacts
-#    MAVEN_OPTS: "-Dhttp.keepAlive=false \
-#        -Dmaven.repo.local=%CIRRUS_WORKING_DIR%/.m2 \
-#        -Dmaven.wagon.http.retryHandler.count=3"
-#    MAVEN_VERSION: "3.8.4"
-    PATH: "%PATH%;C:/Program Files/OpenJDK/%OPENJDK_PATH%/bin;\
-#        C:/ProgramData/chocolatey/lib/maven/apache-maven-%MAVEN_VERSION%/bin;\
-#        C:/ProgramData/chocolatey/bin"
-#    install_script:
-#      - choco config set cacheLocation %CIRRUS_WORKING_DIR%/.chocolatey
-#      - choco upgrade -y chocolatey
-#      - choco install -y --no-progress ant
-#      - choco install -y --no-progress maven --version %MAVEN_VERSION%
-#      - choco install -y --no-progress openjdk --version %OPENJDK_VERSION%
-#      # - choco install -y --no-progress xsltproc
-#      # - choco install -y --no-progress xmlstarlet
-#    version_script:
-#      - set
-#      - ant -version
-#      - java --version
-#      - mvn --version
-#      # - xsltproc --version
-#      # - xml --version
-#    sevntu_script:
-#      - cd ci
-#      - .ci/validation.cmd sevntu
-#    verify_without_checkstyle_script:
-#      - cd ci
-#      - .ci/validation.cmd verify_without_checkstyle
-#    site_without_verify_script:
-#      - cd ci
-#      - .ci/validation.cmd site_without_verify
 
-
+steps:
+  - name: Set JAVA_HOME
+    command: |
+      export JAVA_HOME="/usr/local/android-sdk/openjdk/${OPENJDK_PATH}"
+      echo "export JAVA_HOME=$JAVA_HOME" >> $HOME/.cirrus-ci-env
+    shell: bash
 
 
 env:
