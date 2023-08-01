@@ -5,7 +5,6 @@ import com.github.lucaengel.jass_entials.data.cards.Deck
 import com.github.lucaengel.jass_entials.data.cards.PlayerData
 import com.github.lucaengel.jass_entials.data.cards.Trick
 import com.github.lucaengel.jass_entials.data.jass.Trump
-import com.github.lucaengel.jass_entials.game.player.Player
 import java.io.Serializable
 
 data class GameState(
@@ -15,7 +14,7 @@ data class GameState(
     val startingPlayerData: PlayerData, // player that started the current trick
     val currentRound: Int,
     val currentTrick: Trick = Trick(),
-    val currentRoundTrickWinners: Map<PlayerData, Trick> = mapOf(),
+    val currentRoundTrickWinners: List<Pair<PlayerData, Trick>> = listOf(),
     val currentTrickNumber: Int = 0,
     val currentTrump: Trump = Trump.CLUBS,
     val playerCards: Map<PlayerData, List<Card>> = mapOf(),
@@ -28,7 +27,7 @@ data class GameState(
         startingPlayerData = PlayerData(),
         currentRound = 0,
         currentTrick = Trick(),
-        currentRoundTrickWinners = mapOf(),
+        currentRoundTrickWinners = listOf(),
         currentTrickNumber = 0,
         currentTrump = Trump.CLUBS,
         playerCards = mapOf(),
@@ -51,6 +50,15 @@ data class GameState(
             currentTrickNumber = currentTrickNumber + 1,
             currentRoundTrickWinners = currentRoundTrickWinners + (currentTrick.winner(trump = currentTrump) to currentTrick),
         )
+    }
+
+    fun points(playerData: PlayerData): Int {
+        // todo: do something about the emails that are not different for guests!!!
+        val lastTrickBonus = if (currentRoundTrickWinners.last().first.email == playerData.email) 5 else 0
+
+        return lastTrickBonus + currentRoundTrickWinners
+            .filter { it.first.email == playerData.email }
+            .sumOf { (_, trick) -> trick.playerToCard.sumOf { it.first.points(currentTrump) } }
     }
 
     private fun nextRound(): GameState {

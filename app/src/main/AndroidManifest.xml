@@ -52,6 +52,12 @@
             android:label="Jass Round Activity"
             android:theme="@style/Theme.Jassentials" >
         </activity>
+        <activity
+            android:name=".game.postgame.SidiBarahniPostRoundActivity"
+            android:exported="true"
+            android:label="SidiBarahni Postgame Activity"
+            android:theme="@style/Theme.Jassentials" >
+        </activity>
     </application>
 
 </manifest>

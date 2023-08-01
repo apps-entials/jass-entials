@@ -22,7 +22,7 @@ class GameStateHolder {
             playerData3,
             1,
             Trick(Deck.STANDARD_DECK.cards.subList(0, 2).mapIndexed { index, card -> Pair(card, players[index]) }),
-            mapOf(),
+            listOf(),
             1,
             Trump.UNGER_UFE,
             Deck.STANDARD_DECK.dealCards(players),

@@ -54,8 +54,8 @@ class JassComposables {
                     )
                 } //- if (nbCards % 2 == 0) cardWidth / 2 else 0f }
 //                .mapIndexed{ idx, offset -> Pair(offset, (idx - (nbCards / 2)) * 5f) }
-            println("displacements = $displacements")
-            println((if (!cardNbIsEven) (0 until nbCards) else (0..nbCards).filter { it != nbCards / 2 }))
+//            println("displacements = $displacements")
+//            println((if (!cardNbIsEven) (0 until nbCards) else (0..nbCards).filter { it != nbCards / 2 }))
 
             BoxWithConstraints(
                 contentAlignment = Alignment.BottomCenter,
