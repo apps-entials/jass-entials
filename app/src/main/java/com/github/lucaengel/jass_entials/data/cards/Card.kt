@@ -56,6 +56,21 @@ data class Card(
         }
     }
 
+    fun isHigherThan(that: Card, trump: Trump): Boolean {
+        if (Trump.isSuitTrumpSuit(suit, trump)) {
+            if (Trump.isSuitTrumpSuit(that.suit, trump)) {
+                return rank.trumpHeight > that.rank.trumpHeight
+            }
+            return true
+        }
+
+        if (Trump.isSuitTrumpSuit(that.suit, trump)) {
+            return false
+        }
+
+        return rank > that.rank
+    }
+
     override fun toString(): String {
         return "$rank${suit.symbol}"
     }

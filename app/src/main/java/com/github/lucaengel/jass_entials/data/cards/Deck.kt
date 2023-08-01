@@ -8,8 +8,8 @@ data class Deck(val cards: List<Card> = listOf()) {
         return this.copy(cards = cards.shuffled())
     }
 
-    fun dealCards(players: List<Player>): Map<Player, List<Card>> {
-        return players.zip(cards.chunked(9)).toMap()
+    fun dealCards(playerData: List<PlayerData>): Map<PlayerData, List<Card>> {
+        return playerData.zip(cards.chunked(9)).toMap()
     }
 
 

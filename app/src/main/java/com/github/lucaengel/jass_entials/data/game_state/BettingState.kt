@@ -1,21 +1,21 @@
 package com.github.lucaengel.jass_entials.data.game_state
 
-import com.github.lucaengel.jass_entials.data.cards.Player
+import com.github.lucaengel.jass_entials.data.cards.PlayerData
 import com.github.lucaengel.jass_entials.data.cards.Trick
 import com.github.lucaengel.jass_entials.data.jass.JassTypes
 import com.github.lucaengel.jass_entials.data.jass.Trump
 
 data class BettingState(
-    val players: List<Player>,
-    val currentBetter: Player,
+    val playerData: List<PlayerData>,
+    val currentBetter: PlayerData,
     val jassType: JassTypes,
     val bets: List<Bet>,
     val gameState: GameState,
 ){
 
     constructor(): this(
-        players = listOf(Player(), Player(), Player(), Player()),
-        currentBetter = Player(),
+        playerData = listOf(PlayerData(), PlayerData(), PlayerData(), PlayerData()),
+        currentBetter = PlayerData(),
         jassType = JassTypes.SCHIEBER,
         bets = listOf(),
         gameState = GameState(),
@@ -24,9 +24,9 @@ data class BettingState(
     fun nextPlayer(placedBet: Bet? = null): BettingState {
 
 
-        val nextPlayerIdx = (players.indexOf(currentBetter) + 1) % players.size
+        val nextPlayerIdx = (playerData.indexOf(currentBetter) + 1) % playerData.size
         return this.copy(
-            currentBetter = players[nextPlayerIdx],
+            currentBetter = playerData[nextPlayerIdx],
             bets = if (placedBet != null) bets + placedBet else bets,
         )
     }
@@ -38,7 +38,7 @@ data class BettingState(
     }
 
     fun availableTrumps(): List<Trump> {
-        if (bets.lastOrNull()?.player == currentBetter) {
+        if (bets.lastOrNull()?.playerData == currentBetter) {
             return Trump.values().filter { it != bets.last().suit }
         }
 
@@ -49,18 +49,20 @@ data class BettingState(
         if (bets.isEmpty()) // TODO: handle this case better! (restart betting phase)
             throw IllegalStateException("Cannot start game without bets")
 
+        println("betting state current player: ${playerData[currentPlayerIdx]}")
+
         return GameState(
             currentPlayerIdx,
-            players = players,
-            currentPlayer = bets.last().player,
-            startingPlayer = bets.last().player,
+            playerDatas = playerData,
+            currentPlayerData = bets.last().playerData,
+            startingPlayerData = bets.last().playerData,
             currentRound = 0,
             currentTrick = Trick(),
             currentTrickNumber = 0,
             currentTrump = Trump.CLUBS,
-            playerCards = players.zip(players.map { it.cards }).toMap(),
+            playerCards = playerData.zip(playerData.map { it.cards }).toMap(),
         )
     }
 }
 
-data class Bet(val player: Player, val suit: Trump, val bet: Int)
+data class Bet(val playerData: PlayerData, val suit: Trump, val bet: Int)

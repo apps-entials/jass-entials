@@ -26,20 +26,20 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.github.lucaengel.jass_entials.data.cards.Card
-import com.github.lucaengel.jass_entials.data.cards.Player
+import com.github.lucaengel.jass_entials.data.cards.PlayerData
 import kotlin.math.absoluteValue
 
 class JassComposables {
 
     companion object {
         @Composable
-        fun CurrentPlayerBox(player: Player, onPlayCard: (Card) -> Unit = {}, isPlayingRound: Boolean = false) {
+        fun CurrentPlayerBox(playerData: PlayerData, onPlayCard: (Card) -> Unit = {}, isPlayingRound: Boolean = false) {
 
             val screenWidth = LocalConfiguration.current.screenWidthDp.dp
             val cardWidth = screenWidth.value / 10 * 1.5f
             val cardHeight = cardWidth * 1.5f
 
-            val nbCards = player.cards.size
+            val nbCards = playerData.cards.size
             val cardNbIsEven = nbCards % 2 == 0
 
 
@@ -60,7 +60,7 @@ class JassComposables {
             BoxWithConstraints(
                 contentAlignment = Alignment.BottomCenter,
             ) {
-                player.cards.mapIndexed { idx, card ->
+                playerData.cards.mapIndexed { idx, card ->
                     val shouldPlaceCardRight = idx >= nbCards / 2
                     Row {
                         if (shouldPlaceCardRight) Spacer(modifier = Modifier.width(displacements[idx].first.dp))
@@ -95,11 +95,11 @@ class JassComposables {
         /**
          * Player box for displaying information
          *
-         * @param player The player to display
+         * @param playerData The player to display
          * @param playerSpot The spot of the player in the game (0 = bottom, 1 = right, 2 = top, 3 = left)
          */
         @Composable
-        fun PlayerBox(player: Player, playerSpot: Int, modifier: Modifier = Modifier) {
+        fun PlayerBox(playerData: PlayerData, playerSpot: Int, modifier: Modifier = Modifier) {
             val isCurrentUser = playerSpot == 0
             Box(
                 modifier = modifier.fillMaxWidth(0.25f),
@@ -114,7 +114,7 @@ class JassComposables {
                         .padding(5.dp)
                 ) {
                     Text(
-                        text = if (isCurrentUser) "You" else "${player.firstName} ${player.lastName}",
+                        text = if (isCurrentUser) "You" else "${playerData.firstName} ${playerData.lastName}",
                         textAlign = TextAlign.Center,
                     )
                 }

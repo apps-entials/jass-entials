@@ -4,9 +4,9 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers
 import org.junit.Test
 
-class PlayerTest {
+class PlayerDataTest {
 
-    private val defaultPlayer = Player(
+    private val defaultPlayerData = PlayerData(
         email = "",
         playerIdx = 0,
         firstName = "",
@@ -33,19 +33,19 @@ class PlayerTest {
     fun playableCardsShowsAllCardsWithEmptyTrick() {
         val emptyTrick = Trick(listOf())
 
-        val playableCards = defaultPlayer.playableCards(emptyTrick, Suit.HEARTS)
+        val playableCards = defaultPlayerData.playableCards(emptyTrick, Suit.HEARTS)
 
         println(playableCards)
-        println(defaultPlayer.cards)
+        println(defaultPlayerData.cards)
 
-        assertThat(playableCards, Matchers.containsInAnyOrder(*defaultPlayer.cards.toTypedArray()))
+        assertThat(playableCards, Matchers.containsInAnyOrder(*defaultPlayerData.cards.toTypedArray()))
     }
 
     @Test
     fun playableCardsShowsTrumpCardsAndPlayableSuitCardsWhenJustASuitHasBeenPlayed() {
         val trick = Trick(listOf(Card(Rank.SEVEN, Suit.HEARTS)))
 
-        val playableCards = defaultPlayer.playableCards(trick, Suit.CLUBS)
+        val playableCards = defaultPlayerData.playableCards(trick, Suit.CLUBS)
 
         assertThat(playableCards, Matchers.containsInAnyOrder(
             Card(Rank.ACE, Suit.HEARTS),
@@ -64,7 +64,7 @@ class PlayerTest {
             )
         )
 
-        val playableCards = defaultPlayer.playableCards(trick, Suit.HEARTS)
+        val playableCards = defaultPlayerData.playableCards(trick, Suit.HEARTS)
 
         assertThat(playableCards, Matchers.containsInAnyOrder(
             Card(Rank.ACE, Suit.DIAMONDS),
@@ -76,7 +76,7 @@ class PlayerTest {
 
     @Test
     fun ifAceOfTrumpPlayedAndNoUnderTrumpingNellAndJackStillPlayable() {
-        val player = defaultPlayer.copy(cards = listOf(
+        val player = defaultPlayerData.copy(cards = listOf(
             Card(Rank.TEN, Suit.HEARTS),
             Card(Rank.SIX, Suit.HEARTS),
             Card(Rank.NINE, Suit.HEARTS),
@@ -108,7 +108,7 @@ class PlayerTest {
 
     @Test
     fun ifNellOfTrumpPlayedAndNoUnderTrumpingNellAndJackStillPlayable() {
-        val player = defaultPlayer.copy(cards = listOf(
+        val player = defaultPlayerData.copy(cards = listOf(
             Card(Rank.TEN, Suit.HEARTS),
             Card(Rank.SIX, Suit.HEARTS),
             Card(Rank.JACK, Suit.HEARTS),
@@ -140,7 +140,7 @@ class PlayerTest {
 
     @Test
     fun ifTrumpPlayedFirstAllTrumpsAllowed() {
-        val player = defaultPlayer.copy(cards = listOf(
+        val player = defaultPlayerData.copy(cards = listOf(
             Card(Rank.TEN, Suit.HEARTS),
             Card(Rank.SIX, Suit.HEARTS),
             Card(Rank.NINE, Suit.HEARTS),
