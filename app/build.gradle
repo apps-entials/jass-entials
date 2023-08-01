@@ -1,15 +1,9 @@
-kotlin {
-    jvmToolchain(17)
-}
-
-
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'jacoco'
     id 'com.google.gms.google-services'
 }
-
 
 android {
     namespace 'com.github.lucaengel.jass_entials'
