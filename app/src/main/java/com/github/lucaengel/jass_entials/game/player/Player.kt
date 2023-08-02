@@ -12,7 +12,7 @@ interface Player {
 
     fun playCard(gameState: GameState): CompletableFuture<Card>
 
-    fun bet(bettingState: BettingState)
+    fun bet(bettingState: BettingState): CompletableFuture<BettingState>
 
     fun chooseTrump(gameState: GameState)
 }

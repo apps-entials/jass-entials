@@ -12,7 +12,7 @@ class LocalPlayer(private val playerData: PlayerData) : Player {
         return CompletableFuture.completedFuture(playerData.playableCards(gameState.currentTrick, gameState.currentTrump).random())
     }
 
-    override fun bet(bettingState: BettingState) {
+    override fun bet(bettingState: BettingState): CompletableFuture<BettingState> {
         TODO()
     }
 

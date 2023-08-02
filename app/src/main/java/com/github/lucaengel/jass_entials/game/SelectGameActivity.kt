@@ -32,7 +32,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.github.lucaengel.jass_entials.data.jass.JassTypes
+import com.github.lucaengel.jass_entials.data.jass.JassType
 import com.github.lucaengel.jass_entials.game.SelectGameActivity.TestTags.Buttons.Companion.BACK
 import com.github.lucaengel.jass_entials.game.pregame.CoiffeurPregameActivity
 import com.github.lucaengel.jass_entials.game.pregame.SchieberPregameActivity
@@ -104,26 +104,26 @@ fun SelectGameView(finishActivity: () -> Unit = {}) {
     val context = LocalContext.current
 
 
-    fun onGameTypeClicked(gameType: JassTypes) {
+    fun onGameTypeClicked(gameType: JassType) {
         when (gameType) {
-            JassTypes.SCHIEBER ->
+            JassType.SCHIEBER ->
                 Intent(context, SchieberPregameActivity::class.java).also {
                     context.startActivity(it)
                 }
 
-            JassTypes.COIFFEUR ->
+            JassType.COIFFEUR ->
                 Intent(context, CoiffeurPregameActivity::class.java).also {
                     context.startActivity(it)
                 }
 
-            JassTypes.SIDI_BARAHNI ->
+            JassType.SIDI_BARAHNI ->
                 Intent(context, SidiBarahniPreRoundActivity::class.java).also {
                     context.startActivity(it)
                 }
         }
     }
 
-    val gameTypes = JassTypes.values().toList()
+    val gameTypes = JassType.values().toList()
 
     Scaffold(
         modifier = Modifier.testTag(SelectGameActivity.TestTags.SCAFFOLD),

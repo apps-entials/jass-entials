@@ -1,7 +1,6 @@
 package com.github.lucaengel.jass_entials.data.game_state
 
 import com.github.lucaengel.jass_entials.data.cards.Card
-import com.github.lucaengel.jass_entials.data.cards.Deck
 import com.github.lucaengel.jass_entials.data.cards.PlayerData
 import com.github.lucaengel.jass_entials.data.cards.Trick
 import com.github.lucaengel.jass_entials.data.jass.Trump
@@ -59,13 +58,6 @@ data class GameState(
         return lastTrickBonus + currentRoundTrickWinners
             .filter { it.first.email == playerData.email }
             .sumOf { (_, trick) -> trick.playerToCard.sumOf { it.first.points(currentTrump) } }
-    }
-
-    private fun nextRound(): GameState {
-        return this.copy(
-            currentRound = currentRound + 1,
-            playerCards = Deck.STANDARD_DECK.shuffled().dealCards(playerDatas),
-        )
     }
 
     fun playCard(playerData: PlayerData, card: Card): GameState {

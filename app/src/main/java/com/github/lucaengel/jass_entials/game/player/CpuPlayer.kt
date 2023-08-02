@@ -2,10 +2,11 @@ package com.github.lucaengel.jass_entials.game.player
 
 import com.github.lucaengel.jass_entials.data.cards.Card
 import com.github.lucaengel.jass_entials.data.cards.PlayerData
+import com.github.lucaengel.jass_entials.data.game_state.Bet
 import com.github.lucaengel.jass_entials.data.game_state.BettingState
 import com.github.lucaengel.jass_entials.data.game_state.GameState
-import java.lang.Thread.sleep
 import java.util.concurrent.CompletableFuture
+import kotlin.random.Random
 
 class CpuPlayer(var playerData: PlayerData) : Player {
 
@@ -17,8 +18,18 @@ class CpuPlayer(var playerData: PlayerData) : Player {
         return CompletableFuture.completedFuture(card)
     }
 
-    override fun bet(bettingState: BettingState) {
-        TODO("Not yet implemented")
+    override fun bet(bettingState: BettingState): CompletableFuture<BettingState> {
+        if (Random.nextFloat() > 0.1 || bettingState.availableBets().isEmpty()) return CompletableFuture.completedFuture(bettingState.nextPlayer())
+
+        return CompletableFuture.completedFuture(
+            bettingState.nextPlayer(
+                Bet(
+                    playerData = playerData,
+                    bet = bettingState.availableBets().first(),
+                    suit = bettingState.availableTrumps().first(),
+                )
+            )
+        )
     }
 
     override fun chooseTrump(gameState: GameState) {

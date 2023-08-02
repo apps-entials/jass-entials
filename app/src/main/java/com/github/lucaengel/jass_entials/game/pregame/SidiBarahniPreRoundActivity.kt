@@ -38,16 +38,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices.AUTOMOTIVE_1024p
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.github.lucaengel.jass_entials.data.cards.Deck
-import com.github.lucaengel.jass_entials.data.cards.PlayerData
 import com.github.lucaengel.jass_entials.data.game_state.Bet
 import com.github.lucaengel.jass_entials.data.game_state.BettingState
-import com.github.lucaengel.jass_entials.data.game_state.GameState
 import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
-import com.github.lucaengel.jass_entials.data.jass.JassTypes
 import com.github.lucaengel.jass_entials.data.jass.Trump
 import com.github.lucaengel.jass_entials.game.JassComposables
 import com.github.lucaengel.jass_entials.game.JassRoundActivity
+import com.github.lucaengel.jass_entials.game.player.CpuPlayer
 import com.github.lucaengel.jass_entials.ui.theme.JassentialsTheme
 import java.lang.Thread.sleep
 
@@ -58,8 +55,6 @@ class SidiBarahniPreRoundActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        println("SidiBarahniPreRoundActivity.onCreate()")
 
         setContent {
             MyPreview()
@@ -72,30 +67,10 @@ class SidiBarahniPreRoundActivity : ComponentActivity() {
 //@Preview
 @Composable
 fun MyPreview() {
-    val shuffledDeck = Deck.STANDARD_DECK.shuffled()
-
-    val playerData1 = PlayerData("email_1", 0, "first_1", "second_1", Deck.sortPlayerCards(shuffledDeck.cards.subList(0, 9)), 0, "123")
-    val playerData2 = PlayerData("email_2", 0, "first_2", "second_2", Deck.sortPlayerCards(shuffledDeck.cards.subList(9, 18)), 0, "123")
-    val playerData3 = PlayerData("email_3", 0, "first_3", "second_3", Deck.sortPlayerCards(shuffledDeck.cards.subList(18, 27)), 0, "123")
-    val playerData4 = PlayerData("email_4", 0, "first_4", "second_4", Deck.sortPlayerCards(shuffledDeck.cards.subList(27, 36)), 0, "123")
-
-
-    val currentPlayer = playerData1
 
     JassentialsTheme {
         Surface(color = MaterialTheme.colorScheme.background) {
-            BettingRound(
-                currentPlayer,
-                BettingState(
-                    listOf(playerData1, playerData2, playerData3, playerData4),
-                    playerData1,
-                    JassTypes.SIDI_BARAHNI,
-                    listOf(
-                        Bet(playerData2, Trump.CLUBS, 40)
-                    ),
-                    GameState()
-                )
-            )
+            BettingRound()
         }
     }
 }
@@ -118,18 +93,18 @@ fun MyPreview() {
 //}
 
 @Composable
-fun BettingRound(
-    currentPlayerData: PlayerData,
-    bState: BettingState,
-) {
+fun BettingRound() {
     val context = LocalContext.current
-    var currentPlayerIdx by remember { mutableStateOf(0) }
-    var bettingState by remember { mutableStateOf(GameStateHolder.bettingState/*BettingState()*/) }
 
-    LaunchedEffect(key1 = true) {
-        bettingState = bState
-        currentPlayerIdx = bettingState.playerData.indexOfFirst { it.email == currentPlayerData.email }
-    }
+    var bettingState by remember { mutableStateOf(GameStateHolder.bettingState/*BettingState()*/) }
+    val currentPlayerIdx by remember { mutableStateOf(bettingState.currentPlayerIdx) }
+    val currentPlayerData by remember { mutableStateOf(bettingState.playerDatas[currentPlayerIdx]) }
+
+    val opponents by remember {
+        mutableStateOf(bettingState.playerDatas
+            .filter { it != bettingState.playerDatas[bettingState.currentPlayerIdx] }
+            .map { it to CpuPlayer(it) }
+        )}
 
     Column(
         modifier = Modifier
@@ -137,7 +112,7 @@ fun BettingRound(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        val topPlayer = bettingState.playerData[(currentPlayerIdx + 2) % 4]
+        val topPlayer = bettingState.playerDatas[(currentPlayerIdx + 2) % 4]
 
         JassComposables.PlayerBox(playerData = topPlayer, playerSpot = 2)
 
@@ -146,9 +121,34 @@ fun BettingRound(
         if (bettingState.currentBetter == currentPlayerData) {
             val simulatePlayers: () -> Unit = {
                 sleep(500)
-                bettingState = bettingState.nextPlayer()
-                bettingState = bettingState.nextPlayer()
-                bettingState = bettingState.nextPlayer()
+//                bettingState = bettingState.nextPlayer()
+//                bettingState = bettingState.nextPlayer()
+//                bettingState = bettingState.nextPlayer()
+
+                val opp0 = opponents[0].second
+                    .bet(bettingState)
+                    .thenAccept {
+                        bettingState = it
+//                        sleep(2000)
+                    }
+
+                val opp1 = opp0.thenCompose {
+                    opponents[1].second
+                        .bet(bettingState)
+                }.thenAccept {
+                    bettingState = it
+//                    sleep(2000)
+                }
+
+                val opp2 = opp1.thenCompose {
+                    opponents[2].second
+                        .bet(bettingState)
+                }
+
+                opp2.thenApply {
+                    bettingState = it
+//                    sleep(2000)
+                }
             }
 
             BettingRow(
@@ -162,7 +162,9 @@ fun BettingRound(
                     simulatePlayers()
                 },
                 onStartGame = {
+                    println("bets: ${bettingState.bets}")
                     val gameState = bettingState.startGame(currentPlayerIdx)
+                    println("gamestate trump: ${gameState.currentTrump}")
 
 
                     println("gamestate      : ${gameState.playerDatas[currentPlayerIdx]}")
@@ -193,7 +195,7 @@ fun BettingRound(
 private fun MiddleRowInfo(bettingState: BettingState, currentPlayerIdx: Int) {
     Row {
 
-        val leftPlayer = bettingState.playerData[(currentPlayerIdx + 3) % 4]
+        val leftPlayer = bettingState.playerDatas[(currentPlayerIdx + 3) % 4]
 //        Box(
 //            modifier = Modifier
 //                .fillMaxHeight(0.5F)
@@ -242,7 +244,7 @@ private fun MiddleRowInfo(bettingState: BettingState, currentPlayerIdx: Int) {
 
         Spacer(modifier = Modifier.weight(0.1f))
 
-        val rightPlayer = bettingState.playerData[(currentPlayerIdx + 1) % 4]
+        val rightPlayer = bettingState.playerDatas[(currentPlayerIdx + 1) % 4]
 
         JassComposables.PlayerBox(playerData = rightPlayer, playerSpot = 1, Modifier
             .fillMaxHeight(0.5F)

@@ -9,7 +9,10 @@ data class Deck(val cards: List<Card> = listOf()) {
     }
 
     fun dealCards(playerData: List<PlayerData>): Map<PlayerData, List<Card>> {
-        return playerData.zip(cards.chunked(9)).toMap()
+        return playerData.zip(cards.chunked(9)).map { (playerData, cards) ->
+            val sortedCards = sortPlayerCards(cards)
+            playerData.copy(cards = sortedCards) to sortedCards
+        }.toMap()
     }
 
 

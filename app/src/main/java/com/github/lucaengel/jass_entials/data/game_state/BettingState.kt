@@ -1,32 +1,46 @@
 package com.github.lucaengel.jass_entials.data.game_state
 
+import com.github.lucaengel.jass_entials.data.cards.Deck
 import com.github.lucaengel.jass_entials.data.cards.PlayerData
 import com.github.lucaengel.jass_entials.data.cards.Trick
-import com.github.lucaengel.jass_entials.data.jass.JassTypes
+import com.github.lucaengel.jass_entials.data.jass.JassType
 import com.github.lucaengel.jass_entials.data.jass.Trump
 
 data class BettingState(
-    val playerData: List<PlayerData>,
+    val currentPlayerIdx: Int,
+    val playerDatas: List<PlayerData>,
     val currentBetter: PlayerData,
-    val jassType: JassTypes,
+    val jassType: JassType,
     val bets: List<Bet>,
     val gameState: GameState,
 ){
 
     constructor(): this(
-        playerData = listOf(PlayerData(), PlayerData(), PlayerData(), PlayerData()),
+        0,
+        playerDatas = listOf(PlayerData(), PlayerData(), PlayerData(), PlayerData()),
         currentBetter = PlayerData(),
-        jassType = JassTypes.SCHIEBER,
+        jassType = JassType.SCHIEBER,
         bets = listOf(),
         gameState = GameState(),
     )
 
+    fun nextBettingRound(startingBetter: PlayerData): BettingState {
+        val newPlayers = Deck.STANDARD_DECK.shuffled().dealCards(playerDatas).keys
+
+        return this.copy(
+            currentPlayerIdx = 0,
+            playerDatas = newPlayers.toList(),
+            currentBetter = newPlayers.first { it.email == startingBetter.email },
+            bets = listOf(),
+        )
+    }
+
     fun nextPlayer(placedBet: Bet? = null): BettingState {
 
 
-        val nextPlayerIdx = (playerData.indexOf(currentBetter) + 1) % playerData.size
+        val nextPlayerIdx = (playerDatas.indexOf(currentBetter) + 1) % playerDatas.size
         return this.copy(
-            currentBetter = playerData[nextPlayerIdx],
+            currentBetter = playerDatas[nextPlayerIdx],
             bets = if (placedBet != null) bets + placedBet else bets,
         )
     }
@@ -49,18 +63,16 @@ data class BettingState(
         if (bets.isEmpty()) // TODO: handle this case better! (restart betting phase)
             throw IllegalStateException("Cannot start game without bets")
 
-        println("betting state current player: ${playerData[currentPlayerIdx]}")
-
         return GameState(
             currentPlayerIdx,
-            playerDatas = playerData,
+            playerDatas = playerDatas,
             currentPlayerData = bets.last().playerData,
             startingPlayerData = bets.last().playerData,
             currentRound = 0,
             currentTrick = Trick(),
             currentTrickNumber = 0,
-            currentTrump = Trump.CLUBS,
-            playerCards = playerData.zip(playerData.map { it.cards }).toMap(),
+            currentTrump = bets.last().suit,
+            playerCards = playerDatas.zip(playerDatas.map { it.cards }).toMap(),
         )
     }
 }
