@@ -50,26 +50,13 @@ data class PlayerData(
                 // no trump cards
                 return cards
             }
-            if (trumpCards.isNotEmpty())
-                return trumpCards
+
         } else {
             trumpCards = listOf()
         }
-//        val trumpCards = Trump.asSuit(trump).let { if (it != null) cardsOfSuit(it) else listOf() }
-//
-//        // hold suit
-//        if (firstCard.suit == trump) {
-//            if (trumpCards.isNotEmpty())
-//                return trumpCards
-//
-//            // no trump cards
-//            return cards
-//        }
 
         val firstCardSuitCards = cardsOfSuit(firstCard.suit)
-
         val playableTrumpCards = playableTrumpCards(trumpCards, trick, trumpSuit)
-
         val playableCards = firstCardSuitCards + playableTrumpCards
 
         if (playableCards.isNotEmpty())
