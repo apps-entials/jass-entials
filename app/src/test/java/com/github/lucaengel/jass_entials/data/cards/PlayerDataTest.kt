@@ -1,5 +1,7 @@
 package com.github.lucaengel.jass_entials.data.cards
 
+import com.github.lucaengel.jass_entials.data.jass.Trump
+import com.github.lucaengel.jass_entials.game.player.Player
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers
 import org.junit.Test
@@ -33,7 +35,7 @@ class PlayerDataTest {
     fun playableCardsShowsAllCardsWithEmptyTrick() {
         val emptyTrick = Trick(listOf())
 
-        val playableCards = defaultPlayerData.playableCards(emptyTrick, Suit.HEARTS)
+        val playableCards = defaultPlayerData.playableCards(emptyTrick, Trump.HEARTS)
 
         println(playableCards)
         println(defaultPlayerData.cards)
@@ -43,9 +45,9 @@ class PlayerDataTest {
 
     @Test
     fun playableCardsShowsTrumpCardsAndPlayableSuitCardsWhenJustASuitHasBeenPlayed() {
-        val trick = Trick(listOf(Card(Rank.SEVEN, Suit.HEARTS)))
+        val trick = Trick(listOf(Pair(Card(Rank.SEVEN, Suit.HEARTS), PlayerData())))
 
-        val playableCards = defaultPlayerData.playableCards(trick, Suit.CLUBS)
+        val playableCards = defaultPlayerData.playableCards(trick, Trump.CLUBS)
 
         assertThat(playableCards, Matchers.containsInAnyOrder(
             Card(Rank.ACE, Suit.HEARTS),
@@ -59,12 +61,12 @@ class PlayerDataTest {
     @Test
     fun cannotUndertrump() {
         val trick = Trick(listOf(
-            Card(Rank.SEVEN, Suit.DIAMONDS),
-            Card(Rank.TEN, Suit.HEARTS),
+            Pair(Card(Rank.SEVEN, Suit.DIAMONDS), PlayerData()),
+            Pair(Card(Rank.TEN, Suit.HEARTS), PlayerData()),
             )
         )
 
-        val playableCards = defaultPlayerData.playableCards(trick, Suit.HEARTS)
+        val playableCards = defaultPlayerData.playableCards(trick, Trump.HEARTS)
 
         assertThat(playableCards, Matchers.containsInAnyOrder(
             Card(Rank.ACE, Suit.DIAMONDS),
@@ -91,11 +93,11 @@ class PlayerDataTest {
         ))
 
         val trick = Trick(listOf(
-            Card(Rank.SEVEN, Suit.DIAMONDS),
-            Card(Rank.ACE, Suit.HEARTS),
+            Pair(Card(Rank.SEVEN, Suit.DIAMONDS), PlayerData()),
+            Pair(Card(Rank.ACE, Suit.HEARTS), PlayerData()),
         ))
 
-        val playableCards = player.playableCards(trick, Suit.HEARTS)
+        val playableCards = player.playableCards(trick, Trump.HEARTS)
 
         assertThat(playableCards, Matchers.containsInAnyOrder(
             Card(Rank.ACE, Suit.DIAMONDS),
@@ -122,11 +124,11 @@ class PlayerDataTest {
         ))
 
         val trick = Trick(listOf(
-            Card(Rank.SEVEN, Suit.DIAMONDS),
-            Card(Rank.NINE, Suit.HEARTS),
+            Pair(Card(Rank.SEVEN, Suit.DIAMONDS), PlayerData()),
+            Pair(Card(Rank.NINE, Suit.HEARTS), PlayerData()),
         ))
 
-        val playableCards = player.playableCards(trick, Suit.HEARTS)
+        val playableCards = player.playableCards(trick, Trump.HEARTS)
 
         println(playableCards)
 
@@ -154,11 +156,11 @@ class PlayerDataTest {
         ))
 
         val trick = Trick(listOf(
-            Card(Rank.TEN, Suit.HEARTS),
-            Card(Rank.TEN, Suit.DIAMONDS),
+            Pair(Card(Rank.TEN, Suit.HEARTS), PlayerData()),
+            Pair(Card(Rank.TEN, Suit.DIAMONDS), PlayerData()),
         ))
 
-        val playableCards = player.playableCards(trick, Suit.HEARTS)
+        val playableCards = player.playableCards(trick, Trump.HEARTS)
 
         assertThat(playableCards, Matchers.containsInAnyOrder(
             Card(Rank.TEN, Suit.HEARTS),
