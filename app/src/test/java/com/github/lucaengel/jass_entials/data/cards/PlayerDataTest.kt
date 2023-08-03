@@ -160,6 +160,7 @@ class PlayerDataTest {
         ))
 
         val playableCards = player.playableCards(trick, Trump.HEARTS)
+        println("playableCards: $playableCards")
 
         assertThat(playableCards, Matchers.containsInAnyOrder(
             Card(Rank.TEN, Suit.HEARTS),
@@ -196,7 +197,7 @@ class PlayerDataTest {
             Card(Rank.NINE, Suit.HEARTS),
         ))
     }
-    
+
     @Test
     fun ifUserHasNoTrumpCardsAndTrumpWasPlayedTheUserCanPlayAnyCard() {
         val player = defaultPlayerData.copy(cards = listOf(
@@ -264,17 +265,14 @@ class PlayerDataTest {
             Card(Rank.SIX, Suit.HEARTS),
             Card(Rank.NINE, Suit.HEARTS),
 
-            Card(Rank.ACE, Suit.DIAMONDS),
-            Card(Rank.SIX, Suit.DIAMONDS),
-
             Card(Rank.ACE, Suit.SPADES),
             Card(Rank.SEVEN, Suit.SPADES),
             Card(Rank.SIX, Suit.SPADES),
         ))
 
         val trick = Trick(listOf(
-            Pair(Card(Rank.TEN, Suit.CLUBS), PlayerData()),
             Pair(Card(Rank.TEN, Suit.DIAMONDS), PlayerData()),
+            Pair(Card(Rank.TEN, Suit.CLUBS), PlayerData()),
         ))
 
         val playableCards = player.playableCards(trick, Trump.CLUBS)

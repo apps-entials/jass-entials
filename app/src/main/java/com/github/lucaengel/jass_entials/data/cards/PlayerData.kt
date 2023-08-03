@@ -39,20 +39,12 @@ data class PlayerData(
             ?: return cards
 
         val trumpSuit = Trump.asSuit(trump)
-        val trumpCards: List<Card>
 
-        // check for trump cards (null if trump was unger ufe or obe abe)
-        if (trumpSuit != null) {
-            trumpCards = cardsOfSuit(trumpSuit)
-
-            // first card played was trump --> hold suit
-            if (firstCard.suit == trumpSuit) {
-                return trumpCards
-                    // no trump cards --> can play any card
-                    .ifEmpty { cards }
-            }
+        // get trump cards (null if trump was unger ufe or obe abe)
+        val trumpCards: List<Card> = if (trumpSuit != null) {
+            cardsOfSuit(trumpSuit)
         } else {
-            trumpCards = listOf()
+            listOf()
         }
 
         // cards of the suit of the first card played
@@ -60,12 +52,20 @@ data class PlayerData(
         // no under trumping (ungertrumpfe) possible
         val playableTrumpCards = playableTrumpCards(trumpCards, trick, trumpSuit)
 
-        val playableCards = firstCardSuitCards + playableTrumpCards
+        val playableCards = (firstCardSuitCards + playableTrumpCards).distinct()
 
         return playableCards
             .ifEmpty { cards }
     }
 
+    /**
+     * Returns the trump cards that can be played for the given [trick] with the given [trump].
+     *
+     * @param trumpCards the trump cards of the player
+     * @param trick the trick that has been played so far
+     * @param trump the trump suit (null if trump was unger ufe or obe abe)
+     * @return the trump cards that can be played
+     */
     private fun playableTrumpCards(
         trumpCards: List<Card>,
         trick: Trick,
@@ -80,7 +80,10 @@ data class PlayerData(
             0 -> playableTrumpCards // first card is trump --> can play any trump
             else -> { // no under trumping (ungertrumpfe) possible
                 val maxTrumpRank = trick.playerToCard.maxOf {
-                    if (it.first.suit == trump) it.first.rank.trumpHeight else Rank.SIX.trumpHeight
+                    if (it.first.suit == trump)
+                        it.first.rank.trumpHeight
+                    else
+                        Rank.SIX.trumpHeight
                 }
 
                 playableTrumpCards = trumpCards.filter { it.rank.trumpHeight > maxTrumpRank }
@@ -90,6 +93,12 @@ data class PlayerData(
         }
     }
 
+    /**
+     * Returns the cards of the given [suit].
+     *
+     * @param suit the suit
+     * @return the cards of the given [suit]
+     */
     private fun cardsOfSuit(suit: Suit): List<Card> {
         return cards.filter { it.suit == suit }
     }
