@@ -40,29 +40,30 @@ data class PlayerData(
 
         val trumpSuit = Trump.asSuit(trump)
         val trumpCards: List<Card>
+
+        // check for trump cards (null if trump was unger ufe or obe abe)
         if (trumpSuit != null) {
             trumpCards = cardsOfSuit(trumpSuit)
 
+            // first card played was trump --> hold suit
             if (firstCard.suit == trumpSuit) {
-                if (trumpCards.isNotEmpty())
-                    return trumpCards
-
-                // no trump cards
-                return cards
+                return trumpCards
+                    // no trump cards --> can play any card
+                    .ifEmpty { cards }
             }
-
         } else {
             trumpCards = listOf()
         }
 
+        // cards of the suit of the first card played
         val firstCardSuitCards = cardsOfSuit(firstCard.suit)
+        // no under trumping (ungertrumpfe) possible
         val playableTrumpCards = playableTrumpCards(trumpCards, trick, trumpSuit)
+
         val playableCards = firstCardSuitCards + playableTrumpCards
 
-        if (playableCards.isNotEmpty())
-            return playableCards
-
-        return cards
+        return playableCards
+            .ifEmpty { cards }
     }
 
     private fun playableTrumpCards(
