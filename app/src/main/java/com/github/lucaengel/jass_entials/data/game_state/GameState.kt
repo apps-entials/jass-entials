@@ -5,6 +5,7 @@ import com.github.lucaengel.jass_entials.data.cards.PlayerData
 import com.github.lucaengel.jass_entials.data.cards.Trick
 import com.github.lucaengel.jass_entials.data.jass.Trump
 import java.io.Serializable
+import java.lang.IllegalStateException
 
 data class GameState(
     val currentPlayerIdx: Int,
@@ -32,17 +33,23 @@ data class GameState(
         playerCards = mapOf(),
     )
 
+    /**
+     * Returns true iff it is the last trick of the round (i.e., everyone has <= 1 card left).
+     *
+     * @return true iff it is the last trick of the round
+     */
     fun isLastTrick(): Boolean {
         return currentTrickNumber == 9
     }
 
+    /**
+     * Updates the winner of the played trick, moves on to the next trick and returns the new game state.
+     *
+     * @return the new game state
+     */
     fun nextTrick(): GameState {
-        if (isLastTrick()) {
-            return this.copy(
-                currentTrick = Trick(),
-                currentRoundTrickWinners = currentRoundTrickWinners + (currentTrick.winner(trump = currentTrump) to currentTrick),
-            )
-        }
+        if (!currentTrick.isFull())
+            throw IllegalStateException("Cannot move on to the next trick if the current trick is not full.")
 
         return this.copy(
             currentTrick = Trick(),
@@ -52,8 +59,10 @@ data class GameState(
     }
 
     fun points(playerData: PlayerData): Int {
+
         // todo: do something about the emails that are not different for guests!!!
-        val lastTrickBonus = if (currentRoundTrickWinners.last().first.email == playerData.email) 5 else 0
+        // TODO: get rid of such magic numbers!!!
+        val lastTrickBonus = if (currentTrickNumber >= 9 && currentRoundTrickWinners.last().first.email == playerData.email) 5 else 0
 
         return lastTrickBonus + currentRoundTrickWinners
             .filter { it.first.email == playerData.email }
@@ -67,12 +76,6 @@ data class GameState(
             currentTrick = currentTrick.copy(playerToCard = currentTrick.playerToCard + (card to playerData)),
             playerDatas = playerDatas.map { if (it == playerData) newPlayer else it },
             playerCards = playerCards.map { if (it.key == playerData) newPlayer to newPlayer.cards else it.key to it.value }.toMap(),
-        )
-    }
-
-    fun setTrump(trump: Trump): GameState {
-        return this.copy(
-            currentTrump = trump,
         )
     }
 }

@@ -13,10 +13,10 @@ data class Trick(
 
     fun winner(trump: Trump): PlayerData {
         return playerToCard.foldRight(playerToCard.first()) { (card, playerData), winner ->
-            if (card.isHigherThan(winner.first, trump)) {
-                Pair(card, playerData)
-            } else {
+            if (winner.first.isHigherThan(card, trump)) {
                 winner
+            } else {
+                Pair(card, playerData)
             }
         }.second
     }

@@ -6,9 +6,9 @@ import java.io.Serializable
 
 enum class Suit(val toString: String, val symbol: Char) : Serializable  {
     CLUBS("Clubs", '\u2663'),
-    DIAMONDS("Diamonds", '\u2666'),
     SPADES("Spades", '\u2660'),
     HEARTS("Hearts", '\u2665'),
+    DIAMONDS("Diamonds", '\u2666'),
 }
 
 enum class Rank(private val rank: String, normalHeight: Int, val trumpHeight: Int) : Serializable  {
@@ -56,19 +56,33 @@ data class Card(
         }
     }
 
+    /**
+     * Returns true if this card is higher than the given card.
+     * Assumes that this card was played first (e.g., clubs then heart --> clubs wins)
+     */
     fun isHigherThan(that: Card, trump: Trump): Boolean {
-        if (Trump.isSuitTrumpSuit(suit, trump)) {
+        // this is trump
+        if (Trump.isSuitTrumpSuit(this.suit, trump)) {
             if (Trump.isSuitTrumpSuit(that.suit, trump)) {
-                return rank.trumpHeight > that.rank.trumpHeight
+                return this.rank.trumpHeight > that.rank.trumpHeight
             }
             return true
         }
 
+        // only that is trump
         if (Trump.isSuitTrumpSuit(that.suit, trump)) {
             return false
         }
 
-        return rank > that.rank
+        // lei haute
+        if (this.suit != that.suit) return true
+
+        //same suit: check rank
+        // unger ufe
+        if (trump == Trump.UNGER_UFE) return this.rank < that.rank
+
+        // no trump
+        return this.rank > that.rank
     }
 
     override fun toString(): String {

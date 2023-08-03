@@ -37,7 +37,7 @@ class GameStateHolder {
                 playerData1,
                 JassType.SIDI_BARAHNI,
                 listOf(
-                    Bet(playerData2, Trump.CLUBS, 40)
+                    Bet(playerData2, Trump.CLUBS, BetHeight.FORTY)
                 ),
                 GameState()
             )

@@ -39,6 +39,7 @@ import androidx.compose.ui.tooling.preview.Devices.AUTOMOTIVE_1024p
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.github.lucaengel.jass_entials.data.game_state.Bet
+import com.github.lucaengel.jass_entials.data.game_state.BetHeight
 import com.github.lucaengel.jass_entials.data.game_state.BettingState
 import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
 import com.github.lucaengel.jass_entials.data.jass.Trump
@@ -261,15 +262,9 @@ fun BettingRow(
     onPass: () -> Unit = {},
     onStartGame: () -> Unit = {},
 ) {
-
-    // all possible bets (40, ..., 150) --> still need to add match as possibility
-    val possibleBets = (1..12)
-        .map { 10*it + 30 }
-        .filter { it > (bettingState.bets.lastOrNull()?.bet ?: 0) }
-
     var isBetDropdownExpanded by remember { mutableStateOf(false) }
     var isTrumpDropdownExpanded by remember { mutableStateOf(false) }
-    var selectedBet by remember { mutableStateOf(0) }
+    var selectedBet by remember { mutableStateOf(BetHeight.NONE) }
     var selectedTrump: Trump? by remember { mutableStateOf(null) }
 
     val icon = if (isBetDropdownExpanded || isTrumpDropdownExpanded)
@@ -308,8 +303,8 @@ fun BettingRow(
 
             TextField(
                 modifier = Modifier.wrapContentWidth(),
-                value = if (selectedBet < 40 || selectedTrump == null) "" else "$selectedBet ${selectedTrump!!}",
-                onValueChange = { selectedBet = it.toInt() },
+                value = if (selectedBet == BetHeight.NONE || selectedTrump == null) "" else "$selectedBet ${selectedTrump!!}",
+                onValueChange = { selectedBet = BetHeight.fromString(it) },
                 readOnly = true,
                 placeholder = { Text("Select bet") },
                 trailingIcon = {
@@ -364,11 +359,11 @@ fun BettingRow(
 
         Button(
             onClick = {
-                if (selectedBet >= 40 && selectedTrump != null) {
+                if (selectedBet != BetHeight.NONE && selectedTrump != null) {
                     onBetPlace(Bet(bettingState.currentBetter, selectedTrump!!, selectedBet))
 
                     selectedTrump = null
-                    selectedBet = 0
+                    selectedBet = BetHeight.NONE
                 }
             },
             modifier = Modifier
@@ -384,13 +379,13 @@ fun BettingRow(
                     onStartGame()
 
                     selectedTrump = null
-                    selectedBet = 0
+                    selectedBet = BetHeight.NONE
                 }
                 else {
                     onPass()
 
                     selectedTrump = null
-                    selectedBet = 0
+                    selectedBet = BetHeight.NONE
                 }
             },
             modifier = Modifier
