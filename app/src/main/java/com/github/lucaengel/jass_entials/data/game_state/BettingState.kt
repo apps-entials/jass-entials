@@ -6,6 +6,16 @@ import com.github.lucaengel.jass_entials.data.cards.Trick
 import com.github.lucaengel.jass_entials.data.jass.JassType
 import com.github.lucaengel.jass_entials.data.jass.Trump
 
+/**
+ * Represents the state of the betting phase of a game.
+ *
+ * @param currentPlayerIdx the index of the current user in the [playerDatas] list
+ * @param playerDatas the list of all players in the game
+ * @param currentBetter the player who is currently betting
+ * @param jassType the type of the jass game
+ * @param bets the list of all bets that have been placed
+ * @param gameState the state of the game
+ */
 data class BettingState(
     val currentPlayerIdx: Int,
     val playerDatas: List<PlayerData>,
@@ -24,6 +34,12 @@ data class BettingState(
         gameState = GameState(),
     )
 
+    /**
+     * Returns the new betting state for the next betting round.
+     *
+     * @param startingBetter the player who starts the next betting round
+     * @return the new betting state
+     */
     fun nextBettingRound(startingBetter: PlayerData): BettingState {
         val newPlayers = Deck.STANDARD_DECK.shuffled().dealCards(playerDatas).keys
 
@@ -36,6 +52,12 @@ data class BettingState(
         )
     }
 
+    /**
+     * Returns the new betting state where the next player can place a bet
+     *
+     * @param placedBet the bet that has been placed by current player (null if no bet has been placed)
+     * @return the new betting state
+     */
     fun nextPlayer(placedBet: Bet? = null): BettingState {
 
         val nextPlayerIdx = (playerDatas.indexOf(currentBetter) + 1) % playerDatas.size
@@ -45,10 +67,20 @@ data class BettingState(
         )
     }
 
+    /**
+     * Returns the available bets for the current player.
+     *
+     * @return the available bets
+     */
     fun availableBets(): List<BetHeight> {
         return BetHeight.values().filter { it > (bets.lastOrNull()?.bet ?: BetHeight.NONE) }
     }
 
+    /**
+     * Returns the available trumps for the current player.
+     *
+     * @return the available trumps
+     */
     fun availableTrumps(): List<Trump> {
         if (bets.lastOrNull()?.playerData == currentBetter) {
             return Trump.values().filter { it != bets.last().suit }
@@ -57,7 +89,13 @@ data class BettingState(
         return Trump.values().toList()
     }
 
-    fun startGame(currentPlayerIdx: Int): GameState { // TODO: make sure to have the same random seed for every player!!!
+    /**
+     * Returns the GameState corresponding to the last bet.
+     * Called at the end of the betting phase.
+     *
+     * @return the new betting state
+     */
+    fun startGame(): GameState { // TODO: make sure to have the same random seed for every player!!!
         if (bets.isEmpty()) // TODO: handle this case better! (restart betting phase)
             throw IllegalStateException("Cannot start game without bets")
 

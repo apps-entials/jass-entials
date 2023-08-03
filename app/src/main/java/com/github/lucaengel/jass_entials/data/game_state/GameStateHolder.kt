@@ -43,7 +43,7 @@ class GameStateHolder {
             )
 
         // TODO: call this when a new game starts
-        fun startNewGameBettingState(playerDatas: List<PlayerData>, currentPlayerData: PlayerData) {
+        /*fun startNewGameBettingState(playerDatas: List<PlayerData>, currentPlayerData: PlayerData) {
             if (!playerDatas.contains(currentPlayerData)) throw IllegalArgumentException("Current player must be in playerDatas")
 
             bettingState = BettingState(
@@ -54,7 +54,7 @@ class GameStateHolder {
                 listOf(),
                 GameState()
             )
-        }
+        }*/
 
         fun goToNextBettingStateRound(startingBetter: PlayerData) {
             bettingState = bettingState.nextBettingRound(startingBetter)

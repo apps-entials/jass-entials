@@ -164,7 +164,7 @@ fun BettingRound() {
                 },
                 onStartGame = {
                     println("bets: ${bettingState.bets}")
-                    val gameState = bettingState.startGame(currentPlayerIdx)
+                    val gameState = bettingState.startGame()
                     println("gamestate trump: ${gameState.currentTrump}")
 
 

@@ -11,8 +11,6 @@ import kotlin.random.Random
 class CpuPlayer(var playerData: PlayerData) : Player {
 
     override fun playCard(gameState: GameState): CompletableFuture<Card> {
-        println("player cards: ${playerData.cards}")
-
         val card = playerData.playableCards(gameState.currentTrick, gameState.currentTrump).random()
         playerData = playerData.copy(cards = playerData.cards.filter { c -> c != card })
         return CompletableFuture.completedFuture(card)

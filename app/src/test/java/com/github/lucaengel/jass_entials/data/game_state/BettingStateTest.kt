@@ -98,7 +98,7 @@ class BettingStateTest {
         val bettingState = defaultBettingState.copy(bets = listOf())
 
         assertThrows(IllegalStateException::class.java) {
-            bettingState.startGame(bettingState.currentPlayerIdx)
+            bettingState.startGame()
         }
     }
 
@@ -118,7 +118,7 @@ class BettingStateTest {
             playerCards = defaultPlayerDatas.associateWith { it.cards }
         )
 
-        assertThat(bettingState.startGame(bettingState.currentPlayerIdx), `is`(expectedGameState))
+        assertThat(bettingState.startGame(), `is`(expectedGameState))
     }
 
     @Test
