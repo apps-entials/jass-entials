@@ -144,16 +144,6 @@ fun SelectGameView(finishActivity: () -> Unit = {}) {
                         Icon(Icons.Filled.ArrowBack, "Back")
                     }
                 },
-//                actions = {
-//                    IconButton(
-//                        onClick = {
-//
-//                        },
-//                        modifier = Modifier.testTag("DONE")
-//                    ) {
-//                        Icon(Icons.Filled.Done, "Done",)
-//                    }
-//                },
                 colors = smallTopAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     scrolledContainerColor = MaterialTheme.colorScheme.primaryContainer,

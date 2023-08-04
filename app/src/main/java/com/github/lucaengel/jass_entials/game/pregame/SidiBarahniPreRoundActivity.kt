@@ -64,7 +64,6 @@ class SidiBarahniPreRoundActivity : ComponentActivity() {
 
 // Landscape mode:
 @Preview(device = AUTOMOTIVE_1024p, widthDp = 720, heightDp = 360)
-//@Preview
 @Composable
 fun MyPreview() {
 
@@ -74,23 +73,6 @@ fun MyPreview() {
         }
     }
 }
-
-///**
-// * Provides a [BettingState] for previewing.
-// */
-//class BettingRoundProvider : PreviewParameterProvider<BettingState> {
-//    override val values: Sequence<BettingState> = sequenceOf(
-//        BettingState(
-//            listOf(Player(0, "first_1", "second_1", Deck.STANDARD_DECK.cards.subList(0, 9), 0, "123")),
-//            Player(0, "first_1", "second_1", Deck.STANDARD_DECK.cards.subList(0, 9), 0, "123"),
-//            JassTypes.SIDI_BARAHNI,
-//            listOf(
-//                Bet(Player(0, "first_1", "second_1", Deck.STANDARD_DECK.cards.subList(0, 9), 0, "123"), Suit.CLUBS, 40)
-//            ),
-//            GameState()
-//        )
-//    )
-//}
 
 @Composable
 fun BettingRound() {

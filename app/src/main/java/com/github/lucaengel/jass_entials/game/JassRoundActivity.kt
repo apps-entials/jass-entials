@@ -59,7 +59,6 @@ class JassRoundActivity : ComponentActivity() {
 }
 
 @Preview(device = Devices.AUTOMOTIVE_1024p, widthDp = 720, heightDp = 360)
-//@Preview
 @Composable
 fun JassRoundPreview() {
     JassentialsTheme {
