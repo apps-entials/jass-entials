@@ -123,7 +123,6 @@ fun JassRound() {
         ) { card ->
             if (gameState.currentTrick.isFull()) {
                 nextTrickFun()
-                println("Trick was full")
                 return@CurrentPlayerBox
             }
 
@@ -133,7 +132,6 @@ fun JassRound() {
                     "It is not your turn",
                     Toast.LENGTH_SHORT
                 ).show()
-                println("It is not your turn")
                 return@CurrentPlayerBox
             }
 
@@ -146,7 +144,6 @@ fun JassRound() {
                     "You can't play this card",
                     Toast.LENGTH_SHORT
                 ).show()
-                println("You can't play this card")
                 return@CurrentPlayerBox
             }
 
@@ -156,7 +153,7 @@ fun JassRound() {
                 cards = currentPlayer.cards.filter { c -> c != card }
             )
 
-            println("player's cards were updated")
+            println("player's cards were updated: ${currentPlayer.cards}")
 
             // Have opponents play
             opponents[0].second

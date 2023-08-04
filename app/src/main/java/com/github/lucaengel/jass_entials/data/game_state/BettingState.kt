@@ -106,6 +106,7 @@ data class BettingState(
             startingPlayerData = bets.last().playerData,
             currentRound = 0,
             currentTrick = Trick(),
+            currentRoundTrickWinners = listOf(),
             currentTrickNumber = 0,
             currentTrump = bets.last().suit,
             playerCards = playerDatas.associateWith { it.cards },
