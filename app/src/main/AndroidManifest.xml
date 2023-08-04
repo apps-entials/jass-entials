@@ -13,7 +13,7 @@
         android:theme="@style/Theme.Jassentials"
         tools:targetApi="31" >
         <activity
-            android:name=".MainActivity"
+            android:name=".SignInActivity"
             android:exported="true"
             android:theme="@style/Theme.Jassentials" >
             <intent-filter>
@@ -41,7 +41,7 @@
             android:theme="@style/Theme.Jassentials" >
         </activity>
         <activity
-            android:name=".game.pregame.SidiBarahniPregameActivity"
+            android:name=".game.pregame.SidiBarahniPreRoundActivity"
             android:exported="true"
             android:label="Sidi Barahni Pregame Activity"
             android:theme="@style/Theme.Jassentials" >
@@ -50,6 +50,12 @@
             android:name=".game.JassRoundActivity"
             android:exported="true"
             android:label="Jass Round Activity"
+            android:theme="@style/Theme.Jassentials" >
+        </activity>
+        <activity
+            android:name=".game.postgame.SidiBarahniPostRoundActivity"
+            android:exported="true"
+            android:label="SidiBarahni Postgame Activity"
             android:theme="@style/Theme.Jassentials" >
         </activity>
     </application>

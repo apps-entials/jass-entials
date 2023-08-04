@@ -32,13 +32,16 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.github.lucaengel.jass_entials.data.jass.JassTypes
+import com.github.lucaengel.jass_entials.data.jass.JassType
 import com.github.lucaengel.jass_entials.game.SelectGameActivity.TestTags.Buttons.Companion.BACK
 import com.github.lucaengel.jass_entials.game.pregame.CoiffeurPregameActivity
 import com.github.lucaengel.jass_entials.game.pregame.SchieberPregameActivity
-import com.github.lucaengel.jass_entials.game.pregame.SidiBarahniPregameActivity
+import com.github.lucaengel.jass_entials.game.pregame.SidiBarahniPreRoundActivity
 import com.github.lucaengel.jass_entials.ui.theme.JassentialsTheme
 
+/**
+ * The activity where the user can select the game type.
+ */
 class SelectGameActivity: ComponentActivity() {
     class TestTags {
         class Texts {
@@ -49,7 +52,6 @@ class SelectGameActivity: ComponentActivity() {
 
                 val ACTIVITY_TITLE = text("activity_title")
             }
-
         }
 
         class Buttons {
@@ -92,11 +94,14 @@ class SelectGameActivity: ComponentActivity() {
 fun GroundTheme(finishActivity: () -> Unit = {}) {
     JassentialsTheme {
         Surface(color = MaterialTheme.colorScheme.background) {
-            SelectGameView { finishActivity }
+            SelectGameView { finishActivity() }
         }
     }
 }
 
+/**
+ * The view for the game selection.
+ */
 @Preview
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -104,26 +109,26 @@ fun SelectGameView(finishActivity: () -> Unit = {}) {
     val context = LocalContext.current
 
 
-    fun onGameTypeClicked(gameType: JassTypes) {
+    fun onGameTypeClicked(gameType: JassType) {
         when (gameType) {
-            JassTypes.SCHIEBER ->
+            JassType.SCHIEBER ->
                 Intent(context, SchieberPregameActivity::class.java).also {
                     context.startActivity(it)
                 }
 
-            JassTypes.COIFFEUR ->
+            JassType.COIFFEUR ->
                 Intent(context, CoiffeurPregameActivity::class.java).also {
                     context.startActivity(it)
                 }
 
-            JassTypes.SIDI_BARAHNI ->
-                Intent(context, SidiBarahniPregameActivity::class.java).also {
+            JassType.SIDI_BARAHNI ->
+                Intent(context, SidiBarahniPreRoundActivity::class.java).also {
                     context.startActivity(it)
                 }
         }
     }
 
-    val gameTypes = JassTypes.values().toList()
+    val gameTypes = JassType.values().toList()
 
     Scaffold(
         modifier = Modifier.testTag(SelectGameActivity.TestTags.SCAFFOLD),
@@ -145,16 +150,6 @@ fun SelectGameView(finishActivity: () -> Unit = {}) {
                         Icon(Icons.Filled.ArrowBack, "Back")
                     }
                 },
-//                actions = {
-//                    IconButton(
-//                        onClick = {
-//
-//                        },
-//                        modifier = Modifier.testTag("DONE")
-//                    ) {
-//                        Icon(Icons.Filled.Done, "Done",)
-//                    }
-//                },
                 colors = smallTopAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     scrolledContainerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -196,6 +191,9 @@ fun SelectGameView(finishActivity: () -> Unit = {}) {
     }
 }
 
+/**
+ * A clickable row with a text.
+ */
 @Composable
 fun TextRow(testTag: String, text: String, onClick: () -> Unit) {
     Column(

@@ -33,6 +33,13 @@ class GoogleAuthenticator {
         signInLauncher.launch(signInIntent)
     }
 
+    /**
+     * Handles the result of the sign in process
+     *
+     * @param result the result of the sign in process
+     * @param onSuccess the action to perform on success
+     * @param onFailure the action to perform on failure
+     */
     fun onSignInResult(
         result: FirebaseAuthUIAuthenticationResult?,
         onSuccess: Consumer<String?>?,
@@ -56,22 +63,44 @@ class GoogleAuthenticator {
         }
     }
 
+    /**
+     * Starts the sign in process
+     *
+     * @param signInLauncher the launcher to use
+     */
     fun signIn(signInLauncher: ActivityResultLauncher<Intent>) {
         createSignInIntent(signInLauncher)
     }
 
+    /**
+     * Deletes the current user
+     *
+     * @param context the context to use
+     * @param onComplete the action to perform on completion
+     */
     fun delete(context: Context?, onComplete: Runnable?) {
         AuthUI.getInstance()
             .delete(context!!)
             .addOnCompleteListener { onComplete!!.run() }
     }
 
+    /**
+     * Signs out the current user
+     *
+     * @param context the context to use
+     * @param onComplete the action to perform on completion
+     */
     fun signOut(context: Context?, onComplete: Runnable?) {
         AuthUI.getInstance()
             .signOut(context!!)
             .addOnCompleteListener { onComplete!!.run() }
     }
 
+    /**
+     * Checks if the user is signed in
+     *
+     * @return true if the user is signed in, false otherwise
+     */
     fun isSignedIn(): Boolean {
         return FirebaseAuth.getInstance().currentUser != null
     }

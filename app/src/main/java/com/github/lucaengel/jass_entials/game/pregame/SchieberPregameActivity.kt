@@ -7,6 +7,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import com.github.lucaengel.jass_entials.ui.theme.JassentialsTheme
 
+/**
+ * Activity for the Schieber pregame screen.
+ */
 class SchieberPregameActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
