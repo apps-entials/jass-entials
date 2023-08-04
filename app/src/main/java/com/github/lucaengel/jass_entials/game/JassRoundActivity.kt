@@ -77,7 +77,7 @@ fun JassRound() {
     var gameState by remember { mutableStateOf(GameStateHolder.gameState) }
     val currentPlayerIdx by remember { mutableStateOf(gameState.currentPlayerIdx) }
     var currentPlayer by remember { mutableStateOf(gameState.playerDatas[currentPlayerIdx]) }
-    var opponents by remember {
+    val opponents by remember {
         mutableStateOf(gameState.playerDatas
             .filter { it != gameState.playerDatas[gameState.currentPlayerIdx] }
             .map { it to CpuPlayer(it) }
@@ -120,64 +120,63 @@ fun JassRound() {
 
         JassComposables.CurrentPlayerBox(
             playerData = currentPlayer,
-            onPlayCard = { card ->
-                if (gameState.currentTrick.isFull()) {
-                    nextTrickFun()
-                    return@CurrentPlayerBox
-                }
+        ) { card ->
+            if (gameState.currentTrick.isFull()) {
+                nextTrickFun()
+                return@CurrentPlayerBox
+            }
 
-                if (gameState.currentTrick.playerToCard.size != currentPlayerIdx) {
-                    Toast.makeText(
-                        context,
-                        "It is not your turn",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    return@CurrentPlayerBox
-                }
+            if (gameState.currentTrick.playerToCard.size != currentPlayerIdx) {
+                Toast.makeText(
+                    context,
+                    "It is not your turn",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@CurrentPlayerBox
+            }
 
-                if (!currentPlayer
-                        .playableCards(gameState.currentTrick, gameState.currentTrump)
-                        .contains(card)
-                ) {
-                    Toast.makeText(
-                        context,
-                        "You can't play this card",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    return@CurrentPlayerBox
-                }
+            if (!currentPlayer
+                    .playableCards(gameState.currentTrick, gameState.currentTrump)
+                    .contains(card)
+            ) {
+                Toast.makeText(
+                    context,
+                    "You can't play this card",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@CurrentPlayerBox
+            }
 
-                gameState = gameState.playCard(currentPlayer, card)
-                currentPlayer = currentPlayer.copy(
-                    cards = currentPlayer.cards.filter { c -> c != card }
-                )
+            gameState = gameState.playCard(currentPlayer, card)
+            currentPlayer = currentPlayer.copy(
+                cards = currentPlayer.cards.filter { c -> c != card }
+            )
 
-                val opp0 = opponents[0].second
-                    .playCard(gameState)
-                    .thenAccept {
-                        gameState = gameState.playCard(opponents[0].first, it)
+            val opp0 = opponents[0].second
+                .playCard(gameState)
+                .thenAccept {
+                    gameState = gameState.playCard(opponents[0].first, it)
 //                        sleep(2000)
-                    }
+                }
 
-                val opp1 = opp0.thenCompose {
-                    opponents[1].second
-                        .playCard(gameState)
-                }.thenAccept {
-                    gameState = gameState.playCard(opponents[1].first, it)
+            val opp1 = opp0.thenCompose {
+                opponents[1].second
+                    .playCard(gameState)
+            }.thenAccept {
+                gameState = gameState.playCard(opponents[1].first, it)
 //                    sleep(2000)
-                }
+            }
 
-                val opp2 = opp1.thenCompose {
-                    opponents[2].second
-                        .playCard(gameState)
-                }
+            val opp2 = opp1.thenCompose {
+                opponents[2].second
+                    .playCard(gameState)
+            }
 
-                opp2.thenApply {
-                    gameState = gameState.playCard(opponents[1].first, it)
+            opp2.thenApply {
+                gameState = gameState.playCard(opponents[1].first, it)
 //                    sleep(2000)
-                }
-            },
-        )
+            }
+        }
     }
 }
 
@@ -218,12 +217,16 @@ private fun JassMiddleRowInfo(gameState: GameState, currentPlayerIdx: Int, onCli
 fun CurrentTrick(gameState: GameState, currentPlayerIdx: Int, onClick: () -> Unit) {
 
     val currentTrick = gameState.currentTrick
-    val startingPlayerIdx = gameState.playerDatas.indexOf(gameState.startingPlayerData)
+    val startingPlayerIdx by remember { mutableStateOf(gameState.playerDatas.indexOfFirst { it.email == gameState.startingPlayerData.email }) }
+    println("startingPlayerIdx: $startingPlayerIdx")
+    println("currentPlayerIdx: $currentPlayerIdx")
+
 
     // 0 is bottom, 1 is right, 2 is top, 3 is left
     val idxToCards = (0..3)
-        .map { idx -> Triple(idx, /*gameState.players[(currentPlayerIdx + idx) % 4]*/(currentPlayerIdx + idx) % 4, Math.floorMod(currentPlayerIdx + idx - startingPlayerIdx, 4)) }
+        .map { idx -> Triple(idx, (currentPlayerIdx + idx) % 4, Math.floorMod(idx - startingPlayerIdx, 4)) }
         .associate { (i, playerIdx, zIndex) -> i to Pair(currentTrick.playerToCard.map { it.first }.getOrNull(playerIdx), zIndex) }
+    println("idxToCards: $idxToCards")
 
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val cardWidth = screenWidth.value / 10
@@ -236,7 +239,7 @@ fun CurrentTrick(gameState: GameState, currentPlayerIdx: Int, onClick: () -> Uni
         Column(modifier = Modifier.zIndex(idxToCards[2]?.second?.toFloat() ?: 0f)) {
             CardBox(
                 card = idxToCards[2]?.first,
-                modifier = Modifier.zIndex(1f)
+                modifier = Modifier//.zIndex(1f)
             )
         }
         Column(modifier = Modifier.zIndex(idxToCards[0]?.second?.toFloat() ?: 0f)) {
@@ -244,7 +247,7 @@ fun CurrentTrick(gameState: GameState, currentPlayerIdx: Int, onClick: () -> Uni
 
             CardBox(
                 card = idxToCards[0]?.first,
-                modifier = Modifier.zIndex(4f)
+                modifier = Modifier//.zIndex(4f)
             )
         }
 
@@ -254,7 +257,7 @@ fun CurrentTrick(gameState: GameState, currentPlayerIdx: Int, onClick: () -> Uni
             Row {
                 CardBox(
                     card = idxToCards[3]?.first,
-                    modifier = Modifier.zIndex(2f)
+                    modifier = Modifier//.zIndex(2f)
                 )
                 Spacer(modifier = Modifier.width((cardWidth * 1.25f).dp))
             }
@@ -265,7 +268,10 @@ fun CurrentTrick(gameState: GameState, currentPlayerIdx: Int, onClick: () -> Uni
             Row() {
                 Spacer(modifier = Modifier.width((cardWidth * 1.25f).dp))
 
-                CardBox(card = idxToCards[1]?.first, modifier = Modifier.zIndex(3f))
+                CardBox(
+                    card = idxToCards[1]?.first,
+                    modifier = Modifier//.zIndex(3f))
+                )
             }
         }
     }
