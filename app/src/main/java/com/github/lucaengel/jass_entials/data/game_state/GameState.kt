@@ -55,6 +55,7 @@ data class GameState(
             currentTrick = Trick(),
             currentTrickNumber = currentTrickNumber + 1,
             currentRoundTrickWinners = currentRoundTrickWinners + (currentTrick.winner(trump = currentTrump) to currentTrick),
+            //TODO: adapt currentPlayer to be the one who won this round!!!
         )
     }
 

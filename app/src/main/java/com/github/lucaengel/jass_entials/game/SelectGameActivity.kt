@@ -49,7 +49,6 @@ class SelectGameActivity: ComponentActivity() {
 
                 val ACTIVITY_TITLE = text("activity_title")
             }
-
         }
 
         class Buttons {
@@ -92,7 +91,7 @@ class SelectGameActivity: ComponentActivity() {
 fun GroundTheme(finishActivity: () -> Unit = {}) {
     JassentialsTheme {
         Surface(color = MaterialTheme.colorScheme.background) {
-            SelectGameView { finishActivity }
+            SelectGameView { finishActivity() }
         }
     }
 }

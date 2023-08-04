@@ -13,7 +13,14 @@ class CpuPlayer(var playerData: PlayerData) : Player {
     override fun playCard(gameState: GameState): CompletableFuture<Card> {
         val card = playerData.playableCards(gameState.currentTrick, gameState.currentTrump).random()
         playerData = playerData.copy(cards = playerData.cards.filter { c -> c != card })
-        return CompletableFuture.completedFuture(card)
+
+        val cardFuture = CompletableFuture<Card>()
+        CompletableFuture.runAsync {
+            Thread.sleep(300)
+            cardFuture.complete(card)
+        }
+
+        return cardFuture
     }
 
     override fun bet(bettingState: BettingState): CompletableFuture<BettingState> {

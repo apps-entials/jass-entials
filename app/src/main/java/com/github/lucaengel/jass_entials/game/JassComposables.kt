@@ -20,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
@@ -32,8 +33,15 @@ import kotlin.math.absoluteValue
 class JassComposables {
 
     companion object {
+
+        /**
+         * Displays the current player's cards.
+         *
+         * @param playerData The current player's data.
+         * @param onPlayCard The callback to be called when a card is played.
+         */
         @Composable
-        fun CurrentPlayerBox(playerData: PlayerData, onPlayCard: (Card) -> Unit = {}, isPlayingRound: Boolean = false) {
+        fun CurrentPlayerBox(playerData: PlayerData, onPlayCard: (Card) -> Unit = {}) {
 
             val screenWidth = LocalConfiguration.current.screenWidthDp.dp
             val cardWidth = screenWidth.value / 10 * 1.5f
@@ -41,7 +49,6 @@ class JassComposables {
 
             val nbCards = playerData.cards.size
             val cardNbIsEven = nbCards % 2 == 0
-
 
             // offset, rotation
             val displacements = (if (!cardNbIsEven) (0 until nbCards) else (0 .. nbCards).filter { it != nbCards / 2 })
@@ -52,10 +59,7 @@ class JassComposables {
                         (it - (nbCards / 2)).absoluteValue * (1.2 * cardWidth) - 1.2 * evenCardsCorrection,
                         (it - (nbCards / 2)) * 5f
                     )
-                } //- if (nbCards % 2 == 0) cardWidth / 2 else 0f }
-//                .mapIndexed{ idx, offset -> Pair(offset, (idx - (nbCards / 2)) * 5f) }
-//            println("displacements = $displacements")
-//            println((if (!cardNbIsEven) (0 until nbCards) else (0..nbCards).filter { it != nbCards / 2 }))
+                }
 
             BoxWithConstraints(
                 contentAlignment = Alignment.BottomCenter,
@@ -80,8 +84,9 @@ class JassComposables {
                                     .requiredWidth(cardWidth.dp)
                                     .graphicsLayer {
                                         rotationZ =
-                                            displacements[idx].second //(idx - (nbCards / 2)) * 5f
+                                            displacements[idx].second
                                     }
+                                    .clip(RoundedCornerShape(9.dp))
                                     .clickable { onPlayCard(card) },
                             )
                         }
@@ -97,6 +102,7 @@ class JassComposables {
          *
          * @param playerData The player to display
          * @param playerSpot The spot of the player in the game (0 = bottom, 1 = right, 2 = top, 3 = left)
+         * @param modifier The modifier to apply to the box
          */
         @Composable
         fun PlayerBox(playerData: PlayerData, playerSpot: Int, modifier: Modifier = Modifier) {
