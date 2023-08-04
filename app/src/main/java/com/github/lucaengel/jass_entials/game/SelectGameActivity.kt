@@ -39,6 +39,9 @@ import com.github.lucaengel.jass_entials.game.pregame.SchieberPregameActivity
 import com.github.lucaengel.jass_entials.game.pregame.SidiBarahniPreRoundActivity
 import com.github.lucaengel.jass_entials.ui.theme.JassentialsTheme
 
+/**
+ * The activity where the user can select the game type.
+ */
 class SelectGameActivity: ComponentActivity() {
     class TestTags {
         class Texts {
@@ -96,6 +99,9 @@ fun GroundTheme(finishActivity: () -> Unit = {}) {
     }
 }
 
+/**
+ * The view for the game selection.
+ */
 @Preview
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -185,6 +191,9 @@ fun SelectGameView(finishActivity: () -> Unit = {}) {
     }
 }
 
+/**
+ * A clickable row with a text.
+ */
 @Composable
 fun TextRow(testTag: String, text: String, onClick: () -> Unit) {
     Column(

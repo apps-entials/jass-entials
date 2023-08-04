@@ -7,6 +7,20 @@ import com.github.lucaengel.jass_entials.data.jass.Trump
 import java.io.Serializable
 import java.lang.IllegalStateException
 
+/**
+ * Represents the state of a game.
+ *
+ * @property currentPlayerIdx the index of the current user in the [playerDatas] list
+ * @property playerDatas the list of all players
+ * @property currentPlayerData the data of the player that has to play the next card
+ * @property startingPlayerData the data of the player that started the current trick
+ * @property currentRound the current round number
+ * @property currentTrick the current trick
+ * @property currentRoundTrickWinners the list of pairs of player data and tricks that were won by the players in the previous tricks of the current round
+ * @property currentTrickNumber the current trick number
+ * @property currentTrump the current trump
+ * @property playerCards the map of player data to their cards
+ */
 data class GameState(
     val currentPlayerIdx: Int,
     val playerDatas: List<PlayerData> = listOf(),
@@ -59,6 +73,12 @@ data class GameState(
         )
     }
 
+    /**
+     * Calculates the points of the given player.
+     *
+     * @param playerData the player data whose points are to be calculated
+     * @return the points of the given player
+     */
     fun points(playerData: PlayerData): Int {
 
         // todo: do something about the emails that are not different for guests!!!
@@ -70,6 +90,13 @@ data class GameState(
             .sumOf { (_, trick) -> trick.playerToCard.sumOf { it.first.points(currentTrump) } }
     }
 
+    /**
+     * Returns the updated game state after the given player played the given card.
+     *
+     * @param playerData the player data of the player that played the card
+     * @param card the card that was played
+     * @return the updated game state
+     */
     fun playCard(playerData: PlayerData, card: Card): GameState {
 
         val newPlayer = playerData.copy(cards = playerData.cards.filter { c -> c != card })

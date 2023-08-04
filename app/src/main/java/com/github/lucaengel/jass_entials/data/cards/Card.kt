@@ -4,6 +4,12 @@ import com.github.lucaengel.jass_entials.R
 import com.github.lucaengel.jass_entials.data.jass.Trump
 import java.io.Serializable
 
+/**
+ * The suits of a card.
+ *
+ * @property toString The name of the suit.
+ * @property symbol The symbol of the suit.
+ */
 enum class Suit(val toString: String, val symbol: Char) : Serializable  {
     CLUBS("Clubs", '\u2663'),
     SPADES("Spades", '\u2660'),
@@ -11,6 +17,13 @@ enum class Suit(val toString: String, val symbol: Char) : Serializable  {
     DIAMONDS("Diamonds", '\u2666'),
 }
 
+/**
+ * The ranks of a card.
+ *
+ * @property rank The name of the rank.
+ * @property normalHeight The height of the card in a normal game.
+ * @property trumpHeight The height of the card in a trump game.
+ */
 enum class Rank(private val rank: String, normalHeight: Int, val trumpHeight: Int) : Serializable  {
     SIX("6", 6, 6),
     SEVEN("7", 7, 7),
@@ -27,12 +40,23 @@ enum class Rank(private val rank: String, normalHeight: Int, val trumpHeight: In
     }
 }
 
+/**
+ * A card in a game of Jass.
+ *
+ * @property rank The rank of the card.
+ * @property suit The suit of the card.
+ */
 data class Card(
     val rank: Rank,
     val suit: Suit,
 ) : Serializable {
     constructor() : this(Rank.TEN, Suit.HEARTS)
 
+    /**
+     * Returns the points of this card considering the given trump.
+     *
+     * @param trump The trump of the game.
+     */
     fun points(trump: Trump): Int {
         if ((trump == Trump.OBE_ABE || trump == Trump.UNGER_UFE) && rank == Rank.EIGHT) return 8
 
@@ -133,6 +157,9 @@ data class Card(
             Card(Rank.ACE, Suit.SPADES) to R.drawable.spades_ace,
         )
 
+        /**
+         * Returns the image id of the given card.
+         */
         fun getCardImage(card: Card): Int {
             return cardImageMap[card]!!
         }

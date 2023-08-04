@@ -74,6 +74,9 @@ fun MyPreview() {
     }
 }
 
+/**
+ * Betting round composable.
+ */
 @Composable
 fun BettingRound() {
     val context = LocalContext.current
@@ -102,29 +105,20 @@ fun BettingRound() {
 
         if (bettingState.currentBetter == currentPlayerData) {
             val simulatePlayers: () -> Unit = {
-                val opp0 = opponents[0].second
+                opponents[0].second
                     .bet(bettingState)
-                    .thenAccept {
+                    .thenCompose {
                         bettingState = it
-//                        sleep(2000)
-                    }
 
-                val opp1 = opp0.thenCompose {
                     opponents[1].second
+                        .bet(bettingState)
+                }.thenCompose {
+                    bettingState = it
+
+                    opponents[2].second
                         .bet(bettingState)
                 }.thenAccept {
                     bettingState = it
-//                    sleep(2000)
-                }
-
-                val opp2 = opp1.thenCompose {
-                    opponents[2].second
-                        .bet(bettingState)
-                }
-
-                opp2.thenApply {
-                    bettingState = it
-//                    sleep(2000)
                 }
             }
 
@@ -139,15 +133,8 @@ fun BettingRound() {
                     simulatePlayers()
                 },
                 onStartGame = {
-                    println("bets: ${bettingState.bets}")
                     val gameState = bettingState.startGame()
-                    println("gamestate trump: ${gameState.currentTrump}")
-
-
-                    println("gamestate      : ${gameState.playerDatas[currentPlayerIdx]}")
                     GameStateHolder.gameState = gameState
-                    println("gamestate after: ${GameStateHolder.gameState.playerDatas[currentPlayerIdx]}")
-
 
                     //TODO: adapt to new betting state for the next potential round???
 //                    GameStateHolder.bettingState = BettingState()
@@ -157,9 +144,7 @@ fun BettingRound() {
                 }
             )
         } else {
-
             MiddleRowInfo(bettingState = bettingState, currentPlayerIdx = currentPlayerIdx)
-
         }
 
         Spacer(modifier = Modifier.weight(1f))
@@ -168,24 +153,22 @@ fun BettingRound() {
     }
 }
 
+/**
+ * Betting row composable (contains the betting elements or the players in the middle row).
+ */
 @Composable
 private fun MiddleRowInfo(bettingState: BettingState, currentPlayerIdx: Int) {
     Row {
 
         val leftPlayer = bettingState.playerDatas[(currentPlayerIdx + 3) % 4]
-//        Box(
-//            modifier = Modifier
-//                .fillMaxHeight(0.5F)
-//                .fillMaxWidth(0.25F)
-//                .weight(1f),
-//            contentAlignment = Alignment.Center
-//        ) {
-        JassComposables.PlayerBox(playerData = leftPlayer, playerSpot = 3,
-            Modifier
+        JassComposables.PlayerBox(
+            playerData = leftPlayer,
+            playerSpot = 3,
+            modifier = Modifier
                 .fillMaxHeight(0.5F)
                 .fillMaxWidth(0.25f)
-                .weight(1f))
-//        }
+                .weight(1f)
+        )
 
         Spacer(modifier = Modifier.weight(0.1f))
 
@@ -230,6 +213,9 @@ private fun MiddleRowInfo(bettingState: BettingState, currentPlayerIdx: Int) {
     }
 }
 
+/**
+ * Betting row composable
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BettingRow(
@@ -251,7 +237,6 @@ fun BettingRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-//            .fillMaxHeight(0.5F)
     ) {
 
         Spacer(modifier = Modifier.weight(1f))

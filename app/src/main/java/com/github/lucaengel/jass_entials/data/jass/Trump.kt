@@ -3,6 +3,9 @@ package com.github.lucaengel.jass_entials.data.jass
 import com.github.lucaengel.jass_entials.data.cards.Card
 import com.github.lucaengel.jass_entials.data.cards.Suit
 
+/**
+ * Enum representing the trump suit in a Jass game.
+ */
 enum class Trump(private val asString: String) {
     DIAMONDS(asString = Suit.DIAMONDS.symbol.toString()),
     HEARTS(asString = Suit.HEARTS.symbol.toString()),
@@ -39,6 +42,12 @@ enum class Trump(private val asString: String) {
                     suit == Suit.CLUBS && trump == CLUBS
         }
 
+        /**
+         * Returns the [Suit] representation of the given [trump] or `null` if the given [trump] is not a suit trump.
+         *
+         * @param trump the trump to get the suit for
+         * @return the [Suit] representation of the given [trump] or `null` if the given [trump] is not a suit trump
+         */
         fun asSuit(trump: Trump): Suit? {
             return when (trump) {
                 DIAMONDS -> Suit.DIAMONDS

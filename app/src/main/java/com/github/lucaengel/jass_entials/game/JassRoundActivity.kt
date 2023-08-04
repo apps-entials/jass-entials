@@ -43,6 +43,9 @@ import com.github.lucaengel.jass_entials.game.player.CpuPlayer
 import com.github.lucaengel.jass_entials.game.postgame.SidiBarahniPostRoundActivity
 import com.github.lucaengel.jass_entials.ui.theme.JassentialsTheme
 
+/**
+ * Activity for the Jass round screen.
+ */
 class JassRoundActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -68,7 +71,9 @@ fun JassRoundPreview() {
     }
 }
 
-
+/**
+ * Composable for the Jass round screen.
+ */
 @Composable
 fun JassRound() {
     val context = LocalContext.current
@@ -174,6 +179,9 @@ fun JassRound() {
     }
 }
 
+/**
+ * Composable for the current trick and the players in the middle (left and right opponents).
+ */
 @Composable
 private fun JassMiddleRowInfo(gameState: GameState, currentPlayerIdx: Int, onClick: () -> Unit) {
     Row() {
@@ -267,6 +275,9 @@ fun CurrentTrick(gameState: GameState, currentPlayerIdx: Int, onClick: () -> Uni
     }
 }
 
+/**
+ * Displays a jass card image for the given card.
+ */
 @Composable
 fun CardBox(card: Card?, modifier: Modifier = Modifier) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp

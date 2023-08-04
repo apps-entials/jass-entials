@@ -1,13 +1,29 @@
 package com.github.lucaengel.jass_entials.data.cards
 
+/**
+ * A deck of cards.
+ *
+ * @property cards the cards of the deck
+ */
 data class Deck(val cards: List<Card> = listOf()) {
 
     constructor() : this(listOf())
 
+    /**
+     * Shuffles the cards of the deck.
+     *
+     * @return the shuffled deck
+     */
     fun shuffled(): Deck {
         return this.copy(cards = cards.shuffled())
     }
 
+    /**
+     * Deals the cards of the deck to the given players.
+     *
+     * @param playerData the players to deal the cards to
+     * @return a map of the players and their cards
+     */
     fun dealCards(playerData: List<PlayerData>): Map<PlayerData, List<Card>> {
         return playerData.zip(cards.chunked(9)).map { (playerData, cards) ->
             val sortedCards = sortPlayerCards(cards)
@@ -15,8 +31,11 @@ data class Deck(val cards: List<Card> = listOf()) {
         }.toMap()
     }
 
-
     companion object {
+
+        /**
+         * A standard deck of cards.
+         */
         val STANDARD_DECK = Deck(
             Suit.values().flatMap { suit ->
                 Rank.values().map { rank ->

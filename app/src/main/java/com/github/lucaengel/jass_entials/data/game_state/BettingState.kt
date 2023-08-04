@@ -114,8 +114,20 @@ data class BettingState(
     }
 }
 
+/**
+ * Represents a bet that has been placed by a player.
+ *
+ * @param playerData the player who placed the bet
+ * @param suit the selected trump suit for the bet
+ * @param bet the bet height
+ */
 data class Bet(val playerData: PlayerData, val suit: Trump, val bet: BetHeight)
 
+/**
+ * Represents the height of a bet.
+ *
+ * @param value the points the bet is worth
+ */
 enum class BetHeight(private val value: Int) {
     NONE(0),
     FORTY(40),
@@ -142,6 +154,12 @@ enum class BetHeight(private val value: Int) {
     }
 
     companion object {
+        /**
+         * Returns the BetHeight corresponding to the given string.
+         *
+         * @param string the string to convert
+         * @return the corresponding BetHeight
+         */
         fun fromString(string: String): BetHeight {
             return when (string) {
                 "no bet" -> NONE

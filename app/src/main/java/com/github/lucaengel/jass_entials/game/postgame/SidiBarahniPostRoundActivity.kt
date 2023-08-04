@@ -16,6 +16,9 @@ import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
 import com.github.lucaengel.jass_entials.game.pregame.SidiBarahniPreRoundActivity
 import com.github.lucaengel.jass_entials.ui.theme.JassentialsTheme
 
+/**
+ * Activity for the Sidi Barahni post round screen.
+ */
 class SidiBarahniPostRoundActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,6 +34,9 @@ class SidiBarahniPostRoundActivity : ComponentActivity() {
     }
 }
 
+/**
+ * Composable for the score sheet.
+ */
 @Composable
 fun ScoreSheet() {
     val context = LocalContext.current

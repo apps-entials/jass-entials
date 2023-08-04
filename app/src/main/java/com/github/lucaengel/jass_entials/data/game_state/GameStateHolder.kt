@@ -6,6 +6,9 @@ import com.github.lucaengel.jass_entials.data.cards.Trick
 import com.github.lucaengel.jass_entials.data.jass.JassType
 import com.github.lucaengel.jass_entials.data.jass.Trump
 
+/**
+ * Holds the current game and betting state.
+ */
 class GameStateHolder {
 
     companion object {
@@ -16,7 +19,9 @@ class GameStateHolder {
         private val playerData4 = PlayerData("email_4", 3, "first_4", "second_4", Deck.sortPlayerCards(shuffledDeck.cards.subList(27, 36)), 0, "123")
         private val players = listOf(playerData1, playerData2, playerData3, playerData4)
 
-
+        /**
+         * The current game state.
+         */
         var gameState: GameState = GameState(
             0,
             players,
@@ -29,7 +34,10 @@ class GameStateHolder {
             Trump.UNGER_UFE,
             Deck.STANDARD_DECK.dealCards(players),
         )
-        //GameState()
+
+        /**
+         * The current betting state.
+         */
         var bettingState: BettingState =
             BettingState(
                 0,
@@ -56,6 +64,11 @@ class GameStateHolder {
             )
         }*/
 
+        /**
+         * Updates the betting state to go to the next betting state round.
+         *
+         * @param startingBetter The player that starts the next betting round.
+         */
         fun goToNextBettingStateRound(startingBetter: PlayerData) {
             bettingState = bettingState.nextBettingRound(startingBetter)
         }

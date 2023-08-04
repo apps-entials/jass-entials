@@ -2,6 +2,11 @@ package com.github.lucaengel.jass_entials.game.player
 
 import com.github.lucaengel.jass_entials.data.cards.PlayerData
 
+/**
+ * Class representing a local player
+ *
+ * @property playerData the player data
+ */
 class LocalPlayer(private val playerData: PlayerData) /*: Player*/ {
 
     /*override fun playCard(gameState: GameState): CompletableFuture<Card> {
@@ -12,7 +17,7 @@ class LocalPlayer(private val playerData: PlayerData) /*: Player*/ {
         TODO()
     }
 
-    override fun chooseTrump(gameState: GameState) {
+    override fun chooseTrump(gameState: GameState): CompletableFuture<Trump> {
         TODO()
     }*/
 }

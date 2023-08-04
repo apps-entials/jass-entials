@@ -25,6 +25,9 @@ import com.github.lucaengel.jass_entials.auth.GoogleAuthenticator
 import com.github.lucaengel.jass_entials.game.SelectGameActivity
 import com.github.lucaengel.jass_entials.ui.theme.JassentialsTheme
 
+/**
+ * The activity where the user can sign in with Google or as a guest.
+ */
 class SignInActivity : ComponentActivity() {
 
     private var currentUserEmail = ""
@@ -68,7 +71,9 @@ class SignInActivity : ComponentActivity() {
         }
     }
 
-
+    /**
+     * The sign in form with the sign in buttons.
+     */
     @Preview(showBackground = true)
     @Composable
     fun SignInForm() {

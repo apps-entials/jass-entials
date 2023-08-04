@@ -5,9 +5,15 @@ import com.github.lucaengel.jass_entials.data.cards.PlayerData
 import com.github.lucaengel.jass_entials.data.game_state.Bet
 import com.github.lucaengel.jass_entials.data.game_state.BettingState
 import com.github.lucaengel.jass_entials.data.game_state.GameState
+import com.github.lucaengel.jass_entials.data.jass.Trump
 import java.util.concurrent.CompletableFuture
 import kotlin.random.Random
 
+/**
+ * Class representing a CPU player
+ *
+ * @property playerData the player data
+ */
 class CpuPlayer(var playerData: PlayerData) : Player {
 
     override fun playCard(gameState: GameState): CompletableFuture<Card> {
@@ -37,7 +43,7 @@ class CpuPlayer(var playerData: PlayerData) : Player {
         )
     }
 
-    override fun chooseTrump(gameState: GameState) {
+    override fun chooseTrump(gameState: GameState): CompletableFuture<Trump> {
         TODO("Not yet implemented")
     }
 }

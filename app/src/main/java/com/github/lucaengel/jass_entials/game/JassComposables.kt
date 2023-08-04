@@ -30,6 +30,9 @@ import com.github.lucaengel.jass_entials.data.cards.Card
 import com.github.lucaengel.jass_entials.data.cards.PlayerData
 import kotlin.math.absoluteValue
 
+/**
+ * Reusable composables for the Jass game.
+ */
 class JassComposables {
 
     companion object {
