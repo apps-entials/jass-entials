@@ -85,8 +85,6 @@ class CpuPlayerTest {
 
     @Test
     fun whenNoAvailableBetsPlayerPasses() {
-        val oldBettingState = defaultBettingState.copy(bets = listOf(Bet(defaultPlayerDatas[3], Trump.UNGER_UFE, BetHeight.MATCH)))
-
         val player = CpuPlayer(defaultPlayerDatas[0])
 
         val newBettingState = player.bet(defaultBettingState).join()

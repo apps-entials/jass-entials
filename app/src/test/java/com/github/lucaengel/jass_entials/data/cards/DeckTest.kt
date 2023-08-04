@@ -24,7 +24,7 @@ class DeckTest {
             PlayerData().copy(firstName = "player4")
         )
 
-        deck.dealCards(playerData).toList().forEachIndexed { index, (playerData, cards) ->
+        deck.dealCards(playerData).toList().forEachIndexed { _, (playerData, cards) ->
             assertThat(cards.size, `is`(9))
             assertThat(cards, `is`(playerData.cards))
         }

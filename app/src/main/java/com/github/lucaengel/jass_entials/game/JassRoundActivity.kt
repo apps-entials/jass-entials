@@ -152,30 +152,22 @@ fun JassRound() {
                 cards = currentPlayer.cards.filter { c -> c != card }
             )
 
-            val opp0 = opponents[0].second
+            // Have opponents play
+            opponents[0].second
                 .playCard(gameState)
-                .thenAccept {
+                .thenCompose {
                     gameState = gameState.playCard(opponents[0].first, it)
-//                        sleep(2000)
+
+                    opponents[1].second
+                        .playCard(gameState)
+                }.thenCompose {
+                    gameState = gameState.playCard(opponents[1].first, it)
+
+                    opponents[2].second
+                        .playCard(gameState)
+                }.thenAccept {
+                    gameState = gameState.playCard(opponents[1].first, it)
                 }
-
-            val opp1 = opp0.thenCompose {
-                opponents[1].second
-                    .playCard(gameState)
-            }.thenAccept {
-                gameState = gameState.playCard(opponents[1].first, it)
-//                    sleep(2000)
-            }
-
-            val opp2 = opp1.thenCompose {
-                opponents[2].second
-                    .playCard(gameState)
-            }
-
-            opp2.thenApply {
-                gameState = gameState.playCard(opponents[1].first, it)
-//                    sleep(2000)
-            }
         }
     }
 }
@@ -218,15 +210,11 @@ fun CurrentTrick(gameState: GameState, currentPlayerIdx: Int, onClick: () -> Uni
 
     val currentTrick = gameState.currentTrick
     val startingPlayerIdx by remember { mutableStateOf(gameState.playerDatas.indexOfFirst { it.email == gameState.startingPlayerData.email }) }
-    println("startingPlayerIdx: $startingPlayerIdx")
-    println("currentPlayerIdx: $currentPlayerIdx")
-
 
     // 0 is bottom, 1 is right, 2 is top, 3 is left
     val idxToCards = (0..3)
         .map { idx -> Triple(idx, (currentPlayerIdx + idx) % 4, Math.floorMod(idx - startingPlayerIdx, 4)) }
         .associate { (i, playerIdx, zIndex) -> i to Pair(currentTrick.playerToCard.map { it.first }.getOrNull(playerIdx), zIndex) }
-    println("idxToCards: $idxToCards")
 
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val cardWidth = screenWidth.value / 10
