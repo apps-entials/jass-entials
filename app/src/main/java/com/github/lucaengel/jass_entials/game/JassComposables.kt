@@ -87,7 +87,9 @@ class JassComposables {
                                             displacements[idx].second
                                     }
                                     .clip(RoundedCornerShape(9.dp))
-                                    .clickable { onPlayCard(card) },
+                                    .clickable {
+                                        println("card was clicked!!!")
+                                        onPlayCard(card) },
                             )
                         }
                         if (!shouldPlaceCardRight) Spacer(modifier = Modifier.width(displacements[idx].first.dp))

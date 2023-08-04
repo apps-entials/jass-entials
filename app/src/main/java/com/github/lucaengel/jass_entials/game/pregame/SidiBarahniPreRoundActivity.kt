@@ -47,7 +47,6 @@ import com.github.lucaengel.jass_entials.game.JassComposables
 import com.github.lucaengel.jass_entials.game.JassRoundActivity
 import com.github.lucaengel.jass_entials.game.player.CpuPlayer
 import com.github.lucaengel.jass_entials.ui.theme.JassentialsTheme
-import java.lang.Thread.sleep
 
 /**
  * Sidi Barahni pre-round activity (i.e., betting round).
@@ -121,11 +120,6 @@ fun BettingRound() {
 
         if (bettingState.currentBetter == currentPlayerData) {
             val simulatePlayers: () -> Unit = {
-                sleep(500)
-//                bettingState = bettingState.nextPlayer()
-//                bettingState = bettingState.nextPlayer()
-//                bettingState = bettingState.nextPlayer()
-
                 val opp0 = opponents[0].second
                     .bet(bettingState)
                     .thenAccept {
