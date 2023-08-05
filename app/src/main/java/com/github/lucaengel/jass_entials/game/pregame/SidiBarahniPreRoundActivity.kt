@@ -42,6 +42,7 @@ import com.github.lucaengel.jass_entials.data.game_state.Bet
 import com.github.lucaengel.jass_entials.data.game_state.BetHeight
 import com.github.lucaengel.jass_entials.data.game_state.BettingState
 import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
+import com.github.lucaengel.jass_entials.data.jass.JassType
 import com.github.lucaengel.jass_entials.data.jass.Trump
 import com.github.lucaengel.jass_entials.game.JassComposables
 import com.github.lucaengel.jass_entials.game.JassRoundActivity
@@ -284,21 +285,24 @@ fun BettingRow(
             )
 
             Row {
-                DropdownMenu(
-                    expanded = isBetDropdownExpanded,
-                    onDismissRequest = { isBetDropdownExpanded = false }
-                ) {
-                    bettingState.availableBets().forEach { bet ->
-                        DropdownMenuItem(
-                            text = { Text(text = bet.toString()) },
-                            onClick = {
-                                selectedBet = bet
-                                isBetDropdownExpanded = false
-                            })
-                    }
-                }
 
-                Spacer(modifier = Modifier.width(5.dp))
+                if (GameStateHolder.jassType == JassType.SIDI_BARAHNI) {
+                    DropdownMenu(
+                        expanded = isBetDropdownExpanded,
+                        onDismissRequest = { isBetDropdownExpanded = false }
+                    ) {
+                        bettingState.availableBets().forEach { bet ->
+                            DropdownMenuItem(
+                                text = { Text(text = bet.toString()) },
+                                onClick = {
+                                    selectedBet = bet
+                                    isBetDropdownExpanded = false
+                                })
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.width(5.dp))
+                }
 
                 DropdownMenu(
                     expanded = isTrumpDropdownExpanded,
@@ -320,7 +324,7 @@ fun BettingRow(
 
         Button(
             onClick = {
-                if (selectedBet != BetHeight.NONE && selectedTrump != null) {
+                if ((selectedBet != BetHeight.NONE || GameStateHolder.jassType != JassType.SIDI_BARAHNI) && selectedTrump != null) {
                     onBetPlace(Bet(bettingState.currentBetter, selectedTrump!!, selectedBet))
 
                     selectedTrump = null

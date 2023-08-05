@@ -121,7 +121,12 @@ data class BettingState(
  * @param suit the selected trump suit for the bet
  * @param bet the bet height
  */
-data class Bet(val playerData: PlayerData, val suit: Trump, val bet: BetHeight)
+data class Bet(val playerData: PlayerData, val suit: Trump, val bet: BetHeight) {
+    enum class BetAction {
+        BET, PASS
+    }
+}
+
 
 /**
  * Represents the height of a bet.

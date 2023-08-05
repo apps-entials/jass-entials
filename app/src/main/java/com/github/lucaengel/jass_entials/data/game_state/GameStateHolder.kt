@@ -50,6 +50,11 @@ class GameStateHolder {
                 GameState()
             )
 
+        /**
+         * The current jass type.
+         */
+        var jassType: JassType = JassType.SIDI_BARAHNI
+
         // TODO: call this when a new game starts
         /*fun startNewGameBettingState(playerDatas: List<PlayerData>, currentPlayerData: PlayerData) {
             if (!playerDatas.contains(currentPlayerData)) throw IllegalArgumentException("Current player must be in playerDatas")
