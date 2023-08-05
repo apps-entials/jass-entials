@@ -80,10 +80,11 @@ fun JassRound() {
 
     var gameState by remember { mutableStateOf(GameStateHolder.gameState) }
     val currentPlayerIdx by remember { mutableStateOf(gameState.currentPlayerIdx) }
-    var currentPlayer by remember { mutableStateOf(gameState.playerDatas[currentPlayerIdx]) }
+    val currentPlayerEmail by remember { mutableStateOf(gameState.playerEmails[currentPlayerIdx]) }
+    val gameStateHolderPlayerIdx = GameStateHolder.players.indexOfFirst { it.email == currentPlayerEmail }
     val opponents by remember {
-        mutableStateOf(gameState.playerDatas
-            .filter { it != gameState.playerDatas[gameState.currentPlayerIdx] }
+        mutableStateOf(gameState.playerEmails
+            .filter { it != gameState.playerEmails[gameState.currentPlayerIdx] }
             .map { it to CpuPlayer(it) }
         )}
 
@@ -104,9 +105,9 @@ fun JassRound() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        val topPlayer = gameState.playerDatas[(currentPlayerIdx + 2) % 4]
+        val topPlayerEmail = gameState.playerEmails[(currentPlayerIdx + 2) % 4]
         Row {
-            JassComposables.PlayerBox(playerData = topPlayer, playerSpot = 2)
+            JassComposables.PlayerBox(playerData = GameStateHolder.players.first { it.email == topPlayerEmail }, playerSpot = 2)
 
             Text(text = "Trump: ${gameState.currentTrump}")
         }
@@ -123,14 +124,14 @@ fun JassRound() {
         Spacer(modifier = Modifier.weight(1f))
 
         JassComposables.CurrentPlayerBox(
-            playerData = currentPlayer,
+            playerEmail = currentPlayerEmail,
         ) { card ->
             if (gameState.currentTrick.isFull()) {
                 nextTrickFun()
                 return@CurrentPlayerBox
             }
 
-            if (gameState.currentTrick.playerToCard.size != currentPlayerIdx) {
+            if (gameState.currentTrick.trickCards.size != currentPlayerIdx) {
                 Toast.makeText(
                     context,
                     "It is not your turn",
@@ -139,7 +140,7 @@ fun JassRound() {
                 return@CurrentPlayerBox
             }
 
-            if (!currentPlayer
+            if (!GameStateHolder.players[gameStateHolderPlayerIdx]
                     .playableCards(gameState.currentTrick, gameState.currentTrump)
                     .contains(card)
             ) {
@@ -151,13 +152,15 @@ fun JassRound() {
                 return@CurrentPlayerBox
             }
 
-            gameState = gameState.playCard(currentPlayer, card)
+            gameState = gameState.playCard(currentPlayerEmail, card)
             GameStateHolder.gameState = gameState
-            currentPlayer = currentPlayer.copy(
-                cards = currentPlayer.cards.filter { c -> c != card }
-            )
-
-            println("player's cards were updated: ${currentPlayer.cards}")
+            GameStateHolder.players = GameStateHolder.players.mapIndexed { idx, player ->
+                if (idx == gameStateHolderPlayerIdx) {
+                    player.copy(cards = player.cards.minus(card))
+                } else {
+                    player
+                }
+            }
 
             // Have opponents play
             opponents[0].second
@@ -185,9 +188,9 @@ fun JassRound() {
 @Composable
 private fun JassMiddleRowInfo(gameState: GameState, currentPlayerIdx: Int, onClick: () -> Unit) {
     Row() {
-        val leftPlayer = gameState.playerDatas[(currentPlayerIdx + 3) % 4]
+        val leftPlayer = gameState.playerEmails[(currentPlayerIdx + 3) % 4]
         JassComposables.PlayerBox(
-            playerData = leftPlayer,
+            playerData = GameStateHolder.players.first { it.email == leftPlayer },
             playerSpot = 3,
             modifier = Modifier
                 .fillMaxHeight(0.5F)
@@ -199,9 +202,9 @@ private fun JassMiddleRowInfo(gameState: GameState, currentPlayerIdx: Int, onCli
         CurrentTrick(gameState = gameState, currentPlayerIdx = currentPlayerIdx, onClick = onClick)
         Spacer(modifier = Modifier.weight(0.1f))
 
-        val rightPlayer = gameState.playerDatas[(currentPlayerIdx + 1) % 4]
+        val rightPlayer = gameState.playerEmails[(currentPlayerIdx + 1) % 4]
         JassComposables.PlayerBox(
-            playerData = rightPlayer,
+            playerData = GameStateHolder.players.first { it.email == rightPlayer },
             playerSpot = 1, Modifier
                 .fillMaxHeight(0.5F)
                 .fillMaxWidth(0.25F)
@@ -219,57 +222,53 @@ private fun JassMiddleRowInfo(gameState: GameState, currentPlayerIdx: Int, onCli
 fun CurrentTrick(gameState: GameState, currentPlayerIdx: Int, onClick: () -> Unit) {
 
     val currentTrick = gameState.currentTrick
-    val startingPlayerIdx by remember { mutableStateOf(gameState.playerDatas.indexOfFirst { it.email == gameState.startingPlayerData.email }) }
+    val startingPlayerIdx by remember { mutableStateOf(gameState.playerEmails.indexOfFirst { it == gameState.startingPlayerEmail }) }
 
     // 0 is bottom, 1 is right, 2 is top, 3 is left
     val idxToCards = (0..3)
         .map { idx -> Triple(idx, (currentPlayerIdx + idx) % 4, Math.floorMod(idx - startingPlayerIdx, 4)) }
-        .associate { (i, playerIdx, zIndex) -> i to Pair(currentTrick.playerToCard.map { it.first }.getOrNull(playerIdx), zIndex) }
+        .associate { (i, playerIdx, zIndex) -> i to Pair(currentTrick.trickCards.map { it.card }.getOrNull(playerIdx), zIndex) }
 
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val cardWidth = screenWidth.value / 10
     val cardHeight = cardWidth * 1.5f
 
+    // Displays the cards in the middle of the table.
     BoxWithConstraints(
         modifier = Modifier.clickable(onClick = onClick),
         contentAlignment = Alignment.TopCenter
     ) {
+        // Card at the top middle
         Column(modifier = Modifier.zIndex(idxToCards[2]?.second?.toFloat() ?: 0f)) {
-            CardBox(
-                card = idxToCards[2]?.first,
-                modifier = Modifier//.zIndex(1f)
-            )
+            CardBox(card = idxToCards[2]?.first)
         }
+
+        // Card at the bottom middle
         Column(modifier = Modifier.zIndex(idxToCards[0]?.second?.toFloat() ?: 0f)) {
             Spacer(modifier = Modifier.height((cardHeight * 2 / 3).dp))
 
-            CardBox(
-                card = idxToCards[0]?.first,
-                modifier = Modifier//.zIndex(4f)
-            )
+            CardBox(card = idxToCards[0]?.first)
         }
 
+        // Card in the middle on the left
         Column(modifier = Modifier.zIndex(idxToCards[3]?.second?.toFloat() ?: 0f)) {
             Spacer(modifier = Modifier.height((cardHeight / 3).dp))
 
             Row {
-                CardBox(
-                    card = idxToCards[3]?.first,
-                    modifier = Modifier//.zIndex(2f)
-                )
+                CardBox(card = idxToCards[3]?.first)
+
                 Spacer(modifier = Modifier.width((cardWidth * 1.25f).dp))
             }
         }
+
+        // Card in the middle on the right
         Column(modifier = Modifier.zIndex(idxToCards[1]?.second?.toFloat() ?: 0f)){
             Spacer(modifier = Modifier.height((cardHeight / 3).dp))
 
             Row() {
                 Spacer(modifier = Modifier.width((cardWidth * 1.25f).dp))
 
-                CardBox(
-                    card = idxToCards[1]?.first,
-                    modifier = Modifier//.zIndex(3f))
-                )
+                CardBox(card = idxToCards[1]?.first)
             }
         }
     }
@@ -279,12 +278,12 @@ fun CurrentTrick(gameState: GameState, currentPlayerIdx: Int, onClick: () -> Uni
  * Displays a jass card image for the given card.
  */
 @Composable
-fun CardBox(card: Card?, modifier: Modifier = Modifier) {
+fun CardBox(card: Card?) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val cardWidth = screenWidth.value / 10 //* 1.5f
     val cardHeight = cardWidth * 1.5f
 
-    Box(modifier = modifier
+    Box(modifier = Modifier
         .requiredWidth(cardWidth.dp)
         .requiredHeight(cardHeight.dp)
     ) {

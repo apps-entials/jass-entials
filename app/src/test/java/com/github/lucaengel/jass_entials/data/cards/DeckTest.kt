@@ -1,6 +1,8 @@
 package com.github.lucaengel.jass_entials.data.cards
 
+import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
 import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.Matchers.containsInAnyOrder
 import org.hamcrest.Matchers.`is`
 import org.junit.Test
 
@@ -17,16 +19,16 @@ class DeckTest {
     fun dealCardsDeals9CardsToEachPersonWithAFullDeck() {
         val deck = Deck.STANDARD_DECK
 
-        val playerData = listOf(
-            PlayerData().copy(firstName = "player1"),
-            PlayerData().copy(firstName = "player2"),
-            PlayerData().copy(firstName = "player3"),
-            PlayerData().copy(firstName = "player4")
+        val playerDatas = listOf(
+            PlayerData().copy(email = "email_1", firstName = "player1"),
+            PlayerData().copy(email = "email_2", firstName = "player2"),
+            PlayerData().copy(email = "email_3", firstName = "player3"),
+            PlayerData().copy(email = "email_4", firstName = "player4")
         )
 
-        deck.dealCards(playerData).toList().forEachIndexed { _, (playerData, cards) ->
+        deck.dealCards(playerDatas.map { it.email }).toList().forEachIndexed { _, (email, cards) ->
             assertThat(cards.size, `is`(9))
-            assertThat(cards, `is`(playerData.cards))
+            assertThat(cards, containsInAnyOrder(*GameStateHolder.players.first { it.email == email }.cards.toTypedArray()))
         }
     }
 

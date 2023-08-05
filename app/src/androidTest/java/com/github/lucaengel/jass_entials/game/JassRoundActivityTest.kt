@@ -47,25 +47,29 @@ class JassRoundActivityTest {
 
     private var gameState: GameState = GameState(
         0,
-        players,
-        playerData1,
-        playerData1,
+        players.map { it.email },
+        playerData1.email,
+        playerData1.email,
         1,
-        Trick(shuffledDeck.cards.subList(0, 4).mapIndexed { index, card -> Pair(card, players[index]) }),
+        Trick(shuffledDeck.cards.subList(0, 4).mapIndexed { index, card -> Trick.TrickCard(card, players[index].email) }),
         listOf(),
         1,
         Trump.UNGER_UFE,
-        Deck.STANDARD_DECK.dealCards(players),
+        Deck.STANDARD_DECK.dealCards(players.map { it.email }),
     )
 
     private var bettingState: BettingState =
         BettingState(
             0,
-            listOf(playerData1, playerData2, playerData3, playerData4),
-            playerData1,
+            listOf(playerData1.email,
+                playerData2.email,
+                playerData3.email,
+                playerData4.email,
+            ),
+            playerData1.email,
             JassType.SIDI_BARAHNI,
             listOf(
-                Bet(playerData2, Trump.CLUBS, BetHeight.FORTY)
+                Bet(playerData2.email, Trump.CLUBS, BetHeight.FORTY)
             ),
             GameState()
         )
@@ -74,6 +78,7 @@ class JassRoundActivityTest {
     fun setup() {
         GameStateHolder.gameState = gameState
         GameStateHolder.bettingState = bettingState
+        GameStateHolder.players = players
     }
 
     @Test
@@ -84,12 +89,12 @@ class JassRoundActivityTest {
             composeTestRule.onNodeWithText("first_4 second_4").assertExists()
 
             // current player's cards
-            val currentPlayer = GameStateHolder.gameState.playerDatas[GameStateHolder.gameState.currentPlayerIdx]
+            val currentPlayer = GameStateHolder.players[GameStateHolder.gameState.currentPlayerIdx]
             currentPlayer.cards.forEach {
                 composeTestRule.onNodeWithContentDescription(it.toString()).assertExists()
             }
 
-            val trickCards = GameStateHolder.gameState.currentTrick.playerToCard.map { it.first }
+            val trickCards = GameStateHolder.gameState.currentTrick.trickCards.map { it.card }
             trickCards.forEach {
                 composeTestRule.onNodeWithContentDescription(it.toString()).assertExists()
             }
@@ -100,18 +105,18 @@ class JassRoundActivityTest {
     fun playingACardRemovesItFromThePlayersHand() {
         ActivityScenario.launch<JassRoundActivity>(defaultJassRoundIntent).use {
             val currentPlayer =
-                GameStateHolder.gameState.playerDatas[GameStateHolder.gameState.currentPlayerIdx]
+                GameStateHolder.players[GameStateHolder.gameState.currentPlayerIdx]
             val cardToPlay = currentPlayer.cards[0]
 
-            assertThat(GameStateHolder.gameState.currentPlayerData, `is`(currentPlayer))
+            assertThat(GameStateHolder.gameState.currentPlayerEmail, `is`(currentPlayer.email))
             composeTestRule.onNodeWithContentDescription(cardToPlay.toString())
                 .assertExists()
                 .assertIsDisplayed()
                 .performClick() // remove the full trick
                 .performClick() // play the card
 
-            assertThat(GameStateHolder.gameState.playerDatas[GameStateHolder.gameState.currentPlayerIdx].cards.contains(cardToPlay), `is`(false))
-            assertThat(GameStateHolder.gameState.currentTrick.playerToCard.map { it.first }.contains(cardToPlay), `is`(true))
+            assertThat(GameStateHolder.players[GameStateHolder.gameState.currentPlayerIdx].cards.contains(cardToPlay), `is`(false))
+            assertThat(GameStateHolder.gameState.currentTrick.trickCards.map { it.card }.contains(cardToPlay), `is`(true))
         }
     }
 }

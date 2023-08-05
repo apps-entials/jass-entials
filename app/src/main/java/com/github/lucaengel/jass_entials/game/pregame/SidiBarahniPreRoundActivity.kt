@@ -47,6 +47,7 @@ import com.github.lucaengel.jass_entials.game.JassComposables
 import com.github.lucaengel.jass_entials.game.JassRoundActivity
 import com.github.lucaengel.jass_entials.game.player.CpuPlayer
 import com.github.lucaengel.jass_entials.ui.theme.JassentialsTheme
+import java.util.concurrent.CompletableFuture
 
 /**
  * Sidi Barahni pre-round activity (i.e., betting round).
@@ -83,11 +84,11 @@ fun BettingRound() {
 
     var bettingState by remember { mutableStateOf(GameStateHolder.bettingState/*BettingState()*/) }
     val currentPlayerIdx by remember { mutableStateOf(bettingState.currentPlayerIdx) }
-    val currentPlayerData by remember { mutableStateOf(bettingState.playerDatas[currentPlayerIdx]) }
+    val currentPlayerData by remember { mutableStateOf(bettingState.playerEmails[currentPlayerIdx]) }
 
     val opponents by remember {
-        mutableStateOf(bettingState.playerDatas
-            .filter { it != bettingState.playerDatas[bettingState.currentPlayerIdx] }
+        mutableStateOf(bettingState.playerEmails
+            .filter { it != bettingState.playerEmails[bettingState.currentPlayerIdx] }
             .map { it to CpuPlayer(it) }
         )}
 
@@ -97,15 +98,15 @@ fun BettingRound() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        val topPlayer = bettingState.playerDatas[(currentPlayerIdx + 2) % 4]
+        val topPlayerEmail = bettingState.playerEmails[(currentPlayerIdx + 2) % 4]
 
-        JassComposables.PlayerBox(playerData = topPlayer, playerSpot = 2)
+        JassComposables.PlayerBox(playerData = GameStateHolder.players.first { it.email == topPlayerEmail }, playerSpot = 2)
 
         Spacer(modifier = Modifier.weight(1f))
 
-        if (bettingState.currentBetter == currentPlayerData) {
-            val simulatePlayers: () -> Unit = {
-                opponents[0].second
+        if (bettingState.currentBetterEmail == currentPlayerData) {
+            fun simulatePlayers(): CompletableFuture<Void> {
+                return opponents[0].second
                     .bet(bettingState)
                     .thenCompose {
                         bettingState = it
@@ -149,7 +150,7 @@ fun BettingRound() {
 
         Spacer(modifier = Modifier.weight(1f))
 
-        JassComposables.CurrentPlayerBox(playerData = currentPlayerData)
+        JassComposables.CurrentPlayerBox(playerEmail = currentPlayerData)
     }
 }
 
@@ -160,9 +161,9 @@ fun BettingRound() {
 private fun MiddleRowInfo(bettingState: BettingState, currentPlayerIdx: Int) {
     Row {
 
-        val leftPlayer = bettingState.playerDatas[(currentPlayerIdx + 3) % 4]
+        val leftPlayerEmail = bettingState.playerEmails[(currentPlayerIdx + 3) % 4]
         JassComposables.PlayerBox(
-            playerData = leftPlayer,
+            playerData = GameStateHolder.players.first { it.email == leftPlayerEmail },
             playerSpot = 3,
             modifier = Modifier
                 .fillMaxHeight(0.5F)
@@ -192,10 +193,10 @@ private fun MiddleRowInfo(bettingState: BettingState, currentPlayerIdx: Int) {
                 )
             } else {
                 val lastBet = bettingState.bets.last()
-
+                val lastBetter = GameStateHolder.players.first { it.email == lastBet.playerEmail }
                 Text(
                     text = "${lastBet.bet} ${lastBet.suit} by\n" +
-                        "${lastBet.playerData.firstName} ${lastBet.playerData.lastName}",
+                        "${lastBetter.firstName} ${lastBetter.lastName}",
                     textAlign = TextAlign.Center,
                     maxLines = 3,
                 )
@@ -204,9 +205,12 @@ private fun MiddleRowInfo(bettingState: BettingState, currentPlayerIdx: Int) {
 
         Spacer(modifier = Modifier.weight(0.1f))
 
-        val rightPlayer = bettingState.playerDatas[(currentPlayerIdx + 1) % 4]
+        val rightPlayerEmail = bettingState.playerEmails[(currentPlayerIdx + 1) % 4]
 
-        JassComposables.PlayerBox(playerData = rightPlayer, playerSpot = 1, Modifier
+        JassComposables.PlayerBox(
+            playerData = GameStateHolder.players.first { it.email == rightPlayerEmail },
+            playerSpot = 1,
+            modifier = Modifier
             .fillMaxHeight(0.5F)
             .fillMaxWidth(0.25F)
             .weight(1f))
@@ -248,10 +252,11 @@ fun BettingRow(
             )
         } else {
             val lastBet = bettingState.bets.last()
+            val lastBetter = GameStateHolder.players.first { it.email == lastBet.playerEmail }
 
             Text(
                 text = "${lastBet.bet} ${lastBet.suit} by\n" +
-                        "${lastBet.playerData.firstName} ${lastBet.playerData.lastName}",
+                        "${lastBetter.firstName} ${lastBetter.lastName}",
                 textAlign = TextAlign.Center,
                 maxLines = 3,
                 )
@@ -321,7 +326,7 @@ fun BettingRow(
         Button(
             onClick = {
                 if (selectedBet != BetHeight.NONE && selectedTrump != null) {
-                    onBetPlace(Bet(bettingState.currentBetter, selectedTrump!!, selectedBet))
+                    onBetPlace(Bet(bettingState.currentBetterEmail, selectedTrump!!, selectedBet))
 
                     selectedTrump = null
                     selectedBet = BetHeight.NONE
@@ -336,13 +341,13 @@ fun BettingRow(
 
         Button(
             onClick = {
-                if (bettingState.bets.lastOrNull()?.playerData == bettingState.currentBetter) {
+                // If the last bet was placed by the current player, the player can start the game
+                if (bettingState.bets.lastOrNull()?.playerEmail == bettingState.currentBetterEmail) {
                     onStartGame()
 
                     selectedTrump = null
                     selectedBet = BetHeight.NONE
-                }
-                else {
+                } else { // Otherwise the player can choose to pass
                     onPass()
 
                     selectedTrump = null
@@ -353,7 +358,7 @@ fun BettingRow(
                 .align(Alignment.CenterVertically)
                 .padding(5.dp, 5.dp, 20.dp, 5.dp),
         ) {
-            if (bettingState.bets.lastOrNull()?.playerData == bettingState.currentBetter)
+            if (bettingState.bets.lastOrNull()?.playerEmail == bettingState.currentBetterEmail)
                 Text(text = "Start Game")
             else
                 Text(text = "Pass")

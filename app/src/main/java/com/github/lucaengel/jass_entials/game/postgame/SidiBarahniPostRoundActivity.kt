@@ -46,14 +46,15 @@ fun ScoreSheet() {
         // center children
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        gameState.playerDatas
+        gameState.playerEmails
             .map {
-                Text(text = "${it.firstName} ${it.lastName}: ${gameState.points(it)}")
+                val player = GameStateHolder.players.first { p -> p.email == it }
+                Text(text = "${player.firstName} ${player.lastName}: ${gameState.points(it)}")
             }
 
         Button(
             onClick = {
-                GameStateHolder.goToNextBettingStateRound(gameState.playerDatas[gameState.currentPlayerIdx])
+                GameStateHolder.goToNextBettingStateRound(gameState.playerEmails[gameState.currentPlayerIdx])
 
                 val intent = Intent(context, SidiBarahniPreRoundActivity::class.java)
                 context.startActivity(intent)

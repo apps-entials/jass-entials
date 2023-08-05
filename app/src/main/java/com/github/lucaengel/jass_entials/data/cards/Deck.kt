@@ -1,5 +1,7 @@
 package com.github.lucaengel.jass_entials.data.cards
 
+import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
+
 /**
  * A deck of cards.
  *
@@ -21,14 +23,14 @@ data class Deck(val cards: List<Card> = listOf()) {
     /**
      * Deals the cards of the deck to the given players.
      *
-     * @param playerData the players to deal the cards to
+     * @param emails the emails of the players
      * @return a map of the players and their cards
      */
-    fun dealCards(playerData: List<PlayerData>): Map<PlayerData, List<Card>> {
-        return playerData.zip(cards.chunked(9)).map { (playerData, cards) ->
-            val sortedCards = sortPlayerCards(cards)
-            playerData.copy(cards = sortedCards) to sortedCards
-        }.toMap()
+    fun dealCards(emails: List<String>): Map<String, List<Card>> {
+        return emails.zip(cards.chunked(9)).associate { (email, c) ->
+            GameStateHolder.players = GameStateHolder.players.map { if (it.email == email) it.copy(cards = c) else it }
+            email to sortPlayerCards(c)
+        }
     }
 
     companion object {

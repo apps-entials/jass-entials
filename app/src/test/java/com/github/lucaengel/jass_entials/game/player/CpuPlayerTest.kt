@@ -7,12 +7,14 @@ import com.github.lucaengel.jass_entials.data.game_state.Bet
 import com.github.lucaengel.jass_entials.data.game_state.BetHeight
 import com.github.lucaengel.jass_entials.data.game_state.BettingState
 import com.github.lucaengel.jass_entials.data.game_state.GameState
+import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
 import com.github.lucaengel.jass_entials.data.jass.JassType
 import com.github.lucaengel.jass_entials.data.jass.Trump
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.`is`
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
 
 class CpuPlayerTest {
@@ -38,60 +40,65 @@ class CpuPlayerTest {
 
     private val defaultGameState = GameState(
         currentPlayerIdx = 0,
-        playerDatas = defaultPlayerDatas,
-        currentPlayerData = defaultPlayerDatas[0],
-        startingPlayerData = defaultPlayerDatas[0],
+        playerEmails = defaultPlayerDatas.map { it.email },
+        currentPlayerEmail = defaultPlayerDatas[0].email,
+        startingPlayerEmail = defaultPlayerDatas[0].email,
         currentRound = 0,
         currentTrick = Trick(),
         currentRoundTrickWinners = listOf(),
         currentTrickNumber = 0,
         currentTrump = Trump.CLUBS,
-        playerCards = defaultPlayerDatas.associateWith { it.cards },
+        playerCards = defaultPlayerDatas.associate { it.email to it.cards },
     )
 
     private val defaultBettingState = BettingState(
         currentPlayerIdx = 0,
-        playerDatas = defaultPlayerDatas,
-        currentBetter = defaultPlayerDatas[0],
+        playerEmails = defaultPlayerDatas.map { it.email },
+        currentBetterEmail = defaultPlayerDatas[0].email,
         jassType = JassType.SIDI_BARAHNI,
-        bets = listOf(Bet(defaultPlayerDatas[0], Trump.UNGER_UFE, BetHeight.HUNDRED)),
+        bets = listOf(Bet(defaultPlayerDatas[0].email, Trump.UNGER_UFE, BetHeight.HUNDRED)),
         gameState = GameState(),
     )
 
+    @Before
+    fun setUp() {
+        GameStateHolder.players = defaultPlayerDatas
+        GameStateHolder.gameState = defaultGameState
+        GameStateHolder.bettingState = defaultBettingState
+    }
+
     @Test
     fun playCardPlaysOneOfTheHandCardsAndRemovesItFromTheHand() {
-        val player = CpuPlayer(defaultPlayerDatas[0])
-        val oldCards = player.playerData.cards
+        val player = CpuPlayer(defaultPlayerDatas[0].email, 0)
+        val oldCards = GameStateHolder.players.first { it.email == player.playerEmail }.cards
         val card = player.playCard(defaultGameState).join()
 
         assertTrue(oldCards.contains(card))
         // player now shouldn't have the card anymore
-        assertFalse(player.playerData.cards.contains(card))
+        assertFalse(GameStateHolder.players.first { it.email == player.playerEmail }.cards.contains(card))
     }
 
     @Test
     fun cpuPlayerOnceInAWhileSelectsABet() {
-        val player = CpuPlayer(defaultPlayerDatas[0])
+        val player = CpuPlayer(defaultPlayerDatas[0].email, 0)
 
         for (i in 0..100) {
             val newBettingState = player.bet(defaultBettingState).join()
 
-            assertThat(newBettingState.currentBetter.email,
-                `is`(defaultBettingState.playerDatas[defaultBettingState.playerDatas
-                    .indexOfFirst { it == defaultBettingState.currentBetter } + 1 % 4]
-                    .email))
+            assertThat(newBettingState.currentBetterEmail,
+                `is`(defaultBettingState.playerEmails[defaultBettingState.playerEmails
+                    .indexOfFirst { it == defaultBettingState.currentBetterEmail } + 1 % 4]))
         }
     }
 
     @Test
     fun whenNoAvailableBetsPlayerPasses() {
-        val player = CpuPlayer(defaultPlayerDatas[0])
+        val player = CpuPlayer(defaultPlayerDatas[0].email, 0)
 
         val newBettingState = player.bet(defaultBettingState).join()
 
-        assertThat(newBettingState.currentBetter.email,
-            `is`(defaultBettingState.playerDatas[defaultBettingState.playerDatas
-                .indexOfFirst { it == defaultBettingState.currentBetter } + 1 % 4]
-                .email))
+        assertThat(newBettingState.currentBetterEmail,
+            `is`(defaultBettingState.playerEmails[defaultBettingState.playerEmails
+                .indexOfFirst { it == defaultBettingState.currentBetterEmail } + 1 % 4]))
     }
 }

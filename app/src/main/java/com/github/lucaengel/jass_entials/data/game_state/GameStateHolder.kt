@@ -17,22 +17,26 @@ class GameStateHolder {
         private val playerData2 = PlayerData("email_2", 1, "first_2", "second_2", Deck.sortPlayerCards(shuffledDeck.cards.subList(9, 18)), 0, "123")
         private val playerData3 = PlayerData("email_3", 2, "first_3", "second_3", Deck.sortPlayerCards(shuffledDeck.cards.subList(18, 27)), 0, "123")
         private val playerData4 = PlayerData("email_4", 3, "first_4", "second_4", Deck.sortPlayerCards(shuffledDeck.cards.subList(27, 36)), 0, "123")
-        private val players = listOf(playerData1, playerData2, playerData3, playerData4)
+
+        /**
+         * The current player datas.
+         */
+        var players = listOf(playerData1, playerData2, playerData3, playerData4)
 
         /**
          * The current game state.
          */
         var gameState: GameState = GameState(
             0,
-            players,
-            playerData1,
-            playerData1,
+            players.map { it.email },
+            playerData1.email,
+            playerData1.email,
             1,
-            Trick(shuffledDeck.cards.subList(0, 4).mapIndexed { index, card -> Pair(card, players[index]) }),
+            Trick(shuffledDeck.cards.subList(0, 4).mapIndexed { index, card -> Trick.TrickCard(card, players[index].email) }),
             listOf(),
             1,
             Trump.UNGER_UFE,
-            Deck.STANDARD_DECK.dealCards(players),
+            Deck.STANDARD_DECK.dealCards(players.map { it.email }),
         )
 
         /**
@@ -41,11 +45,11 @@ class GameStateHolder {
         var bettingState: BettingState =
             BettingState(
                 0,
-                listOf(playerData1, playerData2, playerData3, playerData4),
-                playerData1,
+                players.map { it.email },
+                playerData1.email,
                 JassType.SIDI_BARAHNI,
                 listOf(
-                    Bet(playerData2, Trump.CLUBS, BetHeight.FORTY)
+                    Bet(playerData2.email, Trump.CLUBS, BetHeight.FORTY)
                 ),
                 GameState()
             )
@@ -67,10 +71,10 @@ class GameStateHolder {
         /**
          * Updates the betting state to go to the next betting state round.
          *
-         * @param startingBetter The player that starts the next betting round.
+         * @param startingBetterEmail The player that starts the next betting round.
          */
-        fun goToNextBettingStateRound(startingBetter: PlayerData) {
-            bettingState = bettingState.nextBettingRound(startingBetter)
+        fun goToNextBettingStateRound(startingBetterEmail: String) {
+            bettingState = bettingState.nextBettingRound(startingBetterEmail)
         }
     }
 }
