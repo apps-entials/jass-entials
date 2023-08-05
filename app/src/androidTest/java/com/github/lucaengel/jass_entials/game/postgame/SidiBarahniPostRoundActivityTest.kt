@@ -43,20 +43,21 @@ class SidiBarahniPostRoundActivityTest {
 
     private var gameState: GameState = GameState(
         0,
-        players,
-        playerData1,
-        playerData1,
+        players.map { it.email },
+        playerData1.email,
+        playerData1.email,
         1,
-        Trick(shuffledDeck.cards.subList(0, 4).mapIndexed { index, card -> Pair(card, players[index]) }),
-        listOf(Pair(playerData1,
+        Trick(shuffledDeck.cards.subList(0, 4).mapIndexed { index, card -> Trick.TrickCard(card, players[index].email) }),
+        listOf(
+            Trick.TrickWinner(playerData1.email,
             Trick(listOf(
-                Pair(Card(Rank.ACE, Suit.HEARTS), playerData1),
-                Pair(Card(Rank.KING, Suit.HEARTS), playerData2),
-                Pair(Card(Rank.SIX, Suit.HEARTS), playerData3),
-                Pair(Card(Rank.TEN, Suit.HEARTS), playerData4))))),
+                Trick.TrickCard(Card(Rank.ACE, Suit.HEARTS), playerData1.email),
+                Trick.TrickCard(Card(Rank.KING, Suit.HEARTS), playerData2.email),
+                Trick.TrickCard(Card(Rank.SIX, Suit.HEARTS), playerData3.email),
+                Trick.TrickCard(Card(Rank.TEN, Suit.HEARTS), playerData4.email))))),
         1,
         Trump.OBE_ABE,
-        Deck.STANDARD_DECK.dealCards(players),
+        Deck.STANDARD_DECK.dealCards(players.map { it.email }),
     )
 
     @Before
