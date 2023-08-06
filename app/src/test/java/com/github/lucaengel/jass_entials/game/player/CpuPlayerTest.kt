@@ -39,7 +39,7 @@ class CpuPlayerTest {
     )
 
     private val defaultGameState = GameState(
-        currentPlayerIdx = 0,
+        currentUserIdx = 0,
         playerEmails = defaultPlayerDatas.map { it.email },
         currentPlayerEmail = defaultPlayerDatas[0].email,
         startingPlayerEmail = defaultPlayerDatas[0].email,
@@ -52,9 +52,10 @@ class CpuPlayerTest {
     )
 
     private val defaultBettingState = BettingState(
-        currentPlayerIdx = 0,
+        currentUserIdx = 0,
         playerEmails = defaultPlayerDatas.map { it.email },
         currentBetterEmail = defaultPlayerDatas[0].email,
+        startingBetterEmail = defaultPlayerDatas[0].email,
         jassType = JassType.SIDI_BARAHNI,
         bets = listOf(Bet(defaultPlayerDatas[0].email, Trump.UNGER_UFE, BetHeight.HUNDRED)),
         gameState = GameState(),
@@ -70,8 +71,9 @@ class CpuPlayerTest {
     @Test
     fun playCardPlaysOneOfTheHandCardsAndRemovesItFromTheHand() {
         val player = CpuPlayer(defaultPlayerDatas[0].email, 0)
-        val oldCards = GameStateHolder.players.first { it.email == player.playerEmail }.cards
-        val card = player.playCard(defaultGameState).join()
+        val playerData = GameStateHolder.players.first { it.email == player.playerEmail }
+        val oldCards = playerData.cards
+        val card = player.playCard(defaultGameState, playerData).join()
 
         assertTrue(oldCards.contains(card))
         // player now shouldn't have the card anymore

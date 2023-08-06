@@ -24,6 +24,10 @@ class SidiBarahniPostRoundActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        println("SidiBarahniPostRoundActivity")
+        val gameState = GameStateHolder.gameState
+        println("playerEmails: ${gameState.playerEmails}")
+        println("player data emails: ${GameStateHolder.players.map { p -> p.email }}")
         setContent {
             JassentialsTheme {
                 Surface(color = MaterialTheme.colorScheme.background) {
@@ -42,19 +46,23 @@ fun ScoreSheet() {
     val context = LocalContext.current
 
     val gameState = GameStateHolder.gameState
+    val bettingState = GameStateHolder.bettingState
+
+    val players = GameStateHolder.players
     Column(
         // center children
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         gameState.playerEmails
             .map {
-                val player = GameStateHolder.players.first { p -> p.email == it }
+                val player = players.first { p -> p.email == it }
                 Text(text = "${player.firstName} ${player.lastName}: ${gameState.points(it)}")
             }
 
         Button(
             onClick = {
-                GameStateHolder.goToNextBettingStateRound(gameState.playerEmails[gameState.currentPlayerIdx])
+                // have player to the right of the starting better of the last round start the next round
+                GameStateHolder.goToNextBettingStateRound(gameState.playerEmails[(gameState.playerEmails.indexOf(bettingState.startingBetterEmail) + 1) % 4])
 
                 val intent = Intent(context, SidiBarahniPreRoundActivity::class.java)
                 context.startActivity(intent)

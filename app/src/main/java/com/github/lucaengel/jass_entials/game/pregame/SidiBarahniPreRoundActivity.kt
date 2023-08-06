@@ -38,6 +38,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices.AUTOMOTIVE_1024p
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.github.lucaengel.jass_entials.data.cards.PlayerData
 import com.github.lucaengel.jass_entials.data.game_state.Bet
 import com.github.lucaengel.jass_entials.data.game_state.BetHeight
 import com.github.lucaengel.jass_entials.data.game_state.BettingState
@@ -47,7 +48,6 @@ import com.github.lucaengel.jass_entials.game.JassComposables
 import com.github.lucaengel.jass_entials.game.JassRoundActivity
 import com.github.lucaengel.jass_entials.game.player.CpuPlayer
 import com.github.lucaengel.jass_entials.ui.theme.JassentialsTheme
-import java.util.concurrent.CompletableFuture
 
 /**
  * Sidi Barahni pre-round activity (i.e., betting round).
@@ -83,14 +83,62 @@ fun BettingRound() {
     val context = LocalContext.current
 
     var bettingState by remember { mutableStateOf(GameStateHolder.bettingState/*BettingState()*/) }
-    val currentPlayerIdx by remember { mutableStateOf(bettingState.currentPlayerIdx) }
-    val currentPlayerData by remember { mutableStateOf(bettingState.playerEmails[currentPlayerIdx]) }
+    var players by remember { mutableStateOf(GameStateHolder.players/*BettingState()*/) }
+
+    val currentUserIdx by remember { mutableStateOf(bettingState.currentUserIdx) }
+    val currentUserEmail by remember { mutableStateOf(bettingState.playerEmails[currentUserIdx]) }
 
     val opponents by remember {
         mutableStateOf(bettingState.playerEmails
-            .filter { it != bettingState.playerEmails[bettingState.currentPlayerIdx] }
+            .filter { it != bettingState.playerEmails[bettingState.currentUserIdx] }
             .map { it to CpuPlayer(it) }
         )}
+
+    println("current better: ${bettingState.currentBetterEmail}")
+
+
+    var tmpFirstName by remember { mutableStateOf(mapOf<String, String>().withDefault { "" }) }
+    var tmpLastName by remember { mutableStateOf(mapOf<String, String>().withDefault { "" }) }
+    fun setToThinking(playerEmail: String) {
+        val player = players.first { it.email == playerEmail }
+
+        tmpFirstName = tmpFirstName.plus(playerEmail to player.firstName)
+        tmpLastName = tmpLastName.plus(playerEmail to player.lastName)
+
+        players = players.map {
+            if (it.email == playerEmail) {
+                it.copy(firstName = "I'm", lastName = "Thinking...")
+            } else {
+                it
+            }
+        }
+    }
+
+    fun setToNormalName(playerEmail: String) {
+        players = players.map {
+            if (it.email == playerEmail) {
+                it.copy(firstName = tmpFirstName[playerEmail]!!, lastName = tmpLastName[playerEmail]!!)
+            } else {
+                it
+            }
+        }
+    }
+
+    LaunchedEffect(key1 = bettingState.currentBetterEmail) {
+        val currentBetterEmail = bettingState.currentBetterEmail
+
+        if (currentBetterEmail == currentUserEmail)
+            return@LaunchedEffect
+
+        val player = opponents.first { it.first == currentBetterEmail }.second
+        setToThinking(currentBetterEmail)
+        player.bet(bettingState)
+            .thenAccept() {
+                setToNormalName(currentBetterEmail)
+                bettingState = it
+            }
+    }
+
 
     Column(
         modifier = Modifier
@@ -98,59 +146,36 @@ fun BettingRound() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        val topPlayerEmail = bettingState.playerEmails[(currentPlayerIdx + 2) % 4]
+        val topPlayerEmail = bettingState.playerEmails[(currentUserIdx + 2) % 4]
 
-        JassComposables.PlayerBox(playerData = GameStateHolder.players.first { it.email == topPlayerEmail }, playerSpot = 2)
+        JassComposables.PlayerBox(playerData = players.first { it.email == topPlayerEmail }, playerSpot = 2)
 
         Spacer(modifier = Modifier.weight(1f))
 
-        if (bettingState.currentBetterEmail == currentPlayerData) {
-            fun simulatePlayers(): CompletableFuture<Void> {
-                return opponents[0].second
-                    .bet(bettingState)
-                    .thenCompose {
-                        bettingState = it
 
-                    opponents[1].second
-                        .bet(bettingState)
-                }.thenCompose {
-                    bettingState = it
-
-                    opponents[2].second
-                        .bet(bettingState)
-                }.thenAccept {
-                    bettingState = it
-                }
-            }
+        if (bettingState.currentBetterEmail == currentUserEmail) {
 
             BettingRow(
                 bettingState = bettingState,
-                onBetPlace = { bet ->
-                    bettingState = bettingState.nextPlayer(bet)
-                    simulatePlayers()
-                },
-                onPass = {
-                    bettingState = bettingState.nextPlayer()
-                    simulatePlayers()
-                },
+                players = players,
+                onBetPlace = { bet -> bettingState = bettingState.nextPlayer(bet) },
+                onPass = { bettingState = bettingState.nextPlayer() },
                 onStartGame = {
                     val gameState = bettingState.startGame()
                     GameStateHolder.gameState = gameState
-
-                    //TODO: adapt to new betting state for the next potential round???
-//                    GameStateHolder.bettingState = BettingState()
+                    GameStateHolder.players = players
 
                     val intent = Intent(context, JassRoundActivity::class.java)
                     context.startActivity(intent)
                 }
             )
         } else {
-            MiddleRowInfo(bettingState = bettingState, currentPlayerIdx = currentPlayerIdx)
+            MiddleRowInfo(bettingState = bettingState, players = players, currentPlayerIdx = currentUserIdx)
         }
 
         Spacer(modifier = Modifier.weight(1f))
 
-        JassComposables.CurrentPlayerBox(playerEmail = currentPlayerData)
+        JassComposables.CurrentPlayerBox(playerEmail = currentUserEmail, player = players.first { it.email == currentUserEmail })
     }
 }
 
@@ -158,12 +183,12 @@ fun BettingRound() {
  * Betting row composable (contains the betting elements or the players in the middle row).
  */
 @Composable
-private fun MiddleRowInfo(bettingState: BettingState, currentPlayerIdx: Int) {
+private fun MiddleRowInfo(bettingState: BettingState, players: List<PlayerData>, currentPlayerIdx: Int) {
     Row {
 
         val leftPlayerEmail = bettingState.playerEmails[(currentPlayerIdx + 3) % 4]
         JassComposables.PlayerBox(
-            playerData = GameStateHolder.players.first { it.email == leftPlayerEmail },
+            playerData = players.first { it.email == leftPlayerEmail },
             playerSpot = 3,
             modifier = Modifier
                 .fillMaxHeight(0.5F)
@@ -193,7 +218,7 @@ private fun MiddleRowInfo(bettingState: BettingState, currentPlayerIdx: Int) {
                 )
             } else {
                 val lastBet = bettingState.bets.last()
-                val lastBetter = GameStateHolder.players.first { it.email == lastBet.playerEmail }
+                val lastBetter = players.first { it.email == lastBet.playerEmail }
                 Text(
                     text = "${lastBet.bet} ${lastBet.suit} by\n" +
                         "${lastBetter.firstName} ${lastBetter.lastName}",
@@ -208,12 +233,12 @@ private fun MiddleRowInfo(bettingState: BettingState, currentPlayerIdx: Int) {
         val rightPlayerEmail = bettingState.playerEmails[(currentPlayerIdx + 1) % 4]
 
         JassComposables.PlayerBox(
-            playerData = GameStateHolder.players.first { it.email == rightPlayerEmail },
+            playerData = players.first { it.email == rightPlayerEmail },
             playerSpot = 1,
             modifier = Modifier
-            .fillMaxHeight(0.5F)
-            .fillMaxWidth(0.25F)
-            .weight(1f))
+                .fillMaxHeight(0.5F)
+                .fillMaxWidth(0.25F)
+                .weight(1f))
     }
 }
 
@@ -224,6 +249,7 @@ private fun MiddleRowInfo(bettingState: BettingState, currentPlayerIdx: Int) {
 @Composable
 fun BettingRow(
     bettingState: BettingState,
+    players: List<PlayerData>,
     onBetPlace: (Bet) -> Unit = {},
     onPass: () -> Unit = {},
     onStartGame: () -> Unit = {},
@@ -247,12 +273,12 @@ fun BettingRow(
 
         if (bettingState.bets.isEmpty()) {
             Text(
-                text = "You start!",
+                text = "No bets yet",
                 textAlign = TextAlign.Center
             )
         } else {
             val lastBet = bettingState.bets.last()
-            val lastBetter = GameStateHolder.players.first { it.email == lastBet.playerEmail }
+            val lastBetter = players.first { it.email == lastBet.playerEmail }
 
             Text(
                 text = "${lastBet.bet} ${lastBet.suit} by\n" +

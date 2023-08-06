@@ -10,17 +10,17 @@ class GameStateHolderTest {
     fun goToNextBettingStateRoundDeals9CardsToEachPlayer() {
         val bettingState = GameStateHolder.bettingState
 
-        GameStateHolder.goToNextBettingStateRound(bettingState.playerEmails[bettingState.currentPlayerIdx + 1 % 4])
+        GameStateHolder.goToNextBettingStateRound(bettingState.playerEmails[bettingState.currentUserIdx + 1 % 4])
 
         val newBettingState = GameStateHolder.bettingState
         for (email in newBettingState.playerEmails) {
             assertThat(GameStateHolder.players.first { it.email == email }.cards.size, `is`(9))
         }
 
-        assertThat(newBettingState.currentPlayerIdx,
-            `is`(bettingState.currentPlayerIdx + 1 % 4))
+        assertThat(newBettingState.currentUserIdx,
+            `is`(bettingState.currentUserIdx + 1 % 4))
         assertThat(newBettingState.currentBetterEmail,
-            `is`(bettingState.playerEmails[bettingState.currentPlayerIdx + 1 % 4]))
+            `is`(bettingState.playerEmails[bettingState.currentUserIdx + 1 % 4]))
     }
 
     // TODO: add more tests?

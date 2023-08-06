@@ -21,9 +21,10 @@ class BettingStateTest {
     )
 
     private val defaultBettingState = BettingState(
-        currentPlayerIdx = 0,
+        currentUserIdx = 0,
         playerEmails = defaultPlayerDatas.map { it.email },
         currentBetterEmail = defaultPlayerDatas[0].email,
+        startingBetterEmail = defaultPlayerDatas[0].email,
         jassType = JassType.SIDI_BARAHNI,
         bets = listOf(Bet(defaultPlayerDatas[0].email, Trump.UNGER_UFE, BetHeight.HUNDRED)),
         gameState = GameState(),
@@ -39,7 +40,7 @@ class BettingStateTest {
     fun nextBettingRoundUpdatesTheWantedElements() {
         val newBettingState = defaultBettingState.nextBettingRound(defaultPlayerDatas[1].email)
 
-        assertThat(newBettingState.currentPlayerIdx, `is`(1))
+        assertThat(newBettingState.currentUserIdx, `is`(1))
 
         newBettingState.playerEmails.forEach {
             assertThat(GameStateHolder.players.first { p -> p.email == it }.cards.size, `is`(9))
@@ -114,7 +115,7 @@ class BettingStateTest {
         val bettingState = defaultBettingState.copy(bets = listOf(Bet(defaultPlayerDatas[0].email, Trump.UNGER_UFE, BetHeight.SEVENTY)))
 
         val expectedGameState = GameState(
-            currentPlayerIdx = 0,
+            currentUserIdx = 0,
             playerEmails = defaultPlayerDatas.map { it.email },
             currentPlayerEmail = defaultPlayerDatas[0].email,
             startingPlayerEmail = defaultPlayerDatas[0].email,

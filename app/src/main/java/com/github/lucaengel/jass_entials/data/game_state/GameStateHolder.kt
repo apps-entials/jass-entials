@@ -32,7 +32,7 @@ class GameStateHolder {
             playerData1.email,
             playerData1.email,
             1,
-            Trick(shuffledDeck.cards.subList(0, 4).mapIndexed { index, card -> Trick.TrickCard(card, players[index].email) }),
+            Trick(),
             listOf(),
             1,
             Trump.UNGER_UFE,
@@ -46,6 +46,7 @@ class GameStateHolder {
             BettingState(
                 0,
                 players.map { it.email },
+                playerData1.email,
                 playerData1.email,
                 JassType.SIDI_BARAHNI,
                 listOf(

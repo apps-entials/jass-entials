@@ -8,10 +8,10 @@ import java.io.Serializable
 /**
  * Represents the state of a game.
  *
- * @property currentPlayerIdx the index of the current user in the [playerEmails] list
+ * @property currentUserIdx the index of the current user in the [playerEmails] list
  * @property playerEmails the list of all players
- * @property currentPlayerEmail the data of the player that has to play the next card
- * @property startingPlayerEmail the data of the player that started the current trick
+ * @property currentPlayerEmail the email of the player that has to play the next card
+ * @property startingPlayerEmail the email of the player that started the current trick
  * @property currentRound the current round number
  * @property currentTrick the current trick
  * @property currentRoundTrickWinners the list of pairs of player data and tricks that were won by the players in the previous tricks of the current round
@@ -20,7 +20,7 @@ import java.io.Serializable
  * @property playerCards the map of player data to their cards
  */
 data class GameState(
-    val currentPlayerIdx: Int,
+    val currentUserIdx: Int,
     val playerEmails: List<String> = listOf(),
     val currentPlayerEmail: String, // player that has to play the next card
     val startingPlayerEmail: String, // player that started the current trick
@@ -33,7 +33,7 @@ data class GameState(
 ) : Serializable {
 
     constructor() : this(
-        currentPlayerIdx = 0,
+        currentUserIdx = 0,
         playerEmails = listOf(),
         currentPlayerEmail = "",
         startingPlayerEmail = "",
@@ -63,11 +63,13 @@ data class GameState(
         if (!currentTrick.isFull())
             throw IllegalStateException("Cannot move on to the next trick if the current trick is not full.")
 
+        val trickWinner = currentTrick.winner(trump = currentTrump)
         return this.copy(
             currentTrick = Trick(),
             currentTrickNumber = currentTrickNumber + 1,
-            currentRoundTrickWinners = currentRoundTrickWinners + (currentTrick.winner(trump = currentTrump)),
-            //TODO: adapt currentPlayer to be the one who won this round!!!
+            currentRoundTrickWinners = currentRoundTrickWinners + trickWinner,
+            startingPlayerEmail = trickWinner.playerEmail,
+            currentPlayerEmail = trickWinner.playerEmail,
         )
     }
 
@@ -95,7 +97,7 @@ data class GameState(
      * @param card the card that was played
      * @return the updated game state
      */
-    fun playCard(playerEmail: String, card: Card): GameState {
+    fun playCard(playerEmail: String, card: Card, currentUserIdx: Int): GameState {
         val idx = GameStateHolder.players.indexOfFirst { it.email == playerEmail }
 
         if (idx == -1) throw IllegalArgumentException("Player $playerEmail is not in the game!")
@@ -103,11 +105,18 @@ data class GameState(
         // update GameStateHolder.players at position idx
         val newPlayer = GameStateHolder.players[idx].withCardPlayed(card)
 
-        GameStateHolder.players = GameStateHolder.players.map { if (it.email == playerEmail) newPlayer else it }
+//        GameStateHolder.players = GameStateHolder.players.map { if (it.email == playerEmail) newPlayer else it }
 
-        return this.copy(
+        val newGameState = this.copy(
             currentTrick = currentTrick.copy(trickCards = currentTrick.trickCards + Trick.TrickCard(card, playerEmail)),
             playerCards = playerCards.plus(playerEmail to newPlayer.cards),
         )
+
+        return if (newGameState.currentTrick.isFull()) {
+            // if full, wait for the current user to click it away
+            newGameState.copy(currentPlayerEmail = playerEmails[currentUserIdx])
+        } else {
+            newGameState.copy(currentPlayerEmail = playerEmails[(idx + 1) % playerEmails.size])
+        }
     }
 }
