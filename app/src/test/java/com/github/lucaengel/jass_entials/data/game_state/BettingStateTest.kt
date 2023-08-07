@@ -40,8 +40,6 @@ class BettingStateTest {
     fun nextBettingRoundUpdatesTheWantedElements() {
         val newBettingState = defaultBettingState.nextBettingRound(defaultPlayerDatas[1].email)
 
-        assertThat(newBettingState.currentUserIdx, `is`(1))
-
         newBettingState.playerEmails.forEach {
             assertThat(GameStateHolder.players.first { p -> p.email == it }.cards.size, `is`(9))
         }

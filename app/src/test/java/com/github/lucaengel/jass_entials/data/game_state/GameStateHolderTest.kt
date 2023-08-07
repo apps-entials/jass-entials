@@ -17,8 +17,8 @@ class GameStateHolderTest {
             assertThat(GameStateHolder.players.first { it.email == email }.cards.size, `is`(9))
         }
 
-        assertThat(newBettingState.currentUserIdx,
-            `is`(bettingState.currentUserIdx + 1 % 4))
+        assertThat(newBettingState.currentBetterEmail,
+            `is`(bettingState.playerEmails[bettingState.playerEmails.indexOfFirst { it == bettingState.currentBetterEmail } + 1 % 4]))
         assertThat(newBettingState.currentBetterEmail,
             `is`(bettingState.playerEmails[bettingState.currentUserIdx + 1 % 4]))
     }

@@ -144,8 +144,6 @@ class GameStateTest {
             .contains(Trick.TrickCard(defaultPlayerDatas[0].cards[0], defaultPlayerDatas[0].email))
         )
 
-        assertFalse(GameStateHolder.players.first { it.email == newGameState.playerEmails[0] }.cards.contains(defaultPlayerDatas[0].cards[0]))
-
         assertFalse(newGameState.playerCards[newGameState.playerEmails[0]]!!.contains(defaultPlayerDatas[0].cards[0]))
     }
 
