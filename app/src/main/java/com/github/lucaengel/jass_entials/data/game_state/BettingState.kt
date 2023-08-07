@@ -8,7 +8,7 @@ import com.github.lucaengel.jass_entials.data.jass.Trump
 /**
  * Represents the state of the betting phase of a game.
  *
- * @param currentPlayerIdx the index of the current user in the [playerEmails] list
+ * @param currentUserIdx the index of the current user in the [playerEmails] list
  * @param playerEmails the list of all players in the game (in order)
  * @param currentBetterEmail the player who is currently betting
  * @param jassType the type of the jass game
@@ -16,9 +16,10 @@ import com.github.lucaengel.jass_entials.data.jass.Trump
  * @param gameState the state of the game
  */
 data class BettingState(
-    val currentPlayerIdx: Int,
+    val currentUserIdx: Int,
     val playerEmails: List<String>,
     val currentBetterEmail: String,
+    val startingBetterEmail: String,
     val jassType: JassType,
     val bets: List<Bet>,
     val gameState: GameState,
@@ -28,6 +29,7 @@ data class BettingState(
         0,
         playerEmails = listOf(),
         currentBetterEmail = "",
+        startingBetterEmail = "",
         jassType = JassType.SCHIEBER,
         bets = listOf(),
         gameState = GameState(),
@@ -45,8 +47,9 @@ data class BettingState(
 
         return this.copy(
             // TODO: make sure every player has a different email!!!
-            currentPlayerIdx = playerEmails.indexOfFirst { it == startingBetterEmail },
+            currentUserIdx = 0,
             currentBetterEmail = startingBetterEmail,
+            startingBetterEmail = startingBetterEmail,
             bets = listOf(),
         )
     }
@@ -102,7 +105,7 @@ data class BettingState(
             throw IllegalStateException("Cannot start game without bets")
 
         return GameState(
-            currentPlayerIdx = currentPlayerIdx,
+            currentUserIdx = currentUserIdx,
             playerEmails = playerEmails,
             currentPlayerEmail = bets.last().playerEmail,
             startingPlayerEmail = bets.last().playerEmail,

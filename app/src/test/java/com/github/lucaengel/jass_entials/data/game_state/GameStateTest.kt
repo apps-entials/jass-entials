@@ -37,7 +37,7 @@ class GameStateTest {
     )
 
     private val defaultGameState = GameState(
-        currentPlayerIdx = 0,
+        currentUserIdx = 0,
         playerEmails = defaultPlayerDatas.map { it.email },
         currentPlayerEmail = defaultPlayerDatas[0].email,
         startingPlayerEmail = defaultPlayerDatas[0].email,
@@ -138,13 +138,11 @@ class GameStateTest {
 
     @Test
     fun playCardReturnsNewGameStateWithCardPlayed() {
-        val newGameState = defaultGameState.playCard(defaultPlayerDatas[0].email, defaultPlayerDatas[0].cards[0])
+        val newGameState = defaultGameState.playCard(defaultPlayerDatas[0].email, defaultPlayerDatas[0].cards[0], 0)
 
         assertTrue(newGameState.currentTrick.trickCards
             .contains(Trick.TrickCard(defaultPlayerDatas[0].cards[0], defaultPlayerDatas[0].email))
         )
-
-        assertFalse(GameStateHolder.players.first { it.email == newGameState.playerEmails[0] }.cards.contains(defaultPlayerDatas[0].cards[0]))
 
         assertFalse(newGameState.playerCards[newGameState.playerEmails[0]]!!.contains(defaultPlayerDatas[0].cards[0]))
     }
@@ -152,7 +150,7 @@ class GameStateTest {
     @Test
     fun playCardThrowsOnNonExistingPlayer() {
         assertThrows(IllegalArgumentException::class.java) {
-            defaultGameState.playCard("nonExistingPlayer", defaultPlayerDatas[0].cards[0])
+            defaultGameState.playCard("nonExistingPlayer", defaultPlayerDatas[0].cards[0], 0)
         }
     }
 }

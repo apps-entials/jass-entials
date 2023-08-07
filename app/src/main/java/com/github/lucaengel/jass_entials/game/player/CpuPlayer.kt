@@ -1,10 +1,10 @@
 package com.github.lucaengel.jass_entials.game.player
 
 import com.github.lucaengel.jass_entials.data.cards.Card
+import com.github.lucaengel.jass_entials.data.cards.PlayerData
 import com.github.lucaengel.jass_entials.data.game_state.Bet
 import com.github.lucaengel.jass_entials.data.game_state.BettingState
 import com.github.lucaengel.jass_entials.data.game_state.GameState
-import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
 import com.github.lucaengel.jass_entials.data.jass.Trump
 import java.util.concurrent.CompletableFuture
 import kotlin.random.Random
@@ -15,16 +15,11 @@ import kotlin.random.Random
  * @property playerEmail the player data
  */
 class CpuPlayer(val playerEmail: String, private val threadSleepTime: Long = 300) : Player {
-    private val idx = GameStateHolder.players.indexOfFirst { it.email == playerEmail }
 
-    override fun playCard(gameState: GameState): CompletableFuture<Card> {
-        val player = GameStateHolder.players[idx]
+    override fun playCard(gameState: GameState, player: PlayerData): CompletableFuture<Card> {
         val card = player.playableCards(gameState.currentTrick, gameState.currentTrump).random()
-        val newPlayer = player.copy(cards = player.cards.minus(card))
 
-        GameStateHolder.players = GameStateHolder.players.map {
-            if (it.email == playerEmail) newPlayer else it
-        }
+        // TODO: maybe update player data here and return it as well
 
         val cardFuture = CompletableFuture<Card>()
         CompletableFuture.runAsync {
@@ -36,17 +31,6 @@ class CpuPlayer(val playerEmail: String, private val threadSleepTime: Long = 300
     }
 
     override fun bet(bettingState: BettingState): CompletableFuture<BettingState> {
-        var firstName = ""
-        var lastName = ""
-        GameStateHolder.players = GameStateHolder.players.map {
-            if (it.email == playerEmail) {
-                firstName = it.firstName
-                lastName = it.lastName
-                it.copy(firstName = "I'm", lastName = "thinking...")
-            } else {
-                it
-            }
-        }
 
         val bettingFuture = CompletableFuture<BettingState>()
         CompletableFuture.runAsync {
@@ -66,17 +50,7 @@ class CpuPlayer(val playerEmail: String, private val threadSleepTime: Long = 300
                 )
             }
         }
-        return bettingFuture.thenApply { bState ->
-            GameStateHolder.players = GameStateHolder.players.map {
-                if (it.email == playerEmail) {
-                    it.copy(firstName = firstName, lastName = lastName)
-                } else {
-                    it
-                }
-            }
-
-            bState
-        }
+        return bettingFuture
     }
 
     override fun chooseTrump(gameState: GameState): CompletableFuture<Trump> {

@@ -31,7 +31,7 @@ class TrickTest {
     )
 
     val defaultGameState = GameState(
-        currentPlayerIdx = 0,
+        currentUserIdx = 0,
         playerEmails = defaultPlayerDatas.map { it.email },
         currentPlayerEmail = defaultPlayerDatas[0].email,
         startingPlayerEmail = defaultPlayerDatas[0].email,

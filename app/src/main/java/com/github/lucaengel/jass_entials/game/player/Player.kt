@@ -1,6 +1,7 @@
 package com.github.lucaengel.jass_entials.game.player
 
 import com.github.lucaengel.jass_entials.data.cards.Card
+import com.github.lucaengel.jass_entials.data.cards.PlayerData
 import com.github.lucaengel.jass_entials.data.game_state.BettingState
 import com.github.lucaengel.jass_entials.data.game_state.GameState
 import com.github.lucaengel.jass_entials.data.jass.Trump
@@ -17,7 +18,7 @@ interface Player {
      * @param gameState the current game state
      * @return the card to play
      */
-    fun playCard(gameState: GameState): CompletableFuture<Card>
+    fun playCard(gameState: GameState, player: PlayerData): CompletableFuture<Card>
 
     /**
      * Bets for the given betting state.

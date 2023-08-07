@@ -28,7 +28,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.github.lucaengel.jass_entials.data.cards.Card
 import com.github.lucaengel.jass_entials.data.cards.PlayerData
-import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
 import kotlin.math.absoluteValue
 
 /**
@@ -45,14 +44,13 @@ class JassComposables {
          * @param onPlayCard The callback to be called when a card is played.
          */
         @Composable
-        fun CurrentPlayerBox(playerEmail: String, onPlayCard: (Card) -> Unit = {}) {
-            val gameStateHolderPlayerIdx = GameStateHolder.players.indexOfFirst { it.email == playerEmail }
+        fun CurrentPlayerBox(playerEmail: String, player: PlayerData, onPlayCard: (Card) -> Unit = {}) {
 
             val screenWidth = LocalConfiguration.current.screenWidthDp.dp
             val cardWidth = screenWidth.value / 10 * 1.5f
             val cardHeight = cardWidth * 1.5f
 
-            val nbCards = GameStateHolder.players[gameStateHolderPlayerIdx].cards.size
+            val nbCards = player.cards.size
             val cardNbIsEven = nbCards % 2 == 0
 
             // offset, rotation
@@ -69,7 +67,7 @@ class JassComposables {
             BoxWithConstraints(
                 contentAlignment = Alignment.BottomCenter,
             ) {
-                GameStateHolder.players[gameStateHolderPlayerIdx].cards.mapIndexed { idx, card ->
+                player.cards.mapIndexed { idx, card ->
                     val shouldPlaceCardRight = idx >= nbCards / 2
                     Row {
                         if (shouldPlaceCardRight) Spacer(modifier = Modifier.width(displacements[idx].first.dp))
@@ -105,7 +103,7 @@ class JassComposables {
         /**
          * Player box for displaying information
          *
-         * @param playerEmail The player to display
+         * @param playerData The player to display
          * @param playerSpot The spot of the player in the game (0 = bottom, 1 = right, 2 = top, 3 = left)
          * @param modifier The modifier to apply to the box
          */
