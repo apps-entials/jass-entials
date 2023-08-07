@@ -1,16 +1,39 @@
 package com.github.lucaengel.jass_entials.data.cards
 
+import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
 import com.github.lucaengel.jass_entials.data.jass.Trump
 
 /**
  * A trick is a collection of cards played by each player in a round.
  *
- * @param playerToCard A list of pairs of cards and the player who played them.
+ * @param trickCards A list of pairs of cards and the player who played them.
  */
 data class Trick(
-    val playerToCard: List<Pair<Card, PlayerData>>,
+    val trickCards: List<TrickCard>,
 ) {
-    constructor() : this(playerToCard = listOf())
+
+    /**
+     * A card played by a player.
+     */
+    data class TrickCard(
+        val card: Card,
+        val email: String,
+    )
+
+    /**
+     * Represents the winner of a trick.
+     */
+    data class TrickWinner(val playerEmail: String, val trick: Trick) {
+        init {
+            if (trick.trickCards.size != GameStateHolder.players.size)
+                throw IllegalArgumentException("A trick must have exactly as many cards as there are players to be completed.")
+
+            if (!trick.trickCards.map { it.email }.contains(playerEmail))
+                throw IllegalArgumentException("The player must be one of the players in the trick.")
+        }
+    }
+
+    constructor() : this(trickCards = listOf())
 
     /**
      * Returns true if the trick is full, i.e. if 4 cards have been played.
@@ -18,7 +41,7 @@ data class Trick(
      * @return True if the trick is full.
      */
     fun isFull(): Boolean {
-        return playerToCard.size == 4
+        return trickCards.size == 4
     }
 
     /**
@@ -27,13 +50,23 @@ data class Trick(
      * @param trump The trump of the round.
      * @return The player who played the highest card.
      */
-    fun winner(trump: Trump): PlayerData {
-        return playerToCard.foldRight(playerToCard.first()) { (card, playerData), winner ->
-            if (winner.first.isHigherThan(card, trump)) {
-                winner
+    fun winner(trump: Trump): TrickWinner {
+        return trickCards.foldRight(trickCards.first()) { (card, email), prevWinner ->
+            if (prevWinner.card.isHigherThan(card, trump)) {
+                prevWinner
             } else {
-                Pair(card, playerData)
+                TrickCard(card, email)
             }
-        }.second
+        }.email.let { TrickWinner(it, this) }
+    }
+
+    /**
+     * Returns the points of the trick.
+     *
+     * @param trump The trump of the round.
+     * @return The points of the trick.
+     */
+    fun points(trump: Trump): Int {
+        return trickCards.sumOf { it.card.points(trump) }
     }
 }

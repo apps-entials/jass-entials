@@ -1,7 +1,6 @@
 package com.github.lucaengel.jass_entials.data.game_state
 
 import com.github.lucaengel.jass_entials.data.cards.Deck
-import com.github.lucaengel.jass_entials.data.cards.PlayerData
 import com.github.lucaengel.jass_entials.data.cards.Trick
 import com.github.lucaengel.jass_entials.data.jass.JassType
 import com.github.lucaengel.jass_entials.data.jass.Trump
@@ -9,17 +8,18 @@ import com.github.lucaengel.jass_entials.data.jass.Trump
 /**
  * Represents the state of the betting phase of a game.
  *
- * @param currentPlayerIdx the index of the current user in the [playerDatas] list
- * @param playerDatas the list of all players in the game
- * @param currentBetter the player who is currently betting
+ * @param currentUserIdx the index of the current user in the [playerEmails] list
+ * @param playerEmails the list of all players in the game (in order)
+ * @param currentBetterEmail the player who is currently betting
  * @param jassType the type of the jass game
  * @param bets the list of all bets that have been placed
  * @param gameState the state of the game
  */
 data class BettingState(
-    val currentPlayerIdx: Int,
-    val playerDatas: List<PlayerData>,
-    val currentBetter: PlayerData,
+    val currentUserIdx: Int,
+    val playerEmails: List<String>,
+    val currentBetterEmail: String,
+    val startingBetterEmail: String,
     val jassType: JassType,
     val bets: List<Bet>,
     val gameState: GameState,
@@ -27,8 +27,9 @@ data class BettingState(
 
     constructor(): this(
         0,
-        playerDatas = listOf(PlayerData(), PlayerData(), PlayerData(), PlayerData()),
-        currentBetter = PlayerData(),
+        playerEmails = listOf(),
+        currentBetterEmail = "",
+        startingBetterEmail = "",
         jassType = JassType.SCHIEBER,
         bets = listOf(),
         gameState = GameState(),
@@ -37,17 +38,18 @@ data class BettingState(
     /**
      * Returns the new betting state for the next betting round.
      *
-     * @param startingBetter the player who starts the next betting round
+     * @param startingBetterEmail the player who starts the next betting round
      * @return the new betting state
      */
-    fun nextBettingRound(startingBetter: PlayerData): BettingState {
-        val newPlayers = Deck.STANDARD_DECK.shuffled().dealCards(playerDatas).keys
+    fun nextBettingRound(startingBetterEmail: String): BettingState {
+        val dealtCards = Deck.STANDARD_DECK.shuffled().dealCards(playerEmails)
+        GameStateHolder.players = GameStateHolder.players.map { it.copy(cards = dealtCards[it.email]!!) }
 
         return this.copy(
             // TODO: make sure every player has a different email!!!
-            currentPlayerIdx = newPlayers.indexOfFirst { it.email == startingBetter.email },
-            playerDatas = newPlayers.toList(),
-            currentBetter = newPlayers.first { it.email == startingBetter.email },
+            currentUserIdx = 0,
+            currentBetterEmail = startingBetterEmail,
+            startingBetterEmail = startingBetterEmail,
             bets = listOf(),
         )
     }
@@ -60,9 +62,9 @@ data class BettingState(
      */
     fun nextPlayer(placedBet: Bet? = null): BettingState {
 
-        val nextPlayerIdx = (playerDatas.indexOf(currentBetter) + 1) % playerDatas.size
+        val nextPlayerIdx = (playerEmails.indexOf(currentBetterEmail) + 1) % playerEmails.size
         return this.copy(
-            currentBetter = playerDatas[nextPlayerIdx],
+            currentBetterEmail = playerEmails[nextPlayerIdx],
             bets = if (placedBet != null) bets + placedBet else bets,
         )
     }
@@ -73,7 +75,10 @@ data class BettingState(
      * @return the available bets
      */
     fun availableBets(): List<BetHeight> {
-        return BetHeight.values().filter { it > (bets.lastOrNull()?.bet ?: BetHeight.NONE) }
+        return BetHeight.values().filter {
+            it > (bets.lastOrNull()
+                ?.bet
+                ?: BetHeight.NONE) }
     }
 
     /**
@@ -82,7 +87,7 @@ data class BettingState(
      * @return the available trumps
      */
     fun availableTrumps(): List<Trump> {
-        if (bets.lastOrNull()?.playerData == currentBetter) {
+        if (bets.lastOrNull()?.playerEmail == currentBetterEmail) {
             return Trump.values().filter { it != bets.last().suit }
         }
 
@@ -100,16 +105,16 @@ data class BettingState(
             throw IllegalStateException("Cannot start game without bets")
 
         return GameState(
-            currentPlayerIdx = currentPlayerIdx,
-            playerDatas = playerDatas,
-            currentPlayerData = bets.last().playerData,
-            startingPlayerData = bets.last().playerData,
+            currentUserIdx = currentUserIdx,
+            playerEmails = playerEmails,
+            currentPlayerEmail = bets.last().playerEmail,
+            startingPlayerEmail = bets.last().playerEmail,
             currentRound = 0,
             currentTrick = Trick(),
             currentRoundTrickWinners = listOf(),
             currentTrickNumber = 0,
             currentTrump = bets.last().suit,
-            playerCards = playerDatas.associateWith { it.cards },
+            playerCards = GameStateHolder.players.associate { it.email to it.cards },
         )
     }
 }
@@ -117,11 +122,11 @@ data class BettingState(
 /**
  * Represents a bet that has been placed by a player.
  *
- * @param playerData the player who placed the bet
+ * @param playerEmail the player who placed the bet
  * @param suit the selected trump suit for the bet
  * @param bet the bet height
  */
-data class Bet(val playerData: PlayerData, val suit: Trump, val bet: BetHeight) {
+data class Bet(val playerEmail: String, val suit: Trump, val bet: BetHeight) {
     enum class BetAction {
         BET, PASS
     }

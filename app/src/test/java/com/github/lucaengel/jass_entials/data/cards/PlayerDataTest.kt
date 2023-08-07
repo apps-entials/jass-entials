@@ -36,15 +36,12 @@ class PlayerDataTest {
 
         val playableCards = defaultPlayerData.playableCards(emptyTrick, Trump.HEARTS)
 
-        println(playableCards)
-        println(defaultPlayerData.cards)
-
         assertThat(playableCards, Matchers.containsInAnyOrder(*defaultPlayerData.cards.toTypedArray()))
     }
 
     @Test
     fun playableCardsShowsTrumpCardsAndPlayableSuitCardsWhenJustASuitHasBeenPlayed() {
-        val trick = Trick(listOf(Pair(Card(Rank.SEVEN, Suit.HEARTS), PlayerData())))
+        val trick = Trick(listOf(Trick.TrickCard(Card(Rank.SEVEN, Suit.HEARTS), "")))
 
         val playableCards = defaultPlayerData.playableCards(trick, Trump.CLUBS)
 
@@ -60,8 +57,8 @@ class PlayerDataTest {
     @Test
     fun cannotUndertrump() {
         val trick = Trick(listOf(
-            Pair(Card(Rank.SEVEN, Suit.DIAMONDS), PlayerData()),
-            Pair(Card(Rank.TEN, Suit.HEARTS), PlayerData()),
+            Trick.TrickCard(Card(Rank.SEVEN, Suit.DIAMONDS), "email_1"),
+            Trick.TrickCard(Card(Rank.TEN, Suit.HEARTS), "email_2"),
             )
         )
 
@@ -92,8 +89,8 @@ class PlayerDataTest {
         ))
 
         val trick = Trick(listOf(
-            Pair(Card(Rank.SEVEN, Suit.DIAMONDS), PlayerData()),
-            Pair(Card(Rank.ACE, Suit.HEARTS), PlayerData()),
+            Trick.TrickCard(Card(Rank.SEVEN, Suit.DIAMONDS), "email_1"),
+            Trick.TrickCard(Card(Rank.ACE, Suit.HEARTS), "email_2"),
         ))
 
         val playableCards = player.playableCards(trick, Trump.HEARTS)
@@ -123,13 +120,11 @@ class PlayerDataTest {
         ))
 
         val trick = Trick(listOf(
-            Pair(Card(Rank.SEVEN, Suit.DIAMONDS), PlayerData()),
-            Pair(Card(Rank.NINE, Suit.HEARTS), PlayerData()),
+            Trick.TrickCard(Card(Rank.SEVEN, Suit.DIAMONDS), "email_1"),
+            Trick.TrickCard(Card(Rank.NINE, Suit.HEARTS), "email_2"),
         ))
 
         val playableCards = player.playableCards(trick, Trump.HEARTS)
-
-        println(playableCards)
 
         assertThat(playableCards, Matchers.containsInAnyOrder(
             Card(Rank.ACE, Suit.DIAMONDS),
@@ -155,12 +150,11 @@ class PlayerDataTest {
         ))
 
         val trick = Trick(listOf(
-            Pair(Card(Rank.TEN, Suit.HEARTS), PlayerData()),
-            Pair(Card(Rank.TEN, Suit.DIAMONDS), PlayerData()),
+            Trick.TrickCard(Card(Rank.TEN, Suit.HEARTS), "email_1"),
+            Trick.TrickCard(Card(Rank.TEN, Suit.DIAMONDS), "email_2"),
         ))
 
         val playableCards = player.playableCards(trick, Trump.HEARTS)
-        println("playableCards: $playableCards")
 
         assertThat(playableCards, Matchers.containsInAnyOrder(
             Card(Rank.TEN, Suit.HEARTS),
@@ -185,8 +179,8 @@ class PlayerDataTest {
         ))
 
         val trick = Trick(listOf(
-            Pair(Card(Rank.TEN, Suit.HEARTS), PlayerData()),
-            Pair(Card(Rank.TEN, Suit.DIAMONDS), PlayerData()),
+            Trick.TrickCard(Card(Rank.TEN, Suit.HEARTS), "email_1"),
+            Trick.TrickCard(Card(Rank.TEN, Suit.DIAMONDS), "email_2"),
         ))
 
         val playableCards = player.playableCards(trick, Trump.UNGER_UFE)
@@ -214,8 +208,8 @@ class PlayerDataTest {
         ))
 
         val trick = Trick(listOf(
-            Pair(Card(Rank.TEN, Suit.CLUBS), PlayerData()),
-            Pair(Card(Rank.TEN, Suit.DIAMONDS), PlayerData()),
+            Trick.TrickCard(Card(Rank.TEN, Suit.CLUBS), "email_1"),
+            Trick.TrickCard(Card(Rank.TEN, Suit.DIAMONDS), "email_2"),
         ))
 
         val playableCards = player.playableCards(trick, Trump.CLUBS)
@@ -241,8 +235,8 @@ class PlayerDataTest {
         ))
 
         val trick = Trick(listOf(
-            Pair(Card(Rank.TEN, Suit.HEARTS), PlayerData()),
-            Pair(Card(Rank.TEN, Suit.DIAMONDS), PlayerData()),
+            Trick.TrickCard(Card(Rank.TEN, Suit.HEARTS), "email_1"),
+            Trick.TrickCard(Card(Rank.TEN, Suit.DIAMONDS), "email_2"),
         ))
 
         val playableCards = player.playableCards(trick, Trump.DIAMONDS)
@@ -271,8 +265,8 @@ class PlayerDataTest {
         ))
 
         val trick = Trick(listOf(
-            Pair(Card(Rank.TEN, Suit.DIAMONDS), PlayerData()),
-            Pair(Card(Rank.TEN, Suit.CLUBS), PlayerData()),
+            Trick.TrickCard(Card(Rank.TEN, Suit.DIAMONDS), "email_1"),
+            Trick.TrickCard(Card(Rank.TEN, Suit.CLUBS), "email_2"),
         ))
 
         val playableCards = player.playableCards(trick, Trump.CLUBS)

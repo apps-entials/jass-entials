@@ -25,6 +25,12 @@ data class PlayerData(
         token = "",
     )
 
+    fun withCardPlayed(card: Card): PlayerData {
+        if (!cards.contains(card)) throw IllegalStateException("Player does not have card $card")
+
+        return copy(cards = cards.minus(card))
+    }
+
     /**
      * Returns the cards that can be played for the given [trick] with the given [trump].
      *
@@ -33,10 +39,10 @@ data class PlayerData(
      * @return the cards that can be played
      */
     fun playableCards(trick: Trick, trump: Trump): List<Card> {
-        val firstCard = trick.playerToCard
+        val firstCard = trick.trickCards
             .firstOrNull()
-            ?.first
-            ?: return cards
+            ?.card
+            ?: return cards // no card has been played yet --> can play any card
 
         val trumpSuit = Trump.asSuit(trump)
 
@@ -75,13 +81,13 @@ data class PlayerData(
 
         var playableTrumpCards = trumpCards
 
-        return when (trick.playerToCard.indexOfFirst { it.first.suit == trump }) {
+        return when (trick.trickCards.indexOfFirst { it.card.suit == trump }) {
             -1 -> playableTrumpCards // no trump has been played yet
             0 -> playableTrumpCards // first card is trump --> can play any trump
             else -> { // no under trumping (ungertrumpfe) possible
-                val maxTrumpRank = trick.playerToCard.maxOf {
-                    if (it.first.suit == trump)
-                        it.first.rank.trumpHeight
+                val maxTrumpRank = trick.trickCards.maxOf {
+                    if (it.card.suit == trump)
+                        it.card.rank.trumpHeight
                     else
                         Rank.SIX.trumpHeight
                 }

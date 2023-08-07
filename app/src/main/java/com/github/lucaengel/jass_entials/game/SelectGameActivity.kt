@@ -32,6 +32,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
 import com.github.lucaengel.jass_entials.data.jass.JassType
 import com.github.lucaengel.jass_entials.game.SelectGameActivity.TestTags.Buttons.Companion.BACK
 import com.github.lucaengel.jass_entials.game.pregame.CoiffeurPregameActivity
@@ -121,10 +122,15 @@ fun SelectGameView(finishActivity: () -> Unit = {}) {
                     context.startActivity(it)
                 }
 
-            JassType.SIDI_BARAHNI ->
+            JassType.SIDI_BARAHNI -> {
+                // TODO: adapt the following when the user has an email etc.
+                // have a random player start the game
+                GameStateHolder.bettingState = GameStateHolder.bettingState.nextBettingRound(GameStateHolder.bettingState.playerEmails.random()/*GameStateHolder.bettingState.currentBetterEmail*/)
+
                 Intent(context, SidiBarahniPreRoundActivity::class.java).also {
                     context.startActivity(it)
                 }
+            }
         }
     }
 

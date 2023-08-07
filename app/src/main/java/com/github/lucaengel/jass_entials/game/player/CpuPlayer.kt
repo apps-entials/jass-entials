@@ -12,17 +12,18 @@ import kotlin.random.Random
 /**
  * Class representing a CPU player
  *
- * @property playerData the player data
+ * @property playerEmail the player data
  */
-class CpuPlayer(var playerData: PlayerData) : Player {
+class CpuPlayer(val playerEmail: String, private val threadSleepTime: Long = 300) : Player {
 
-    override fun playCard(gameState: GameState): CompletableFuture<Card> {
-        val card = playerData.playableCards(gameState.currentTrick, gameState.currentTrump).random()
-        playerData = playerData.copy(cards = playerData.cards.filter { c -> c != card })
+    override fun playCard(gameState: GameState, player: PlayerData): CompletableFuture<Card> {
+        val card = player.playableCards(gameState.currentTrick, gameState.currentTrump).random()
+
+        // TODO: maybe update player data here and return it as well
 
         val cardFuture = CompletableFuture<Card>()
         CompletableFuture.runAsync {
-            Thread.sleep(300)
+            Thread.sleep(threadSleepTime)
             cardFuture.complete(card)
         }
 
@@ -30,17 +31,26 @@ class CpuPlayer(var playerData: PlayerData) : Player {
     }
 
     override fun bet(bettingState: BettingState): CompletableFuture<BettingState> {
-        if (Random.nextFloat() > 0.1 || bettingState.availableBets().isEmpty()) return CompletableFuture.completedFuture(bettingState.nextPlayer())
 
-        return CompletableFuture.completedFuture(
-            bettingState.nextPlayer(
-                Bet(
-                    playerData = playerData,
-                    bet = bettingState.availableBets().first(),
-                    suit = bettingState.availableTrumps().first(),
+        val bettingFuture = CompletableFuture<BettingState>()
+        CompletableFuture.runAsync {
+            Thread.sleep(3*threadSleepTime)
+
+            if (Random.nextFloat() > 0.2 || bettingState.availableBets().isEmpty()) {
+                bettingFuture.complete(bettingState.nextPlayer())
+            } else {
+                bettingFuture.complete(
+                    bettingState.nextPlayer(
+                        Bet(
+                            playerEmail = playerEmail,
+                            bet = bettingState.availableBets().first(),
+                            suit = bettingState.availableTrumps().first(),
+                        )
+                    )
                 )
-            )
-        )
+            }
+        }
+        return bettingFuture
     }
 
     override fun chooseTrump(gameState: GameState): CompletableFuture<Trump> {

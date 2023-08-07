@@ -40,17 +40,17 @@ class JassComposables {
         /**
          * Displays the current player's cards.
          *
-         * @param playerData The current player's data.
+         * @param playerEmail The current player's data.
          * @param onPlayCard The callback to be called when a card is played.
          */
         @Composable
-        fun CurrentPlayerBox(playerData: PlayerData, onPlayCard: (Card) -> Unit = {}) {
+        fun CurrentPlayerBox(playerEmail: String, player: PlayerData, onPlayCard: (Card) -> Unit = {}) {
 
             val screenWidth = LocalConfiguration.current.screenWidthDp.dp
             val cardWidth = screenWidth.value / 10 * 1.5f
             val cardHeight = cardWidth * 1.5f
 
-            val nbCards = playerData.cards.size
+            val nbCards = player.cards.size
             val cardNbIsEven = nbCards % 2 == 0
 
             // offset, rotation
@@ -67,7 +67,7 @@ class JassComposables {
             BoxWithConstraints(
                 contentAlignment = Alignment.BottomCenter,
             ) {
-                playerData.cards.mapIndexed { idx, card ->
+                player.cards.mapIndexed { idx, card ->
                     val shouldPlaceCardRight = idx >= nbCards / 2
                     Row {
                         if (shouldPlaceCardRight) Spacer(modifier = Modifier.width(displacements[idx].first.dp))
@@ -109,7 +109,7 @@ class JassComposables {
          */
         @Composable
         fun PlayerBox(playerData: PlayerData, playerSpot: Int, modifier: Modifier = Modifier) {
-            val isCurrentUser = playerSpot == 0
+            val isCurrentUser = (playerSpot == 0)
             Box(
                 modifier = modifier.fillMaxWidth(0.25f),
                 contentAlignment = Alignment.Center,
