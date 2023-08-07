@@ -2,14 +2,13 @@ package com.github.lucaengel.jass_entials.game
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -27,6 +26,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.github.lucaengel.jass_entials.data.cards.Card
@@ -53,6 +53,7 @@ class JassComposables {
             val screenWidth = LocalConfiguration.current.screenWidthDp.dp
             val cardWidth = screenWidth.value / 10 * 1.5f
             val cardHeight = cardWidth * 1.5f
+
 
             val nbCards = player.cards.size
             val cardNbIsEven = nbCards % 2 == 0
@@ -83,18 +84,11 @@ class JassComposables {
                         Column(modifier = Modifier.height(((heightLevel * (cardHeight / 9f)) + cardHeight).dp)) {
                             Spacer(modifier = Modifier.height((heightLevel * (cardHeight / 9f)).dp))
 
-                            Image(
-                                painter = painterResource(id = Card.getCardImage(card)),
-                                contentDescription = card.toString(),
-                                modifier = Modifier
-                                    .requiredHeight((cardHeight).dp)
-                                    .requiredWidth(cardWidth.dp)
-                                    .graphicsLayer {
-                                        rotationZ =
-                                            displacements[idx].second
-                                    }
-                                    .clip(RoundedCornerShape(9.dp))
-                                    .clickable { onPlayCard(card) },
+                            CardBox(
+                                card = card,
+                                onClick = { onPlayCard(card) },
+                                cardWidth = cardWidth.dp,
+                                zRotation = displacements[idx].second,
                             )
                         }
                         if (!shouldPlaceCardRight) Spacer(modifier = Modifier.width(displacements[idx].first.dp))
@@ -168,40 +162,54 @@ class JassComposables {
 
                 // Card at the top middle
                 Column(modifier = Modifier.zIndex(idxToCards[2]?.second?.toFloat() ?: 0f)) {
-                    CardBox(card = idxToCards[2]?.first, onClick = onClick)
+                    CardBox(
+                        card = idxToCards[2]?.first,
+                        onClick = onClick,
+                        cardWidth = cardWidth.dp
+                    )
                 }
 
                 // Card at the bottom middle
                 Column(modifier = Modifier.zIndex(idxToCards[0]?.second?.toFloat() ?: 0f)) {
-                    Spacer(modifier = Modifier.height((cardHeight - cardWidth).dp) /*(cardHeight * 2 / 3).dp*/)
+                    Spacer(modifier = Modifier.height((cardHeight - 2 * cardWidth / 3).dp) /*(cardHeight * 2 / 3).dp*/)
 
-                    CardBox(card = idxToCards[0]?.first, onClick = onClick)
+                    CardBox(
+                        card = idxToCards[0]?.first,
+                        onClick = onClick,
+                        cardWidth = cardWidth.dp
+                    )
                 }
-
-                val rotateModifier = Modifier
-                    .graphicsLayer {
-                        rotationZ = 90f
-                    }
 
                 // Card in the middle on the left
                 Column(modifier = Modifier.zIndex(idxToCards[3]?.second?.toFloat() ?: 0f)) {
-                    Spacer(modifier = Modifier.height(((cardHeight - cardWidth) / 2).dp/*(cardHeight / 3).dp*/))
+                    // if it should be on the same height as the end of the top card, use: cardWidth
+                    Spacer(modifier = Modifier.height(((cardHeight - 2 * cardWidth / 3) / 2).dp/*(cardHeight / 3).dp*/))
 
                     Row {
-                        CardBox(card = idxToCards[3]?.first, onClick = onClick, modifier = rotateModifier)
+                        CardBox(
+                            card = idxToCards[3]?.first,
+                            onClick = onClick,
+                            cardWidth = cardWidth.dp,
+                            zRotation = 90f
+                        )
 
-                        Spacer(modifier = Modifier.width((cardHeight - cardWidth).dp/*cardWidth * 1.25f).dp*/))
+                        Spacer(modifier = Modifier.width((cardHeight - 2 * cardWidth / 3).dp/*cardWidth * 1.25f).dp*/))
                     }
                 }
 
                 // Card in the middle on the right
                 Column(modifier = Modifier.zIndex(idxToCards[1]?.second?.toFloat() ?: 0f)) {
-                    Spacer(modifier = Modifier.height(((cardHeight - cardWidth) / 2).dp/*(cardHeight / 3).dp*/))
+                    Spacer(modifier = Modifier.height(((cardHeight - 2 * cardWidth / 3) / 2).dp/*(cardHeight / 3).dp*/))
 
                     Row {
-                        Spacer(modifier = Modifier.width((cardHeight - cardWidth/*cardWidth * 1.25f*/).dp))
+                        Spacer(modifier = Modifier.width((cardHeight - 2 * cardWidth / 3/*cardWidth * 1.25f*/).dp))
 
-                        CardBox(card = idxToCards[1]?.first, onClick = onClick, modifier = rotateModifier)
+                        CardBox(
+                            card = idxToCards[1]?.first,
+                            onClick = onClick,
+                            cardWidth = cardWidth.dp,
+                            zRotation = 90f
+                        )
                     }
                 }
             }
@@ -213,25 +221,26 @@ class JassComposables {
          * @param card The card to display.
          */
         @Composable
-        fun CardBox(card: Card?, onClick: () -> Unit = {}, modifier: Modifier = Modifier) {
-            val screenWidth = LocalConfiguration.current.screenWidthDp.dp
-            val cardWidth = screenWidth.value / 10 //* 1.5f
+        fun CardBox(card: Card?, onClick: () -> Unit = {}, cardWidth: Dp, zRotation: Float = 0f) {
             val cardHeight = cardWidth * 1.5f
+            val cornerShape = cardWidth / 12
 
-            Box(modifier = modifier
-                .requiredWidth(cardWidth.dp)
-                .requiredHeight(cardHeight.dp)
-            ) {
-                if (card != null) {
-                    Image(
-                        painter = painterResource(id = Card.getCardImage(card)),
-                        contentDescription = card.toString(),
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .fillMaxSize()
-                            .clickable(onClick = onClick),
-                    )
-                }
+            if (card != null) {
+                Image(
+                    painter = painterResource(id = Card.getCardImage(card)),
+                    contentDescription = card.toString(),
+                    modifier = Modifier
+                        .requiredWidth(cardWidth)
+                        .requiredHeight(cardHeight)
+                        .graphicsLayer {
+                            rotationZ = zRotation
+                        }.border(
+                            width = Dp.Hairline,
+                            shape = RoundedCornerShape(cornerShape),
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        ).clip(RoundedCornerShape(cornerShape))
+                        .clickable(onClick = onClick),
+                )
             }
         }
     }
