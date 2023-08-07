@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -26,8 +28,10 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import com.github.lucaengel.jass_entials.data.cards.Card
 import com.github.lucaengel.jass_entials.data.cards.PlayerData
+import com.github.lucaengel.jass_entials.data.game_state.GameState
 import kotlin.math.absoluteValue
 
 /**
@@ -125,6 +129,107 @@ class JassComposables {
                     Text(
                         text = if (isCurrentUser) "You" else "${playerData.firstName} ${playerData.lastName}",
                         textAlign = TextAlign.Center,
+                    )
+                }
+            }
+        }
+
+        /**
+         * Displays the 0-4 cards that are currently in the middle of the table.
+         *
+         * @param gameState The current game state.
+         * @param players The list of playerData's.
+         * @param currentUserIdx The index of the current user in [players].
+         * @param onClick The callback to be called when a card is clicked.
+         **/
+        @Composable
+        fun CurrentTrick(gameState: GameState, players: List<PlayerData>, currentUserIdx: Int, onClick: () -> Unit) {
+
+            val currentTrick = gameState.currentTrick
+            val startingPlayerIdx = gameState.playerEmails.indexOfFirst { it == gameState.startingPlayerEmail }
+
+            // 0 is bottom, 1 is right, 2 is top, 3 is left
+            val idxToCards = (0..3)
+                // Triple: (location of card, i.e. 0 is bottom, ..., index of player in [players], z-index)
+                .map { idx -> Triple(idx, (currentUserIdx + idx) % 4, Math.floorMod(idx - startingPlayerIdx, 4)) }
+                .associate { (i, playerIdx, zIndex) -> i to Pair(currentTrick.trickCards.firstOrNull { it.email == players[playerIdx].email }?.card, zIndex) }
+
+            val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+            val cardWidth = screenWidth.value / 10
+            val cardHeight = cardWidth * 1.5f
+
+            // Displays the cards in the middle of the table.
+            BoxWithConstraints(
+                contentAlignment = Alignment.TopCenter
+            ) {
+
+                // commented out parts in the spacer are for the old layout where all cards were upright
+                // (also need to remove rotate modifier to go back)
+
+                // Card at the top middle
+                Column(modifier = Modifier.zIndex(idxToCards[2]?.second?.toFloat() ?: 0f)) {
+                    CardBox(card = idxToCards[2]?.first, onClick = onClick)
+                }
+
+                // Card at the bottom middle
+                Column(modifier = Modifier.zIndex(idxToCards[0]?.second?.toFloat() ?: 0f)) {
+                    Spacer(modifier = Modifier.height((cardHeight - cardWidth).dp) /*(cardHeight * 2 / 3).dp*/)
+
+                    CardBox(card = idxToCards[0]?.first, onClick = onClick)
+                }
+
+                val rotateModifier = Modifier
+                    .graphicsLayer {
+                        rotationZ = 90f
+                    }
+
+                // Card in the middle on the left
+                Column(modifier = Modifier.zIndex(idxToCards[3]?.second?.toFloat() ?: 0f)) {
+                    Spacer(modifier = Modifier.height(((cardHeight - cardWidth) / 2).dp/*(cardHeight / 3).dp*/))
+
+                    Row {
+                        CardBox(card = idxToCards[3]?.first, onClick = onClick, modifier = rotateModifier)
+
+                        Spacer(modifier = Modifier.width((cardHeight - cardWidth).dp/*cardWidth * 1.25f).dp*/))
+                    }
+                }
+
+                // Card in the middle on the right
+                Column(modifier = Modifier.zIndex(idxToCards[1]?.second?.toFloat() ?: 0f)) {
+                    Spacer(modifier = Modifier.height(((cardHeight - cardWidth) / 2).dp/*(cardHeight / 3).dp*/))
+
+                    Row {
+                        Spacer(modifier = Modifier.width((cardHeight - cardWidth/*cardWidth * 1.25f*/).dp))
+
+                        CardBox(card = idxToCards[1]?.first, onClick = onClick, modifier = rotateModifier)
+                    }
+                }
+            }
+        }
+
+        /**
+         * Displays a jass card image for the given card.
+         *
+         * @param card The card to display.
+         */
+        @Composable
+        fun CardBox(card: Card?, onClick: () -> Unit = {}, modifier: Modifier = Modifier) {
+            val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+            val cardWidth = screenWidth.value / 10 //* 1.5f
+            val cardHeight = cardWidth * 1.5f
+
+            Box(modifier = modifier
+                .requiredWidth(cardWidth.dp)
+                .requiredHeight(cardHeight.dp)
+            ) {
+                if (card != null) {
+                    Image(
+                        painter = painterResource(id = Card.getCardImage(card)),
+                        contentDescription = card.toString(),
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .fillMaxSize()
+                            .clickable(onClick = onClick),
                     )
                 }
             }
