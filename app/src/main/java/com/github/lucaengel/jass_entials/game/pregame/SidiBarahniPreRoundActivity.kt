@@ -94,9 +94,6 @@ fun BettingRound() {
             .map { it to CpuPlayer(it) }
         )}
 
-    println("current better: ${bettingState.currentBetterEmail}")
-
-
     var tmpFirstName by remember { mutableStateOf(mapOf<String, String>().withDefault { "" }) }
     var tmpLastName by remember { mutableStateOf(mapOf<String, String>().withDefault { "" }) }
     fun setToThinking(playerEmail: String) {

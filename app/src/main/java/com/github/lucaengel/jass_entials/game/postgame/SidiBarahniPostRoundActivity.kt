@@ -24,10 +24,6 @@ class SidiBarahniPostRoundActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        println("SidiBarahniPostRoundActivity")
-        val gameState = GameStateHolder.gameState
-        println("playerEmails: ${gameState.playerEmails}")
-        println("player data emails: ${GameStateHolder.players.map { p -> p.email }}")
         setContent {
             JassentialsTheme {
                 Surface(color = MaterialTheme.colorScheme.background) {

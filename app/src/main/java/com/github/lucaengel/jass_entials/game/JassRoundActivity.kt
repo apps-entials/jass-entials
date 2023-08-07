@@ -87,7 +87,6 @@ fun JassRound() {
 
     val currentUserIdx by remember { mutableStateOf(gameState.currentUserIdx) }
     val currentUserEmail by remember { mutableStateOf(gameState.playerEmails[currentUserIdx]) }
-//    val gameStateHolderPlayerIdx = players.indexOfFirst { it.email == currentPlayerEmail }
 
     val opponents by remember {
         mutableStateOf(gameState.playerEmails
@@ -96,22 +95,12 @@ fun JassRound() {
         )}
 
     val nextTrickFun: () -> Unit = {
-        println("next trick fun called")
-
-        println("current player email: ${gameState.currentPlayerEmail}")
-
-
         gameState = gameState.nextTrick()
 
-        println("new game state assigned")
-        println("currentPlayerEmail: ${gameState.currentPlayerEmail}")
         if (gameState.isLastTrick()) {
-            println("inside the if statement!")
             // Store current game state
             GameStateHolder.gameState = gameState
             GameStateHolder.players = players
-
-            println("game state stored")
 
             val postGameActivity = Intent(context, SidiBarahniPostRoundActivity::class.java)
             context.startActivity(postGameActivity)
@@ -164,7 +153,7 @@ fun JassRound() {
         val player = opponents.first { it.first == currentPlayerEmail }.second
         setToThinking(currentPlayerEmail)
         player.playCard(gameState, players.first { it.email == currentPlayerEmail })
-            .thenAccept() {
+            .thenAccept {
                 setToNormalName(currentPlayerEmail)
 
                 gameState = gameState.playCard(currentPlayerEmail, it, currentUserIdx)
@@ -233,56 +222,6 @@ fun JassRound() {
             updatePlayer(currentUserEmail, card)
             GameStateHolder.gameState = gameState
             GameStateHolder.players = players
-//            players = players.mapIndexed { idx, player ->
-//                if (idx == currentUserIdx) {
-//                    player.copy(cards = player.cards.minus(card))
-//                } else {
-//                    player
-//                }
-//            }
-
-            // Have opponents play
-//            val opponentsToPlay = opponents.subList(0, gameState.currentTrick.trickCards.size - gameState.currentTrick.trickCards.size)
-//            var opponentsFuture = CompletableFuture<Void>()
-//            for (opponent in opponentsToPlay) {
-//                opponentsFuture = opponentsFuture.thenCompose {
-//                    opponent.second
-//                        .playCard(gameState)
-//                        .thenAccept {
-//                            gameState = gameState.playCard(opponent.first, it)
-//                        }
-//                }
-//            }
-
-//            fun updatePlayer(idx: Int, card: Card) {
-//                players = players.mapIndexed { i, player ->
-//                    if (i == idx) {
-//                        player.withCardPlayed(card)
-//                    } else {
-//                        player
-//                    }
-//                }
-//            }
-//
-//            // Have opponents play
-//            opponents[0].second
-//                .playCard(gameState, players[(currentUserIdx + 1) % 4])
-//                .thenCompose {
-//                    gameState = gameState.playCard(opponents[0].first, it)
-//                    updatePlayer((currentUserIdx + 1) % 4, it)
-//
-//                    opponents[1].second
-//                        .playCard(gameState, players[(currentUserIdx + 2) % 4])
-//                }.thenCompose {
-//                    gameState = gameState.playCard(opponents[1].first, it)
-//                    updatePlayer((currentUserIdx + 2) % 4, it)
-//
-//                    opponents[2].second
-//                        .playCard(gameState, players[(currentUserIdx + 3) % 4])
-//                }.thenAccept {
-//                    gameState = gameState.playCard(opponents[2].first, it)
-//                    updatePlayer((currentUserIdx + 3) % 4, it)
-//                }
         }
     }
 }
@@ -332,8 +271,6 @@ fun CurrentTrick(gameState: GameState, players: List<PlayerData>, currentUserIdx
 
     val currentTrick = gameState.currentTrick
     val startingPlayerIdx = gameState.playerEmails.indexOfFirst { it == gameState.startingPlayerEmail }
-
-    println("starting player index: $startingPlayerIdx")
 
     // 0 is bottom, 1 is right, 2 is top, 3 is left
     val idxToCards = (0..3)

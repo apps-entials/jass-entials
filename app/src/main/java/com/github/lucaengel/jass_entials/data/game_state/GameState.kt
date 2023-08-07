@@ -102,10 +102,8 @@ data class GameState(
 
         if (idx == -1) throw IllegalArgumentException("Player $playerEmail is not in the game!")
 
-        // update GameStateHolder.players at position idx
+        // TODO: maybe update playerData as well
         val newPlayer = GameStateHolder.players[idx].withCardPlayed(card)
-
-//        GameStateHolder.players = GameStateHolder.players.map { if (it.email == playerEmail) newPlayer else it }
 
         val newGameState = this.copy(
             currentTrick = currentTrick.copy(trickCards = currentTrick.trickCards + Trick.TrickCard(card, playerEmail)),

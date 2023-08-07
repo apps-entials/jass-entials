@@ -76,7 +76,6 @@ class CpuPlayerTest {
 
         assertTrue(oldCards.contains(card))
         // TODO: maybe also update the player in this method and return it in a pair?
-//        assertFalse(GameStateHolder.players.first { it.email == player.playerEmail }.cards.contains(card))
     }
 
     @Test
