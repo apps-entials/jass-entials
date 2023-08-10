@@ -5,7 +5,20 @@ import com.github.lucaengel.jass_entials.data.game_state.BettingState
 
 interface BettingLogic {
 
+    /**
+     * Returns the next player to bet.
+     *
+     * @param currentBetterEmail the player who is currently betting
+     * @param currentPlayerBet the bet of the current player, possibly null (when passed or, in Sidi Barahni, when the player selected start game)
+     * @param bettingState the current betting state (before adding the current player's bet)
+     */
     fun nextPlayer(currentBetterEmail: String, currentPlayerBet: Bet?, bettingState: BettingState): String
 
-    fun availableActions(currentPlayerEmail: String, bettingState: BettingState): List<Bet.BetAction>
+    /**
+     * Returns the available actions for the current player.
+     *
+     * @param currentBetterEmail the player who is currently betting
+     * @param bettingState the current betting state
+     */
+    fun availableActions(currentBetterEmail: String, bettingState: BettingState): List<Bet.BetAction>
 }

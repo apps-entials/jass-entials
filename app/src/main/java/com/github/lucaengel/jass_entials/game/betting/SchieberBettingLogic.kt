@@ -5,6 +5,8 @@
 
     class SchieberBettingLogic : BettingLogic {
 
+        // inherit the javadoc
+
         override fun nextPlayer(
             currentBetterEmail: String,
             currentPlayerBet: Bet?,
@@ -17,7 +19,7 @@
         }
 
         override fun availableActions(
-            currentPlayerEmail: String,
+            currentBetterEmail: String,
             bettingState: BettingState
         ): List<Bet.BetAction> {
             if (bettingState.betActions.size >= 2) // both players passed
