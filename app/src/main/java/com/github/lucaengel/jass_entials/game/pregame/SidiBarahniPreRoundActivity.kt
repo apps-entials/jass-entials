@@ -132,6 +132,7 @@ fun BettingRound() {
         setToThinking(currentBetterEmail)
 
 
+        // TODO: consider refactoring since context switches cannot be tested well when in futures and LaunchedEffects
         val oldBettingState = bettingState
         val betFuture = player.bet(bettingState)
             .thenApply {
@@ -187,18 +188,30 @@ fun BettingRound() {
 
         if (bettingState.currentBetterEmail == currentUserEmail) {
 
+            fun startGameFun(currBettingState: BettingState) {
+                val gameState = currBettingState.startGame()
+                GameStateHolder.gameState = gameState
+                GameStateHolder.players = players
+
+                val intent = Intent(context, JassRoundActivity::class.java)
+                context.startActivity(intent)
+            }
+
             BettingRow(
                 bettingState = bettingState,
                 players = players,
-                onBetPlace = { bet -> bettingState = bettingState.nextPlayer(bet) },
+                onBetPlace = { bet ->
+                    val newBettingState = bettingState.nextPlayer(bet)
+
+                    // Only in Sidi Barahni, the next players
+                    // can place a higher bet than the current one.
+                    if (bettingState.jassType != JassType.SIDI_BARAHNI) {
+                        startGameFun(newBettingState)
+                    }
+                             },
                 onPass = { bettingState = bettingState.nextPlayer() },
                 onStartGame = {
-                    val gameState = bettingState.startGame()
-                    GameStateHolder.gameState = gameState
-                    GameStateHolder.players = players
-
-                    val intent = Intent(context, JassRoundActivity::class.java)
-                    context.startActivity(intent)
+                    startGameFun(bettingState)
                 }
             )
         } else {
@@ -391,7 +404,8 @@ fun BettingRow(
 
         Button(
             onClick = {
-                if ((selectedBet != BetHeight.NONE || GameStateHolder.jassType != JassType.SIDI_BARAHNI) && selectedTrump != null) {
+
+                if ((selectedBet != BetHeight.NONE || bettingState.jassType != JassType.SIDI_BARAHNI) && selectedTrump != null) {
                     onBetPlace(Bet(bettingState.currentBetterEmail, selectedTrump!!, selectedBet))
 
                     selectedTrump = null
