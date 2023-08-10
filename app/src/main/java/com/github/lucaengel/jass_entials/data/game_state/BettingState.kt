@@ -87,10 +87,8 @@ data class BettingState(
         )
     }
 
-    fun availableActions(
-        bettingState: BettingState
-    ): List<Bet.BetAction> {
-        return bettingLogic.availableActions(bettingState.currentBetterEmail, this)
+    fun availableActions(): List<Bet.BetAction> {
+        return bettingLogic.availableActions(currentBetterEmail, this)
     }
 
     /**

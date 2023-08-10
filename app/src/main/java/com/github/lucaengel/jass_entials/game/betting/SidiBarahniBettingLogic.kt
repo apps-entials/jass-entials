@@ -1,6 +1,7 @@
 package com.github.lucaengel.jass_entials.game.betting
 
 import com.github.lucaengel.jass_entials.data.game_state.Bet
+import com.github.lucaengel.jass_entials.data.game_state.BetHeight
 import com.github.lucaengel.jass_entials.data.game_state.BettingState
 
 class SidiBarahniBettingLogic : BettingLogic {
@@ -26,6 +27,9 @@ class SidiBarahniBettingLogic : BettingLogic {
             ?: return listOf(Bet.BetAction.BET, Bet.BetAction.PASS)
 
         if (lastBet.playerEmail == currentPlayerEmail) {
+            if (lastBet.bet == BetHeight.MATCH)
+                return listOf(Bet.BetAction.START_GAME)
+
             return listOf(Bet.BetAction.BET, Bet.BetAction.START_GAME)
         }
 

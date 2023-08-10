@@ -207,6 +207,8 @@ fun BettingRound() {
                     // can place a higher bet than the current one.
                     if (bettingState.jassType != JassType.SIDI_BARAHNI) {
                         startGameFun(newBettingState)
+                    } else {
+                        bettingState = newBettingState
                     }
                              },
                 onPass = { bettingState = bettingState.nextPlayer() },
@@ -402,23 +404,41 @@ fun BettingRow(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        Button(
-            onClick = {
+        if (bettingState.jassType == JassType.SIDI_BARAHNI && bettingState.availableActions().contains(Bet.BetAction.BET)
+            || bettingState.jassType != JassType.SIDI_BARAHNI) {
+            Button(
+                onClick = {
 
-                if ((selectedBet != BetHeight.NONE || bettingState.jassType != JassType.SIDI_BARAHNI) && selectedTrump != null) {
-                    onBetPlace(Bet(bettingState.currentBetterEmail, selectedTrump!!, selectedBet))
+                    if ((selectedBet != BetHeight.NONE || bettingState.jassType != JassType.SIDI_BARAHNI) && selectedTrump != null) {
 
-                    selectedTrump = null
-                    selectedBet = BetHeight.NONE
+                        println("bet placed!")
+                        onBetPlace(
+                            Bet(
+                                bettingState.currentBetterEmail,
+                                selectedTrump!!,
+                                selectedBet
+                            )
+                        )
+
+                        selectedTrump = null
+                        selectedBet = BetHeight.NONE
+                    }
+                },
+                modifier = Modifier
+                    .align(Alignment.CenterVertically)
+                    .padding(5.dp)
+            ) {
+                val actions = bettingState.availableActions()
+                if (actions.contains(Bet.BetAction.BET)) {
+                    if (bettingState.jassType == JassType.SIDI_BARAHNI)
+                        Text(text = "Place Bet")
+                    else
+                        Text(text = "Start Game")
                 }
-            },
-            modifier = Modifier
-                .align(Alignment.CenterVertically)
-                .padding(5.dp)
-        ) {
-            Text(text = "Place Bet")
+            }
         }
 
+        if (bettingState.jassType == JassType.SIDI_BARAHNI || bettingState.availableActions().contains(Bet.BetAction.PASS))
         Button(
             onClick = {
                 // If the last bet was placed by the current player, the player can start the game
@@ -440,7 +460,7 @@ fun BettingRow(
         ) {
             if (bettingState.bets.lastOrNull()?.playerEmail == bettingState.currentBetterEmail)
                 Text(text = "Start Game")
-            else
+            else if (bettingState.availableActions().contains(Bet.BetAction.PASS))
                 Text(text = "Pass")
         }
 
