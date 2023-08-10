@@ -133,6 +133,7 @@ fun JassRound() {
         }
     }
 
+    // this launched effect is responsible for the cpu players' actions
     LaunchedEffect(key1 = gameState.currentPlayerEmail) {
         val currentPlayerEmail = gameState.currentPlayerEmail
 

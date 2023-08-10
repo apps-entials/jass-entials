@@ -123,6 +123,7 @@ fun BettingRound() {
         }
     }
 
+    // this launched effect is responsible for the cpu players' actions
     LaunchedEffect(key1 = bettingState.currentBetterEmail) {
         val currentBetterEmail = bettingState.currentBetterEmail
 
@@ -140,6 +141,7 @@ fun BettingRound() {
                 setToNormalName(currentBetterEmail)
                 bettingState = it
 
+                // Checks for game start when not playing sidi barahni
                 if (it.jassType != JassType.SIDI_BARAHNI
                     && it.betActions.last() != Bet.BetAction.PASS) {
                     val gameState = bettingState.startGame()
@@ -161,13 +163,21 @@ fun BettingRound() {
             //  This is not ideal, but it works for now.
 
             betFuture.thenAccept {
-                val gameState = it.startGame()
-                GameStateHolder.gameState = gameState
-                GameStateHolder.players = players
+                // last bet was by current player, passing now means that they want to start
+                // the game with the trump they announced in the last round.
+                if (it.betActions.last() == Bet.BetAction.PASS) {
+                    val gameState = it.startGame()
+                    GameStateHolder.gameState = gameState
+                    GameStateHolder.players = players
 
-                val intent = Intent(context, JassRoundActivity::class.java)
-                context.startActivity(intent)
+                    val intent = Intent(context, JassRoundActivity::class.java)
+                    context.startActivity(intent)
+                } else {
+                    bettingState = it
+                }
             }
+        } else {
+            betFuture.thenAccept { bettingState = it }
         }
     }
 
