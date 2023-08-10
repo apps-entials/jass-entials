@@ -129,8 +129,8 @@ data class BettingState(
         return GameState(
             currentUserIdx = currentUserIdx,
             playerEmails = playerEmails,
-            currentPlayerEmail = bets.last().playerEmail,
-            startingPlayerEmail = bets.last().playerEmail,
+            currentPlayerEmail = if (jassType == JassType.SCHIEBER) startingBetterEmail else bets.last().playerEmail,
+            startingPlayerEmail = if (jassType == JassType.SCHIEBER) startingBetterEmail else bets.last().playerEmail,
             currentRound = 0,
             currentTrick = Trick(),
             currentRoundTrickWinners = listOf(),
