@@ -83,24 +83,30 @@ class CpuPlayerTest {
     @Test
     fun cpuPlayerOnceInAWhileSelectsABet() {
         val player = CpuPlayer(defaultPlayerDatas[0].email, 0)
+        val bettingState = defaultBettingState.copy(
+            bets = listOf(Bet(defaultPlayerDatas[1].email, Trump.UNGER_UFE, BetHeight.FIFTY)),
+        )
 
         for (i in 0..100) {
-            val newBettingState = player.bet(defaultBettingState).join()
+            val newBettingState = player.bet(bettingState).join()
 
             assertThat(newBettingState.currentBetterEmail,
-                `is`(defaultBettingState.playerEmails[defaultBettingState.playerEmails
-                    .indexOfFirst { it == defaultBettingState.currentBetterEmail } + 1 % 4]))
+                `is`(bettingState.playerEmails[bettingState.playerEmails
+                    .indexOfFirst { it == bettingState.currentBetterEmail } + 1 % 4]))
         }
     }
 
     @Test
-    fun whenNoAvailableBetsPlayerPasses() {
+    fun whenPlayerCanOnlyStartTheyStart() {
         val player = CpuPlayer(defaultPlayerDatas[0].email, 0)
 
-        val newBettingState = player.bet(defaultBettingState).join()
+        // since last bet was match by player 0, player 0 can only start
+        val newBettingState = player.bet(defaultBettingState.copy(
+            bets = listOf(Bet(defaultPlayerDatas[0].email, Trump.UNGER_UFE, BetHeight.MATCH)),
+            betActions = listOf(Bet.BetAction.BET, Bet.BetAction.PASS, Bet.BetAction.PASS, Bet.BetAction.PASS),
+        )).join()
 
         assertThat(newBettingState.currentBetterEmail,
-            `is`(defaultBettingState.playerEmails[defaultBettingState.playerEmails
-                .indexOfFirst { it == defaultBettingState.currentBetterEmail } + 1 % 4]))
+            `is`(defaultBettingState.playerEmails[0]))
     }
 }
