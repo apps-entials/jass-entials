@@ -34,6 +34,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices.AUTOMOTIVE_1024p
 import androidx.compose.ui.tooling.preview.Preview
@@ -53,7 +54,7 @@ import com.github.lucaengel.jass_entials.ui.theme.JassentialsTheme
 /**
  * Sidi Barahni pre-round activity (i.e., betting round).
  */
-class PreRoundActivity : ComponentActivity() {
+class PreRoundBettingActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -158,8 +159,6 @@ fun BettingRound() {
             // TODO: for now, if cpu can start the game, the start game is signalled by
             //  a pass after the last bet (since you cannot pass if you have made the last bet).
             //  This is not ideal, but it works for now.
-
-            println("cpu starting the game for sidi barahni")
 
             betFuture.thenAccept {
                 val gameState = it.startGame()
@@ -352,7 +351,7 @@ fun BettingRow(
                 readOnly = true,
                 placeholder = { Text("Select bet") },
                 trailingIcon = {
-                    Icon(icon, contentDescription = "Expand dropdown",
+                    Icon(icon, contentDescription = "Bet placing dropdown icon",
                         Modifier.clickable {
                             if (isBetDropdownExpanded || isTrumpDropdownExpanded) {
                                 isBetDropdownExpanded = false
@@ -371,7 +370,8 @@ fun BettingRow(
                 if (bettingState.jassType == JassType.SIDI_BARAHNI) {
                     DropdownMenu(
                         expanded = isBetDropdownExpanded,
-                        onDismissRequest = { isBetDropdownExpanded = false }
+                        onDismissRequest = { isBetDropdownExpanded = false },
+                        modifier = Modifier.testTag("betDropdown")
                     ) {
                         bettingState.availableBets().forEach { bet ->
                             DropdownMenuItem(
@@ -388,10 +388,12 @@ fun BettingRow(
 
                 DropdownMenu(
                     expanded = isTrumpDropdownExpanded,
-                    onDismissRequest = { isTrumpDropdownExpanded = false }
+                    onDismissRequest = { isTrumpDropdownExpanded = false },
+                    modifier = Modifier.testTag("trumpDropdown")
                 ) {
                     bettingState.availableTrumps().forEach { trump ->
                         DropdownMenuItem(
+                            modifier = Modifier.testTag(trump.toString()),
                             text = { Text(text = trump.toString()) },
                             onClick = {
                                 selectedTrump = trump

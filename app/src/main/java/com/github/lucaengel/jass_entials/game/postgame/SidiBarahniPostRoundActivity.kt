@@ -13,7 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
-import com.github.lucaengel.jass_entials.game.pregame.PreRoundActivity
+import com.github.lucaengel.jass_entials.game.pregame.PreRoundBettingActivity
 import com.github.lucaengel.jass_entials.ui.theme.JassentialsTheme
 
 /**
@@ -60,7 +60,7 @@ fun ScoreSheet() {
                 // have player to the right of the starting better of the last round start the next round
                 GameStateHolder.goToNextBettingStateRound(gameState.playerEmails[(gameState.playerEmails.indexOf(bettingState.startingBetterEmail) + 1) % 4])
 
-                val intent = Intent(context, PreRoundActivity::class.java)
+                val intent = Intent(context, PreRoundBettingActivity::class.java)
                 context.startActivity(intent)
             }
         ) {

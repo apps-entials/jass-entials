@@ -36,7 +36,7 @@ import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
 import com.github.lucaengel.jass_entials.data.jass.JassType
 import com.github.lucaengel.jass_entials.game.SelectGameActivity.TestTags.Buttons.Companion.BACK
 import com.github.lucaengel.jass_entials.game.pregame.CoiffeurPregameActivity
-import com.github.lucaengel.jass_entials.game.pregame.PreRoundActivity
+import com.github.lucaengel.jass_entials.game.pregame.PreRoundBettingActivity
 import com.github.lucaengel.jass_entials.ui.theme.JassentialsTheme
 
 /**
@@ -116,7 +116,7 @@ fun SelectGameView(finishActivity: () -> Unit = {}) {
                         GameStateHolder.bettingState.playerEmails.random(),
                         JassType.SCHIEBER/*GameStateHolder.bettingState.currentBetterEmail*/)
 
-                Intent(context, PreRoundActivity::class.java).also {
+                Intent(context, PreRoundBettingActivity::class.java).also {
                     context.startActivity(it)
                 }
             }
@@ -140,7 +140,7 @@ fun SelectGameView(finishActivity: () -> Unit = {}) {
                         GameStateHolder.bettingState.playerEmails.random(),
                         JassType.SIDI_BARAHNI/*GameStateHolder.bettingState.currentBetterEmail*/)
 
-                Intent(context, PreRoundActivity::class.java).also {
+                Intent(context, PreRoundBettingActivity::class.java).also {
                     context.startActivity(it)
                 }
             }
