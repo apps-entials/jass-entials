@@ -19,7 +19,7 @@ import com.github.lucaengel.jass_entials.data.game_state.Bet
 import com.github.lucaengel.jass_entials.data.game_state.GameState
 import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
 import com.github.lucaengel.jass_entials.data.jass.Trump
-import com.github.lucaengel.jass_entials.game.pregame.SidiBarahniPreRoundActivity
+import com.github.lucaengel.jass_entials.game.pregame.PreRoundActivity
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -96,7 +96,7 @@ class SidiBarahniPostRoundActivityTest {
                 .assertExists()
                 .performClick()
             Intents.intended(
-                IntentMatchers.hasComponent(SidiBarahniPreRoundActivity::class.java.name))
+                IntentMatchers.hasComponent(PreRoundActivity::class.java.name))
 
             Intents.release()
         }

@@ -53,7 +53,7 @@ import com.github.lucaengel.jass_entials.ui.theme.JassentialsTheme
 /**
  * Sidi Barahni pre-round activity (i.e., betting round).
  */
-class SidiBarahniPreRoundActivity : ComponentActivity() {
+class PreRoundActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -438,33 +438,34 @@ fun BettingRow(
             }
         }
 
-        if (bettingState.jassType == JassType.SIDI_BARAHNI || bettingState.availableActions().contains(Bet.BetAction.PASS))
-        Button(
-            onClick = {
-                // If the last bet was placed by the current player, the player can start the game
-                if (bettingState.bets.lastOrNull()?.playerEmail == bettingState.currentBetterEmail) {
-                    onStartGame()
+        if (bettingState.jassType == JassType.SIDI_BARAHNI || bettingState.availableActions().contains(Bet.BetAction.PASS)) {
+            Button(
+                onClick = {
+                    // If the last bet was placed by the current player, the player can start the game
+                    if (bettingState.bets.lastOrNull()?.playerEmail == bettingState.currentBetterEmail) {
+                        onStartGame()
 
-                    selectedTrump = null
-                    selectedBet = BetHeight.NONE
-                } else { // Otherwise the player can choose to pass
-                    onPass()
+                        selectedTrump = null
+                        selectedBet = BetHeight.NONE
+                    } else { // Otherwise the player can choose to pass
+                        onPass()
 
-                    selectedTrump = null
-                    selectedBet = BetHeight.NONE
-                }
-            },
-            modifier = Modifier
-                .align(Alignment.CenterVertically)
-                .padding(5.dp, 5.dp, 20.dp, 5.dp),
-        ) {
-            if (bettingState.bets.lastOrNull()?.playerEmail == bettingState.currentBetterEmail)
-                Text(text = "Start Game")
-            else if (bettingState.availableActions().contains(Bet.BetAction.PASS))
-                Text(text = "Pass")
+                        selectedTrump = null
+                        selectedBet = BetHeight.NONE
+                    }
+                },
+                modifier = Modifier
+                    .align(Alignment.CenterVertically)
+                    .padding(5.dp, 5.dp, 20.dp, 5.dp),
+            ) {
+                if (bettingState.bets.lastOrNull()?.playerEmail == bettingState.currentBetterEmail)
+                    Text(text = "Start Game")
+                else if (bettingState.availableActions().contains(Bet.BetAction.PASS))
+                    Text(text = "Pass")
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
         }
-
-        Spacer(modifier = Modifier.weight(1f))
     }
 }
 

@@ -36,7 +36,7 @@ class SelectGameActivityTest {
                 .performClick()
 
             Intents.intended(
-                hasComponent(SidiBarahniPreRoundActivity::class.java.name)
+                hasComponent(PreRoundActivity::class.java.name)
             )
 
             Intents.release()
@@ -53,7 +53,7 @@ class SelectGameActivityTest {
                 .performClick()
 
             Intents.intended(
-                hasComponent(SchieberPregameActivity::class.java.name)
+                hasComponent(PreRoundActivity::class.java.name)
             )
 
             Intents.release()
