@@ -36,10 +36,7 @@ class CpuPlayer(val playerEmail: String, private val threadSleepTime: Long = 300
         CompletableFuture.runAsync {
             Thread.sleep(3*threadSleepTime)
 
-
-            val availableActions = bettingState.availableActions()
-
-            if (availableActions.contains(Bet.BetAction.PASS)
+            if (bettingState.availableActions().contains(Bet.BetAction.PASS)
                 && (Random.nextFloat() > 0.2 || bettingState.availableBets().isEmpty())) {
                 bettingFuture.complete(bettingState.nextPlayer())
             } else {
@@ -56,8 +53,6 @@ class CpuPlayer(val playerEmail: String, private val threadSleepTime: Long = 300
         }
         return bettingFuture
     }
-
-
 
     override fun chooseTrump(gameState: GameState): CompletableFuture<Trump> {
         TODO("Not yet implemented")
