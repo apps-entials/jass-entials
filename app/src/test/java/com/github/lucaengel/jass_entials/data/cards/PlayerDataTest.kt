@@ -275,4 +275,116 @@ class PlayerDataTest {
             *player.cards.toTypedArray()
         ))
     }
+
+    @Test
+    fun trumpJackDoesNotHaveToBePlayedWhenTrumpIsOutAndJackIsTheOnlyTrumpCard() {
+        val player = defaultPlayerData.copy(cards = listOf(
+            Card(Rank.TEN, Suit.HEARTS),
+            Card(Rank.SIX, Suit.HEARTS),
+            Card(Rank.NINE, Suit.HEARTS),
+
+            Card(Rank.ACE, Suit.SPADES),
+            Card(Rank.SEVEN, Suit.SPADES),
+            Card(Rank.SIX, Suit.SPADES),
+
+            Card(Rank.JACK, Suit.CLUBS),
+        ))
+
+        val trick = Trick(listOf(
+            Trick.TrickCard(Card(Rank.TEN, Suit.CLUBS), "email_1"),
+            Trick.TrickCard(Card(Rank.TEN, Suit.DIAMONDS), "email_2"),
+        ))
+
+        val playableCards = player.playableCards(trick, Trump.CLUBS)
+
+        // All cards should be able to be played since the current player only has the trump jack
+        // of the trump suit that is out
+        assertThat(playableCards, Matchers.containsInAnyOrder(
+            *player.cards.toTypedArray()
+        ))
+    }
+
+    @Test
+    fun playerMustPlayTheJackIfItIsTheOnlyCardToHoldSuitWithAndItIsNotTrump() {
+        val player = defaultPlayerData.copy(cards = listOf(
+            Card(Rank.TEN, Suit.HEARTS),
+            Card(Rank.SIX, Suit.HEARTS),
+            Card(Rank.NINE, Suit.HEARTS),
+
+            Card(Rank.ACE, Suit.SPADES),
+            Card(Rank.SEVEN, Suit.SPADES),
+            Card(Rank.SIX, Suit.SPADES),
+
+            Card(Rank.JACK, Suit.CLUBS),
+        ))
+
+        val trick = Trick(listOf(
+            Trick.TrickCard(Card(Rank.TEN, Suit.CLUBS), "email_1"),
+            Trick.TrickCard(Card(Rank.TEN, Suit.DIAMONDS), "email_2"),
+        ))
+
+        val playableCards = player.playableCards(trick, Trump.UNGER_UFE)
+
+        // All cards should be able to be played since the current player only has the trump jack
+        // of the trump suit that is out
+        assertThat(playableCards, Matchers.containsInAnyOrder(
+            Card(Rank.JACK, Suit.CLUBS)
+        ))
+    }
+
+    @Test
+    fun playerMustHoldSuitIfTheyCanAndTheyHaveNoTrumpCards() {
+        val player = defaultPlayerData.copy(cards = listOf(
+            Card(Rank.TEN, Suit.HEARTS),
+            Card(Rank.SIX, Suit.HEARTS),
+            Card(Rank.NINE, Suit.HEARTS),
+
+            Card(Rank.ACE, Suit.SPADES),
+            Card(Rank.SEVEN, Suit.SPADES),
+            Card(Rank.SIX, Suit.SPADES),
+
+            Card(Rank.TEN, Suit.CLUBS),
+        ))
+
+        val trick = Trick(listOf(
+            Trick.TrickCard(Card(Rank.TEN, Suit.CLUBS), "email_1"),
+            Trick.TrickCard(Card(Rank.TEN, Suit.DIAMONDS), "email_2"),
+        ))
+
+        val playableCards = player.playableCards(trick, Trump.CLUBS)
+
+        // All cards should be able to be played since the current player only has the trump jack
+        // of the trump suit that is out
+        assertThat(playableCards, Matchers.containsInAnyOrder(
+            Card(Rank.TEN, Suit.CLUBS)
+        ))
+    }
+
+    @Test
+    fun allCardsArePlayableIfASuitIsOutThatThePlayerDoesNotHaveAndThePlayerHasTrumpAndNonTrumpCards() {
+        val player = defaultPlayerData.copy(cards = listOf(
+            Card(Rank.TEN, Suit.HEARTS),
+            Card(Rank.SIX, Suit.HEARTS),
+            Card(Rank.NINE, Suit.HEARTS),
+
+            Card(Rank.ACE, Suit.SPADES),
+            Card(Rank.SEVEN, Suit.SPADES),
+            Card(Rank.SIX, Suit.SPADES),
+
+            Card(Rank.JACK, Suit.CLUBS),
+            Card(Rank.TEN, Suit.CLUBS),
+        ))
+
+        val trick = Trick(listOf(
+            Trick.TrickCard(Card(Rank.TEN, Suit.DIAMONDS), "email_2"),
+            Trick.TrickCard(Card(Rank.TEN, Suit.CLUBS), "email_1"),
+        ))
+
+        val playableCards = player.playableCards(trick, Trump.CLUBS)
+
+        // All cards should be able to be played since the current player does not have any diamonds
+        assertThat(playableCards, Matchers.containsInAnyOrder(
+            *player.cards.toTypedArray()
+        ))
+    }
 }

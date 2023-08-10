@@ -44,6 +44,12 @@ data class PlayerData(
             ?.card
             ?: return cards // no card has been played yet --> can play any card
 
+        // cards of the suit of the first card played
+        val firstCardSuitCards = cardsOfSuit(firstCard.suit)
+        // if the player does not have any cards of the suit of the first card played, they can play any card
+        if (firstCardSuitCards.isEmpty())
+            return cards
+
         val trumpSuit = Trump.asSuit(trump)
 
         // get trump cards (null if trump was unger ufe or obe abe)
@@ -53,15 +59,23 @@ data class PlayerData(
             listOf()
         }
 
-        // cards of the suit of the first card played
-        val firstCardSuitCards = cardsOfSuit(firstCard.suit)
+
         // no under trumping (ungertrumpfe) possible
         val playableTrumpCards = playableTrumpCards(trumpCards, trick, trumpSuit)
 
         val playableCards = (firstCardSuitCards + playableTrumpCards).distinct()
 
+        // if the player only has one card left and it is a jack of trump, they can play any card
+        // as you are allowed to keep the jack of trump even if you could play it as long as you have other cards
+        if (playableCards.size == 1
+            && trumpSuit != null
+            && playableCards.first() == Card(Rank.JACK, trumpSuit)) {
+            return cards
+        }
+
+        // no empty check needed since we already checked if
+        // the player has cards of the suit of the first card played
         return playableCards
-            .ifEmpty { cards }
     }
 
     /**
