@@ -27,16 +27,17 @@ class GameStateHolder {
          * The current game state.
          */
         var gameState: GameState = GameState(
-            0,
-            players.map { it.email },
-            playerData1.email,
-            playerData1.email,
-            1,
-            Trick(shuffledDeck.cards.subList(0, 4).mapIndexed { i, c -> Trick.TrickCard(c, players[i].email) }),
-            listOf(),
-            1,
-            Trump.UNGER_UFE,
-            Deck.STANDARD_DECK.dealCards(players.map { it.email }),
+            currentUserIdx = 0,
+            playerEmails = players.map { it.email },
+            currentPlayerEmail = playerData1.email,
+            startingPlayerEmail = playerData1.email,
+            currentRound = 1,
+            currentTrick = Trick(shuffledDeck.cards.subList(0, 4).mapIndexed { i, c -> Trick.TrickCard(c, players[i].email) }),
+            currentRoundTrickWinners = listOf(),
+            currentTrickNumber = 1,
+            currentTrump = Trump.UNGER_UFE,
+            winningBet = Bet(playerData2.email, Trump.CLUBS, BetHeight.FORTY),
+            playerCards = Deck.STANDARD_DECK.dealCards(players.map { it.email }),
         )
 
         /**
@@ -44,15 +45,16 @@ class GameStateHolder {
          */
         var bettingState: BettingState =
             BettingState(
-                0,
-                players.map { it.email },
-                playerData1.email,
-                playerData1.email,
-                JassType.SIDI_BARAHNI,
-                listOf(
+                currentUserIdx = 0,
+                playerEmails = players.map { it.email },
+                currentBetterEmail = playerData1.email,
+                startingBetterEmail = playerData1.email,
+                jassType = JassType.SIDI_BARAHNI,
+                bets = listOf(
                     Bet(playerData2.email, Trump.CLUBS, BetHeight.FORTY)
                 ),
-                GameState()
+                betActions = listOf(),
+                gameState = GameState()
             )
 
         /**

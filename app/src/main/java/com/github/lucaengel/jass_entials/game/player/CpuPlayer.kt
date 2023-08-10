@@ -53,6 +53,8 @@ class CpuPlayer(val playerEmail: String, private val threadSleepTime: Long = 300
         return bettingFuture
     }
 
+
+
     override fun chooseTrump(gameState: GameState): CompletableFuture<Trump> {
         TODO("Not yet implemented")
     }

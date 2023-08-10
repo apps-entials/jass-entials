@@ -109,23 +109,37 @@ fun GroundTheme(finishActivity: () -> Unit = {}) {
 fun SelectGameView(finishActivity: () -> Unit = {}) {
     val context = LocalContext.current
 
-
     fun onGameTypeClicked(gameType: JassType) {
         when (gameType) {
-            JassType.SCHIEBER ->
+            JassType.SCHIEBER -> {
+                GameStateHolder.bettingState = GameStateHolder.bettingState
+                    .nextBettingRound(
+                        GameStateHolder.bettingState.playerEmails.random(),
+                        JassType.SCHIEBER/*GameStateHolder.bettingState.currentBetterEmail*/)
+
                 Intent(context, SchieberPregameActivity::class.java).also {
                     context.startActivity(it)
                 }
+            }
 
-            JassType.COIFFEUR ->
+            JassType.COIFFEUR -> {
+                GameStateHolder.bettingState = GameStateHolder.bettingState
+                    .nextBettingRound(
+                        GameStateHolder.bettingState.playerEmails.random(),
+                        JassType.COIFFEUR/*GameStateHolder.bettingState.currentBetterEmail*/)
+
                 Intent(context, CoiffeurPregameActivity::class.java).also {
                     context.startActivity(it)
                 }
+            }
 
             JassType.SIDI_BARAHNI -> {
                 // TODO: adapt the following when the user has an email etc.
                 // have a random player start the game
-                GameStateHolder.bettingState = GameStateHolder.bettingState.nextBettingRound(GameStateHolder.bettingState.playerEmails.random()/*GameStateHolder.bettingState.currentBetterEmail*/)
+                GameStateHolder.bettingState = GameStateHolder.bettingState
+                    .nextBettingRound(
+                        GameStateHolder.bettingState.playerEmails.random(),
+                        JassType.SIDI_BARAHNI/*GameStateHolder.bettingState.currentBetterEmail*/)
 
                 Intent(context, SidiBarahniPreRoundActivity::class.java).also {
                     context.startActivity(it)

@@ -160,7 +160,7 @@ fun JassRound() {
         Row {
             JassComposables.PlayerBox(playerData = players.first { it.email == topPlayerEmail }, playerSpot = 2)
 
-            Text(text = "Trump: ${gameState.currentTrump}")
+            Text(text = "Trump: ${gameState.winningBet}")
         }
 
         Spacer(modifier = Modifier.weight(1f))

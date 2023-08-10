@@ -29,6 +29,7 @@ data class GameState(
     val currentRoundTrickWinners: List<Trick.TrickWinner> = listOf(),
     val currentTrickNumber: Int = 0,
     val currentTrump: Trump = Trump.CLUBS,
+    val winningBet: Bet,
     val playerCards: Map<String, List<Card>> = mapOf(),
 ) : Serializable {
 
@@ -42,6 +43,7 @@ data class GameState(
         currentRoundTrickWinners = listOf(),
         currentTrickNumber = 0,
         currentTrump = Trump.CLUBS,
+        winningBet = Bet("", Trump.CLUBS, BetHeight.NONE),
         playerCards = mapOf(),
     )
 

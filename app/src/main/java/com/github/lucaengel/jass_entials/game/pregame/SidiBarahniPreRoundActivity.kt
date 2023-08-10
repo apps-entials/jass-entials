@@ -130,11 +130,45 @@ fun BettingRound() {
 
         val player = opponents.first { it.first == currentBetterEmail }.second
         setToThinking(currentBetterEmail)
-        player.bet(bettingState)
-            .thenAccept() {
+
+
+        val oldBettingState = bettingState
+        val betFuture = player.bet(bettingState)
+            .thenApply {
                 setToNormalName(currentBetterEmail)
                 bettingState = it
+
+                if (it.jassType != JassType.SIDI_BARAHNI
+                    && it.betActions.last() != Bet.BetAction.PASS) {
+                    val gameState = bettingState.startGame()
+                    GameStateHolder.gameState = gameState
+                    GameStateHolder.players = players
+
+                    val intent = Intent(context, JassRoundActivity::class.java)
+                    context.startActivity(intent)
+                }
+
+                it
             }
+
+        // cpu starting the game for sidi barahni
+        if (oldBettingState.jassType == JassType.SIDI_BARAHNI
+            && oldBettingState.bets.lastOrNull()?.playerEmail == currentBetterEmail) {
+            // TODO: for now, if cpu can start the game, the start game is signalled by
+            //  a pass after the last bet (since you cannot pass if you have made the last bet).
+            //  This is not ideal, but it works for now.
+
+            println("cpu starting the game for sidi barahni")
+
+            betFuture.thenAccept {
+                val gameState = it.startGame()
+                GameStateHolder.gameState = gameState
+                GameStateHolder.players = players
+
+                val intent = Intent(context, JassRoundActivity::class.java)
+                context.startActivity(intent)
+            }
+        }
     }
 
 
@@ -293,7 +327,12 @@ fun BettingRow(
 
             TextField(
                 modifier = Modifier.wrapContentWidth(),
-                value = if (selectedBet == BetHeight.NONE || selectedTrump == null) "" else "$selectedBet ${selectedTrump!!}",
+                value = if (
+                    (selectedBet == BetHeight.NONE
+                                    && bettingState.jassType == JassType.SIDI_BARAHNI)
+                    || selectedTrump == null) ""
+                else if (bettingState.jassType == JassType.SIDI_BARAHNI) "$selectedBet ${selectedTrump!!}"
+                else "${selectedTrump!!}",
                 onValueChange = { selectedBet = BetHeight.fromString(it) },
                 readOnly = true,
                 placeholder = { Text("Select bet") },
@@ -314,7 +353,7 @@ fun BettingRow(
 
             Row {
 
-                if (GameStateHolder.jassType == JassType.SIDI_BARAHNI) {
+                if (bettingState.jassType == JassType.SIDI_BARAHNI) {
                     DropdownMenu(
                         expanded = isBetDropdownExpanded,
                         onDismissRequest = { isBetDropdownExpanded = false }
