@@ -15,6 +15,7 @@ import com.github.lucaengel.jass_entials.data.cards.PlayerData
 import com.github.lucaengel.jass_entials.data.cards.Rank
 import com.github.lucaengel.jass_entials.data.cards.Suit
 import com.github.lucaengel.jass_entials.data.cards.Trick
+import com.github.lucaengel.jass_entials.data.game_state.Bet
 import com.github.lucaengel.jass_entials.data.game_state.GameState
 import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
 import com.github.lucaengel.jass_entials.data.jass.Trump
@@ -42,22 +43,23 @@ class SidiBarahniPostRoundActivityTest {
 
 
     private var gameState: GameState = GameState(
-        0,
-        players.map { it.email },
-        playerData1.email,
-        playerData1.email,
-        1,
-        Trick(shuffledDeck.cards.subList(0, 4).mapIndexed { index, card -> Trick.TrickCard(card, players[index].email) }),
-        listOf(
+        currentUserIdx = 0,
+        playerEmails = players.map { it.email },
+        currentPlayerEmail = playerData1.email,
+        startingPlayerEmail = playerData1.email,
+        currentRound = 1,
+        currentTrick = Trick(shuffledDeck.cards.subList(0, 4).mapIndexed { index, card -> Trick.TrickCard(card, players[index].email) }),
+        currentRoundTrickWinners = listOf(
             Trick.TrickWinner(playerData1.email,
             Trick(listOf(
                 Trick.TrickCard(Card(Rank.ACE, Suit.HEARTS), playerData1.email),
                 Trick.TrickCard(Card(Rank.KING, Suit.HEARTS), playerData2.email),
                 Trick.TrickCard(Card(Rank.SIX, Suit.HEARTS), playerData3.email),
                 Trick.TrickCard(Card(Rank.TEN, Suit.HEARTS), playerData4.email))))),
-        1,
-        Trump.OBE_ABE,
-        Deck.STANDARD_DECK.dealCards(players.map { it.email }),
+        currentTrickNumber = 1,
+        currentTrump = Trump.OBE_ABE,
+        winningBet = Bet(),
+        playerCards = Deck.STANDARD_DECK.dealCards(players.map { it.email }),
     )
 
     @Before

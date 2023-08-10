@@ -26,7 +26,8 @@ class BettingStateTest {
         currentBetterEmail = defaultPlayerDatas[0].email,
         startingBetterEmail = defaultPlayerDatas[0].email,
         jassType = JassType.SIDI_BARAHNI,
-        bets = listOf(Bet(defaultPlayerDatas[0].email, Trump.UNGER_UFE, BetHeight.HUNDRED)),
+        bets = listOf(Bet(defaultPlayerDatas[1].email, Trump.UNGER_UFE, BetHeight.HUNDRED)),
+        betActions = listOf(Bet.BetAction.BET),
         gameState = GameState(),
     )
 
@@ -110,7 +111,8 @@ class BettingStateTest {
 
     @Test
     fun startGameReturnsGameStateWithNecessaryInformation() {
-        val bettingState = defaultBettingState.copy(bets = listOf(Bet(defaultPlayerDatas[0].email, Trump.UNGER_UFE, BetHeight.SEVENTY)))
+        val winningBet = Bet(defaultPlayerDatas[0].email, Trump.UNGER_UFE, BetHeight.SEVENTY)
+        val bettingState = defaultBettingState.copy(bets = listOf(winningBet))
 
         val expectedGameState = GameState(
             currentUserIdx = 0,
@@ -122,6 +124,7 @@ class BettingStateTest {
             currentRoundTrickWinners = listOf(),
             currentTrickNumber = 0,
             currentTrump = Trump.UNGER_UFE,
+            winningBet = winningBet,
             playerCards = defaultPlayerDatas.associate { it.email to it.cards }
         )
 

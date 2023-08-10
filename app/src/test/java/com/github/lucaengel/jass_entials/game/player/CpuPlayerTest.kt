@@ -47,6 +47,7 @@ class CpuPlayerTest {
         currentRoundTrickWinners = listOf(),
         currentTrickNumber = 0,
         currentTrump = Trump.CLUBS,
+        winningBet = Bet(),
         playerCards = defaultPlayerDatas.associate { it.email to it.cards },
     )
 
@@ -57,6 +58,7 @@ class CpuPlayerTest {
         startingBetterEmail = defaultPlayerDatas[0].email,
         jassType = JassType.SIDI_BARAHNI,
         bets = listOf(Bet(defaultPlayerDatas[0].email, Trump.UNGER_UFE, BetHeight.HUNDRED)),
+        betActions = listOf(Bet.BetAction.BET),
         gameState = GameState(),
     )
 

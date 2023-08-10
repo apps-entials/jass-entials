@@ -153,6 +153,8 @@ data class BettingState(
  */
 data class Bet(val playerEmail: String, val suit: Trump, val bet: BetHeight) {
 
+    constructor(): this("", Trump.HEARTS, BetHeight.NONE)
+
     /**
      * Represents the action of a player during the betting phase.
      */

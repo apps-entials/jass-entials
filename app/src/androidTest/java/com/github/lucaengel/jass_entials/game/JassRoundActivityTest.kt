@@ -46,16 +46,17 @@ class JassRoundActivityTest {
 
 
     private var gameState: GameState = GameState(
-        0,
-        players.map { it.email },
-        playerData1.email,
-        playerData1.email,
-        1,
-        Trick(Deck.STANDARD_DECK.cards.subList(0, 4).mapIndexed { index, card -> Trick.TrickCard(card, players[index].email) }),
-        listOf(),
-        1,
-        Trump.UNGER_UFE,
-        Deck.STANDARD_DECK.dealCards(players.map { it.email }),
+        currentUserIdx = 0,
+        playerEmails = players.map { it.email },
+        currentPlayerEmail = playerData1.email,
+        startingPlayerEmail = playerData1.email,
+        currentRound = 1,
+        currentTrick = Trick(Deck.STANDARD_DECK.cards.subList(0, 4).mapIndexed { index, card -> Trick.TrickCard(card, players[index].email) }),
+        currentRoundTrickWinners = listOf(),
+        currentTrickNumber = 1,
+        currentTrump = Trump.UNGER_UFE,
+        winningBet = Bet(playerData1.email, Trump.UNGER_UFE, BetHeight.SIXTY),
+        playerCards = Deck.STANDARD_DECK.dealCards(players.map { it.email }),
     )
 
     private var bettingState: BettingState =
@@ -72,6 +73,7 @@ class JassRoundActivityTest {
             listOf(
                 Bet(playerData2.email, Trump.CLUBS, BetHeight.FORTY)
             ),
+            listOf(Bet.BetAction.BET),
             GameState()
         )
 
