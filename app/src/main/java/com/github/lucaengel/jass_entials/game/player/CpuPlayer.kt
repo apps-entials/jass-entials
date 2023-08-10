@@ -36,7 +36,11 @@ class CpuPlayer(val playerEmail: String, private val threadSleepTime: Long = 300
         CompletableFuture.runAsync {
             Thread.sleep(3*threadSleepTime)
 
-            if (Random.nextFloat() > 0.2 || bettingState.availableBets().isEmpty()) {
+
+            val availableActions = bettingState.availableActions()
+
+            if (availableActions.contains(Bet.BetAction.PASS)
+                && (Random.nextFloat() > 0.2 || bettingState.availableBets().isEmpty())) {
                 bettingFuture.complete(bettingState.nextPlayer())
             } else {
                 bettingFuture.complete(
@@ -44,7 +48,7 @@ class CpuPlayer(val playerEmail: String, private val threadSleepTime: Long = 300
                         Bet(
                             playerEmail = playerEmail,
                             bet = bettingState.availableBets().first(),
-                            suit = bettingState.availableTrumps().first(),
+                            suit = bettingState.availableTrumps().random(),
                         )
                     )
                 )
