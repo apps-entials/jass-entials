@@ -51,6 +51,6 @@ class SidiBarahniBettingLogic : BettingLogic {
             listBuilder.add(Bet.BetAction.DOUBLE)
         }
 
-        return listBuilder
+        return listBuilder.toList()
     }
 }
