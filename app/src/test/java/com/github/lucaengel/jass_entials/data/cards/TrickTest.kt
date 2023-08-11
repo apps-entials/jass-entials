@@ -1,5 +1,6 @@
 package com.github.lucaengel.jass_entials.data.cards
 
+import com.github.lucaengel.jass_entials.data.game_state.Bet
 import com.github.lucaengel.jass_entials.data.game_state.GameState
 import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
 import com.github.lucaengel.jass_entials.data.jass.Trump
@@ -11,7 +12,7 @@ import org.junit.Test
 
 class TrickTest {
 
-    val defaultPlayerDatas = listOf(
+    private val defaultPlayerDatas = listOf(
         PlayerData().copy(
             email = "email1",
             firstName = "player1",
@@ -30,7 +31,7 @@ class TrickTest {
             cards = Deck.STANDARD_DECK.cards.subList(27, 36)),
     )
 
-    val defaultGameState = GameState(
+    private val defaultGameState = GameState(
         currentUserIdx = 0,
         playerEmails = defaultPlayerDatas.map { it.email },
         currentPlayerEmail = defaultPlayerDatas[0].email,
@@ -40,6 +41,7 @@ class TrickTest {
         currentRoundTrickWinners = listOf(),
         currentTrickNumber = 0,
         currentTrump = Trump.CLUBS,
+        winningBet = Bet(),
         playerCards = defaultPlayerDatas.associate { it.email to it.cards },
     )
 

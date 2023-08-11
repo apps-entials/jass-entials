@@ -36,7 +36,15 @@ class CpuPlayer(val playerEmail: String, private val threadSleepTime: Long = 300
         CompletableFuture.runAsync {
             Thread.sleep(3*threadSleepTime)
 
-            if (Random.nextFloat() > 0.2 || bettingState.availableBets().isEmpty()) {
+            if ((bettingState.availableActions().contains(Bet.BetAction.PASS))
+                && (Random.nextFloat() > 0.2 || bettingState.availableBets().isEmpty())) {
+
+                bettingFuture.complete(bettingState.nextPlayer())
+            // if player can start the game, do it with a 80% chance
+            // if player has to start the game, do it (available actions only contains start game)
+            } else if (bettingState.availableActions().contains(Bet.BetAction.START_GAME)
+                && (Random.nextFloat() > 0.2 || bettingState.availableActions().size == 1)) {
+
                 bettingFuture.complete(bettingState.nextPlayer())
             } else {
                 bettingFuture.complete(
@@ -44,7 +52,7 @@ class CpuPlayer(val playerEmail: String, private val threadSleepTime: Long = 300
                         Bet(
                             playerEmail = playerEmail,
                             bet = bettingState.availableBets().first(),
-                            suit = bettingState.availableTrumps().first(),
+                            suit = bettingState.availableTrumps().random(),
                         )
                     )
                 )

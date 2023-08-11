@@ -2,6 +2,7 @@ package com.github.lucaengel.jass_entials.game
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -25,9 +26,12 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import com.github.lucaengel.jass_entials.data.cards.Card
 import com.github.lucaengel.jass_entials.data.cards.PlayerData
+import com.github.lucaengel.jass_entials.data.game_state.GameState
 import kotlin.math.absoluteValue
 
 /**
@@ -49,6 +53,7 @@ class JassComposables {
             val screenWidth = LocalConfiguration.current.screenWidthDp.dp
             val cardWidth = screenWidth.value / 10 * 1.5f
             val cardHeight = cardWidth * 1.5f
+
 
             val nbCards = player.cards.size
             val cardNbIsEven = nbCards % 2 == 0
@@ -79,18 +84,11 @@ class JassComposables {
                         Column(modifier = Modifier.height(((heightLevel * (cardHeight / 9f)) + cardHeight).dp)) {
                             Spacer(modifier = Modifier.height((heightLevel * (cardHeight / 9f)).dp))
 
-                            Image(
-                                painter = painterResource(id = Card.getCardImage(card)),
-                                contentDescription = card.toString(),
-                                modifier = Modifier
-                                    .requiredHeight((cardHeight).dp)
-                                    .requiredWidth(cardWidth.dp)
-                                    .graphicsLayer {
-                                        rotationZ =
-                                            displacements[idx].second
-                                    }
-                                    .clip(RoundedCornerShape(9.dp))
-                                    .clickable { onPlayCard(card) },
+                            CardBox(
+                                card = card,
+                                onClick = { onPlayCard(card) },
+                                cardWidth = cardWidth.dp,
+                                zRotation = displacements[idx].second,
                             )
                         }
                         if (!shouldPlaceCardRight) Spacer(modifier = Modifier.width(displacements[idx].first.dp))
@@ -127,6 +125,122 @@ class JassComposables {
                         textAlign = TextAlign.Center,
                     )
                 }
+            }
+        }
+
+        /**
+         * Displays the 0-4 cards that are currently in the middle of the table.
+         *
+         * @param gameState The current game state.
+         * @param players The list of playerData's.
+         * @param currentUserIdx The index of the current user in [players].
+         * @param onClick The callback to be called when a card is clicked.
+         **/
+        @Composable
+        fun CurrentTrick(gameState: GameState, players: List<PlayerData>, currentUserIdx: Int, onClick: () -> Unit) {
+
+            val currentTrick = gameState.currentTrick
+            val startingPlayerIdx = gameState.playerEmails.indexOfFirst { it == gameState.startingPlayerEmail }
+
+            // 0 is bottom, 1 is right, 2 is top, 3 is left
+            val idxToCards = (0..3)
+                // Triple: (location of card, i.e. 0 is bottom, ..., index of player in [players], z-index)
+                .map { idx -> Triple(idx, (currentUserIdx + idx) % 4, Math.floorMod(idx - startingPlayerIdx, 4)) }
+                .associate { (i, playerIdx, zIndex) -> i to Pair(currentTrick.trickCards.firstOrNull { it.email == players[playerIdx].email }?.card, zIndex) }
+
+            val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+            val cardWidth = screenWidth.value / 10
+            val cardHeight = cardWidth * 1.5f
+
+            // Displays the cards in the middle of the table.
+            BoxWithConstraints(
+                contentAlignment = Alignment.TopCenter
+            ) {
+
+                // commented out parts in the spacer are for the old layout where all cards were upright
+                // (also need to remove rotate modifier to go back)
+
+                // Card at the top middle
+                Column(modifier = Modifier.zIndex(idxToCards[2]?.second?.toFloat() ?: 0f)) {
+                    CardBox(
+                        card = idxToCards[2]?.first,
+                        onClick = onClick,
+                        cardWidth = cardWidth.dp
+                    )
+                }
+
+                // Card at the bottom middle
+                Column(modifier = Modifier.zIndex(idxToCards[0]?.second?.toFloat() ?: 0f)) {
+                    Spacer(modifier = Modifier.height((cardHeight - 2 * cardWidth / 3).dp) /*(cardHeight * 2 / 3).dp*/)
+
+                    CardBox(
+                        card = idxToCards[0]?.first,
+                        onClick = onClick,
+                        cardWidth = cardWidth.dp
+                    )
+                }
+
+                // Card in the middle on the left
+                Column(modifier = Modifier.zIndex(idxToCards[3]?.second?.toFloat() ?: 0f)) {
+                    // if it should be on the same height as the end of the top card, use: cardWidth
+                    Spacer(modifier = Modifier.height(((cardHeight - 2 * cardWidth / 3) / 2).dp/*(cardHeight / 3).dp*/))
+
+                    Row {
+                        CardBox(
+                            card = idxToCards[3]?.first,
+                            onClick = onClick,
+                            cardWidth = cardWidth.dp,
+                            zRotation = 90f
+                        )
+
+                        Spacer(modifier = Modifier.width((cardHeight - 2 * cardWidth / 3).dp/*cardWidth * 1.25f).dp*/))
+                    }
+                }
+
+                // Card in the middle on the right
+                Column(modifier = Modifier.zIndex(idxToCards[1]?.second?.toFloat() ?: 0f)) {
+                    Spacer(modifier = Modifier.height(((cardHeight - 2 * cardWidth / 3) / 2).dp/*(cardHeight / 3).dp*/))
+
+                    Row {
+                        Spacer(modifier = Modifier.width((cardHeight - 2 * cardWidth / 3/*cardWidth * 1.25f*/).dp))
+
+                        CardBox(
+                            card = idxToCards[1]?.first,
+                            onClick = onClick,
+                            cardWidth = cardWidth.dp,
+                            zRotation = 90f
+                        )
+                    }
+                }
+            }
+        }
+
+        /**
+         * Displays a jass card image for the given card.
+         *
+         * @param card The card to display.
+         */
+        @Composable
+        fun CardBox(card: Card?, onClick: () -> Unit = {}, cardWidth: Dp, zRotation: Float = 0f) {
+            val cardHeight = cardWidth * 1.5f
+            val cornerShape = cardWidth / 12
+
+            if (card != null) {
+                Image(
+                    painter = painterResource(id = Card.getCardImage(card)),
+                    contentDescription = card.toString(),
+                    modifier = Modifier
+                        .requiredWidth(cardWidth)
+                        .requiredHeight(cardHeight)
+                        .graphicsLayer {
+                            rotationZ = zRotation
+                        }.border(
+                            width = Dp.Hairline,
+                            shape = RoundedCornerShape(cornerShape),
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        ).clip(RoundedCornerShape(cornerShape))
+                        .clickable(onClick = onClick),
+                )
             }
         }
     }

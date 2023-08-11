@@ -34,6 +34,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices.AUTOMOTIVE_1024p
 import androidx.compose.ui.tooling.preview.Preview
@@ -43,6 +44,7 @@ import com.github.lucaengel.jass_entials.data.game_state.Bet
 import com.github.lucaengel.jass_entials.data.game_state.BetHeight
 import com.github.lucaengel.jass_entials.data.game_state.BettingState
 import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
+import com.github.lucaengel.jass_entials.data.jass.JassType
 import com.github.lucaengel.jass_entials.data.jass.Trump
 import com.github.lucaengel.jass_entials.game.JassComposables
 import com.github.lucaengel.jass_entials.game.JassRoundActivity
@@ -52,7 +54,7 @@ import com.github.lucaengel.jass_entials.ui.theme.JassentialsTheme
 /**
  * Sidi Barahni pre-round activity (i.e., betting round).
  */
-class SidiBarahniPreRoundActivity : ComponentActivity() {
+class PreRoundBettingActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -121,6 +123,7 @@ fun BettingRound() {
         }
     }
 
+    // this launched effect is responsible for the cpu players' actions
     LaunchedEffect(key1 = bettingState.currentBetterEmail) {
         val currentBetterEmail = bettingState.currentBetterEmail
 
@@ -129,11 +132,53 @@ fun BettingRound() {
 
         val player = opponents.first { it.first == currentBetterEmail }.second
         setToThinking(currentBetterEmail)
-        player.bet(bettingState)
-            .thenAccept() {
+
+
+        // TODO: consider refactoring since context switches cannot be tested well when in futures and LaunchedEffects
+        val oldBettingState = bettingState
+        val betFuture = player.bet(bettingState)
+            .thenApply {
                 setToNormalName(currentBetterEmail)
                 bettingState = it
+
+                // Checks for game start when not playing sidi barahni
+                if (it.jassType != JassType.SIDI_BARAHNI
+                    && it.betActions.last() != Bet.BetAction.PASS) {
+                    val gameState = bettingState.startGame()
+                    GameStateHolder.gameState = gameState
+                    GameStateHolder.players = players
+
+                    val intent = Intent(context, JassRoundActivity::class.java)
+                    context.startActivity(intent)
+                }
+
+                it
             }
+
+        // cpu starting the game for sidi barahni
+        if (oldBettingState.jassType == JassType.SIDI_BARAHNI
+            && oldBettingState.bets.lastOrNull()?.playerEmail == currentBetterEmail) {
+            // TODO: for now, if cpu can start the game, the start game is signalled by
+            //  a pass after the last bet (since you cannot pass if you have made the last bet).
+            //  This is not ideal, but it works for now.
+
+            betFuture.thenAccept {
+                // last bet was by current player, passing now means that they want to start
+                // the game with the trump they announced in the last round.
+                if (it.betActions.last() == Bet.BetAction.PASS) {
+                    val gameState = it.startGame()
+                    GameStateHolder.gameState = gameState
+                    GameStateHolder.players = players
+
+                    val intent = Intent(context, JassRoundActivity::class.java)
+                    context.startActivity(intent)
+                } else {
+                    bettingState = it
+                }
+            }
+        } else {
+            betFuture.thenAccept { bettingState = it }
+        }
     }
 
 
@@ -152,18 +197,32 @@ fun BettingRound() {
 
         if (bettingState.currentBetterEmail == currentUserEmail) {
 
+            fun startGameFun(currBettingState: BettingState) {
+                val gameState = currBettingState.startGame()
+                GameStateHolder.gameState = gameState
+                GameStateHolder.players = players
+
+                val intent = Intent(context, JassRoundActivity::class.java)
+                context.startActivity(intent)
+            }
+
             BettingRow(
                 bettingState = bettingState,
                 players = players,
-                onBetPlace = { bet -> bettingState = bettingState.nextPlayer(bet) },
+                onBetPlace = { bet ->
+                    val newBettingState = bettingState.nextPlayer(bet)
+
+                    // Only in Sidi Barahni, the next players
+                    // can place a higher bet than the current one.
+                    if (bettingState.jassType != JassType.SIDI_BARAHNI) {
+                        startGameFun(newBettingState)
+                    } else {
+                        bettingState = newBettingState
+                    }
+                             },
                 onPass = { bettingState = bettingState.nextPlayer() },
                 onStartGame = {
-                    val gameState = bettingState.startGame()
-                    GameStateHolder.gameState = gameState
-                    GameStateHolder.players = players
-
-                    val intent = Intent(context, JassRoundActivity::class.java)
-                    context.startActivity(intent)
+                    startGameFun(bettingState)
                 }
             )
         } else {
@@ -292,12 +351,17 @@ fun BettingRow(
 
             TextField(
                 modifier = Modifier.wrapContentWidth(),
-                value = if (selectedBet == BetHeight.NONE || selectedTrump == null) "" else "$selectedBet ${selectedTrump!!}",
+                value = if (
+                    (selectedBet == BetHeight.NONE
+                                    && bettingState.jassType == JassType.SIDI_BARAHNI)
+                    || selectedTrump == null) ""
+                else if (bettingState.jassType == JassType.SIDI_BARAHNI) "$selectedBet ${selectedTrump!!}"
+                else "${selectedTrump!!}",
                 onValueChange = { selectedBet = BetHeight.fromString(it) },
                 readOnly = true,
                 placeholder = { Text("Select bet") },
                 trailingIcon = {
-                    Icon(icon, contentDescription = "Expand dropdown",
+                    Icon(icon, contentDescription = "Bet placing dropdown icon",
                         Modifier.clickable {
                             if (isBetDropdownExpanded || isTrumpDropdownExpanded) {
                                 isBetDropdownExpanded = false
@@ -312,28 +376,34 @@ fun BettingRow(
             )
 
             Row {
-                DropdownMenu(
-                    expanded = isBetDropdownExpanded,
-                    onDismissRequest = { isBetDropdownExpanded = false }
-                ) {
-                    bettingState.availableBets().forEach { bet ->
-                        DropdownMenuItem(
-                            text = { Text(text = bet.toString()) },
-                            onClick = {
-                                selectedBet = bet
-                                isBetDropdownExpanded = false
-                            })
-                    }
-                }
 
-                Spacer(modifier = Modifier.width(5.dp))
+                if (bettingState.jassType == JassType.SIDI_BARAHNI) {
+                    DropdownMenu(
+                        expanded = isBetDropdownExpanded,
+                        onDismissRequest = { isBetDropdownExpanded = false },
+                        modifier = Modifier.testTag("betDropdown")
+                    ) {
+                        bettingState.availableBets().forEach { bet ->
+                            DropdownMenuItem(
+                                text = { Text(text = bet.toString()) },
+                                onClick = {
+                                    selectedBet = bet
+                                    isBetDropdownExpanded = false
+                                })
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.width(5.dp))
+                }
 
                 DropdownMenu(
                     expanded = isTrumpDropdownExpanded,
-                    onDismissRequest = { isTrumpDropdownExpanded = false }
+                    onDismissRequest = { isTrumpDropdownExpanded = false },
+                    modifier = Modifier.testTag("trumpDropdown")
                 ) {
                     bettingState.availableTrumps().forEach { trump ->
                         DropdownMenuItem(
+                            modifier = Modifier.testTag(trump.toString()),
                             text = { Text(text = trump.toString()) },
                             onClick = {
                                 selectedTrump = trump
@@ -346,48 +416,68 @@ fun BettingRow(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        Button(
-            onClick = {
-                if (selectedBet != BetHeight.NONE && selectedTrump != null) {
-                    onBetPlace(Bet(bettingState.currentBetterEmail, selectedTrump!!, selectedBet))
+        if (bettingState.jassType == JassType.SIDI_BARAHNI && bettingState.availableActions().contains(Bet.BetAction.BET)
+            || bettingState.jassType != JassType.SIDI_BARAHNI) {
+            Button(
+                onClick = {
 
-                    selectedTrump = null
-                    selectedBet = BetHeight.NONE
+                    if ((selectedBet != BetHeight.NONE || bettingState.jassType != JassType.SIDI_BARAHNI) && selectedTrump != null) {
+
+                        println("bet placed!")
+                        onBetPlace(
+                            Bet(
+                                bettingState.currentBetterEmail,
+                                selectedTrump!!,
+                                selectedBet
+                            )
+                        )
+
+                        selectedTrump = null
+                        selectedBet = BetHeight.NONE
+                    }
+                },
+                modifier = Modifier
+                    .align(Alignment.CenterVertically)
+                    .padding(5.dp)
+            ) {
+                val actions = bettingState.availableActions()
+                if (actions.contains(Bet.BetAction.BET)) {
+                    if (bettingState.jassType == JassType.SIDI_BARAHNI)
+                        Text(text = "Place Bet")
+                    else
+                        Text(text = "Start Game")
                 }
-            },
-            modifier = Modifier
-                .align(Alignment.CenterVertically)
-                .padding(5.dp)
-        ) {
-            Text(text = "Place Bet")
+            }
         }
 
-        Button(
-            onClick = {
-                // If the last bet was placed by the current player, the player can start the game
-                if (bettingState.bets.lastOrNull()?.playerEmail == bettingState.currentBetterEmail) {
-                    onStartGame()
+        if (bettingState.jassType == JassType.SIDI_BARAHNI || bettingState.availableActions().contains(Bet.BetAction.PASS)) {
+            Button(
+                onClick = {
+                    // If the last bet was placed by the current player, the player can start the game
+                    if (bettingState.bets.lastOrNull()?.playerEmail == bettingState.currentBetterEmail) {
+                        onStartGame()
 
-                    selectedTrump = null
-                    selectedBet = BetHeight.NONE
-                } else { // Otherwise the player can choose to pass
-                    onPass()
+                        selectedTrump = null
+                        selectedBet = BetHeight.NONE
+                    } else { // Otherwise the player can choose to pass
+                        onPass()
 
-                    selectedTrump = null
-                    selectedBet = BetHeight.NONE
-                }
-            },
-            modifier = Modifier
-                .align(Alignment.CenterVertically)
-                .padding(5.dp, 5.dp, 20.dp, 5.dp),
-        ) {
-            if (bettingState.bets.lastOrNull()?.playerEmail == bettingState.currentBetterEmail)
-                Text(text = "Start Game")
-            else
-                Text(text = "Pass")
+                        selectedTrump = null
+                        selectedBet = BetHeight.NONE
+                    }
+                },
+                modifier = Modifier
+                    .align(Alignment.CenterVertically)
+                    .padding(5.dp, 5.dp, 20.dp, 5.dp),
+            ) {
+                if (bettingState.bets.lastOrNull()?.playerEmail == bettingState.currentBetterEmail)
+                    Text(text = "Start Game")
+                else if (bettingState.availableActions().contains(Bet.BetAction.PASS))
+                    Text(text = "Pass")
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
         }
-
-        Spacer(modifier = Modifier.weight(1f))
     }
 }
 

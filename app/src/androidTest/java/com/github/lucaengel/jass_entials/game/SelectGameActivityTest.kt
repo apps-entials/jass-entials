@@ -1,4 +1,4 @@
-package com.github.lucaengel.jass_entials.game.pregame
+package com.github.lucaengel.jass_entials.game
 
 import android.content.Intent
 import androidx.compose.ui.test.assertIsDisplayed
@@ -12,7 +12,8 @@ import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.lucaengel.jass_entials.SignInActivity
-import com.github.lucaengel.jass_entials.game.SelectGameActivity
+import com.github.lucaengel.jass_entials.game.pregame.CoiffeurPregameActivity
+import com.github.lucaengel.jass_entials.game.pregame.PreRoundBettingActivity
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -36,7 +37,7 @@ class SelectGameActivityTest {
                 .performClick()
 
             Intents.intended(
-                hasComponent(SidiBarahniPreRoundActivity::class.java.name)
+                hasComponent(PreRoundBettingActivity::class.java.name)
             )
 
             Intents.release()
@@ -53,7 +54,7 @@ class SelectGameActivityTest {
                 .performClick()
 
             Intents.intended(
-                hasComponent(SchieberPregameActivity::class.java.name)
+                hasComponent(PreRoundBettingActivity::class.java.name)
             )
 
             Intents.release()

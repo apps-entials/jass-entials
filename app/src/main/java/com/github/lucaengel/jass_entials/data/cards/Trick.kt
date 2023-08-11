@@ -6,7 +6,7 @@ import com.github.lucaengel.jass_entials.data.jass.Trump
 /**
  * A trick is a collection of cards played by each player in a round.
  *
- * @param cards A list of pairs of cards and the player who played them.
+ * @param trickCards A list of pairs of cards and the player who played them.
  */
 data class Trick(
     val trickCards: List<TrickCard>,

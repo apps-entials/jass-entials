@@ -46,6 +46,7 @@ class GameStateTest {
         currentRoundTrickWinners = listOf(),
         currentTrickNumber = 0,
         currentTrump = Trump.CLUBS,
+        winningBet = Bet(),
         playerCards = defaultPlayerDatas.associate { it.email to it.cards },
     )
 

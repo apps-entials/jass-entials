@@ -35,19 +35,15 @@
             android:theme="@style/Theme.Jassentials" >
         </activity>
         <activity
-            android:name=".game.pregame.SchieberPregameActivity"
-            android:exported="true"
-            android:label="Schieber Pregame Activity"
-            android:theme="@style/Theme.Jassentials" >
-        </activity>
-        <activity
-            android:name=".game.pregame.SidiBarahniPreRoundActivity"
+            android:name=".game.pregame.PreRoundBettingActivity"
+            android:screenOrientation="landscape"
             android:exported="true"
             android:label="Sidi Barahni Pregame Activity"
             android:theme="@style/Theme.Jassentials" >
         </activity>
         <activity
             android:name=".game.JassRoundActivity"
+            android:screenOrientation="landscape"
             android:exported="true"
             android:label="Jass Round Activity"
             android:theme="@style/Theme.Jassentials" >
