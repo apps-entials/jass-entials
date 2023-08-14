@@ -8,6 +8,7 @@ import com.github.lucaengel.jass_entials.data.game_state.BetHeight
 import com.github.lucaengel.jass_entials.data.game_state.BettingState
 import com.github.lucaengel.jass_entials.data.game_state.GameState
 import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
+import com.github.lucaengel.jass_entials.data.game_state.PlayerId
 import com.github.lucaengel.jass_entials.data.jass.JassType
 import com.github.lucaengel.jass_entials.data.jass.Trump
 import org.hamcrest.MatcherAssert.assertThat
@@ -20,44 +21,44 @@ class CpuPlayerTest {
 
     private val defaultPlayerDatas = listOf(
         PlayerData().copy(
-            email = "email1",
+            id = PlayerId.PLAYER_1,
             firstName = "player1",
             cards = Deck.STANDARD_DECK.cards.subList(0, 9)),
         PlayerData().copy(
-            email = "email2",
+            id = PlayerId.PLAYER_2,
             firstName = "player2",
             cards = Deck.STANDARD_DECK.cards.subList(9, 18)),
         PlayerData().copy(
-            email = "email3",
+            id = PlayerId.PLAYER_3,
             firstName = "player3",
             cards = Deck.STANDARD_DECK.cards.subList(18, 27)),
         PlayerData().copy(
-            email = "email4",
+            id = PlayerId.PLAYER_4,
             firstName = "player4",
             cards = Deck.STANDARD_DECK.cards.subList(27, 36)),
     )
 
     private val defaultGameState = GameState(
-        currentUserIdx = 0,
-        playerEmails = defaultPlayerDatas.map { it.email },
-        currentPlayerEmail = defaultPlayerDatas[0].email,
-        startingPlayerEmail = defaultPlayerDatas[0].email,
+        currentUserId = PlayerId.PLAYER_1,
+        playerEmails = listOf(),
+        currentPlayerId = defaultPlayerDatas[0].id,
+        startingPlayerId = defaultPlayerDatas[0].id,
         currentRound = 0,
         currentTrick = Trick(),
         currentRoundTrickWinners = listOf(),
         currentTrickNumber = 0,
         currentTrump = Trump.CLUBS,
         winningBet = Bet(),
-        playerCards = defaultPlayerDatas.associate { it.email to it.cards },
+        playerCards = defaultPlayerDatas.associate { it.id to it.cards },
     )
 
     private val defaultBettingState = BettingState(
-        currentUserIdx = 0,
-        playerEmails = defaultPlayerDatas.map { it.email },
-        currentBetterEmail = defaultPlayerDatas[0].email,
-        startingBetterEmail = defaultPlayerDatas[0].email,
+        currentUserId = PlayerId.PLAYER_1,
+        playerEmails = listOf(),
+        currentBetterId= defaultPlayerDatas[0].id,
+        startingBetterId= defaultPlayerDatas[0].id,
         jassType = JassType.SIDI_BARAHNI,
-        bets = listOf(Bet(defaultPlayerDatas[0].email, Trump.UNGER_UFE, BetHeight.HUNDRED)),
+        bets = listOf(Bet(defaultPlayerDatas[0].id, Trump.UNGER_UFE, BetHeight.HUNDRED)),
         betActions = listOf(Bet.BetAction.BET),
         gameState = GameState(),
     )
@@ -71,10 +72,10 @@ class CpuPlayerTest {
 
     @Test
     fun playCardPlaysOneOfTheHandCardsAndRemovesItFromTheHand() {
-        val player = CpuPlayer(defaultPlayerDatas[0].email, 0)
-        val playerData = GameStateHolder.players.first { it.email == player.playerEmail }
+        val player = CpuPlayer(defaultPlayerDatas[0].id, 0)
+        val playerData = GameStateHolder.players.first { it.id == player.playerId }
         val oldCards = playerData.cards
-        val card = player.playCard(defaultGameState, playerData).join()
+        val card = player.cardToPlay(defaultGameState, playerData).join()
 
         assertTrue(oldCards.contains(card))
         // TODO: maybe also update the player in this method and return it in a pair?
@@ -82,31 +83,30 @@ class CpuPlayerTest {
 
     @Test
     fun cpuPlayerOnceInAWhileSelectsABet() {
-        val player = CpuPlayer(defaultPlayerDatas[0].email, 0)
+        val player = CpuPlayer(defaultPlayerDatas[0].id, 0)
         val bettingState = defaultBettingState.copy(
-            bets = listOf(Bet(defaultPlayerDatas[1].email, Trump.UNGER_UFE, BetHeight.FIFTY)),
+            bets = listOf(Bet(defaultPlayerDatas[1].id, Trump.UNGER_UFE, BetHeight.FIFTY)),
         )
 
         for (i in 0..100) {
             val newBettingState = player.bet(bettingState).join()
 
-            assertThat(newBettingState.currentBetterEmail,
-                `is`(bettingState.playerEmails[bettingState.playerEmails
-                    .indexOfFirst { it == bettingState.currentBetterEmail } + 1 % 4]))
+            assertThat(newBettingState.currentBetterId,
+                `is`(bettingState.currentBetterId.nextPlayer()))
         }
     }
 
-    @Test
+    @Test // i.e., new betting state has the same current better id as before to signal this
     fun whenPlayerCanOnlyStartTheyStart() {
-        val player = CpuPlayer(defaultPlayerDatas[0].email, 0)
+        val player = CpuPlayer(defaultPlayerDatas[0].id, 0)
 
         // since last bet was match by player 0, player 0 can only start
         val newBettingState = player.bet(defaultBettingState.copy(
-            bets = listOf(Bet(defaultPlayerDatas[0].email, Trump.UNGER_UFE, BetHeight.MATCH)),
+            bets = listOf(Bet(defaultPlayerDatas[0].id, Trump.UNGER_UFE, BetHeight.MATCH)),
             betActions = listOf(Bet.BetAction.BET, Bet.BetAction.PASS, Bet.BetAction.PASS, Bet.BetAction.PASS),
         )).join()
 
-        assertThat(newBettingState.currentBetterEmail,
-            `is`(defaultBettingState.playerEmails[0]))
+        assertThat(newBettingState.currentBetterId,
+            `is`(defaultBettingState.currentBetterId))
     }
 }

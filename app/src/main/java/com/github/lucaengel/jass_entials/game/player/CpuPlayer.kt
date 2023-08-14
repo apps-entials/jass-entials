@@ -5,6 +5,7 @@ import com.github.lucaengel.jass_entials.data.cards.PlayerData
 import com.github.lucaengel.jass_entials.data.game_state.Bet
 import com.github.lucaengel.jass_entials.data.game_state.BettingState
 import com.github.lucaengel.jass_entials.data.game_state.GameState
+import com.github.lucaengel.jass_entials.data.game_state.PlayerId
 import com.github.lucaengel.jass_entials.data.jass.Trump
 import java.util.concurrent.CompletableFuture
 import kotlin.random.Random
@@ -12,11 +13,11 @@ import kotlin.random.Random
 /**
  * Class representing a CPU player
  *
- * @property playerEmail the player data
+ * @property playerId the player data
  */
-class CpuPlayer(val playerEmail: String, private val threadSleepTime: Long = 300) : Player {
+class CpuPlayer(val playerId: PlayerId, private val threadSleepTime: Long = 300) : Player {
 
-    override fun playCard(gameState: GameState, player: PlayerData): CompletableFuture<Card> {
+    override fun cardToPlay(gameState: GameState, player: PlayerData): CompletableFuture<Card> {
         val card = player.playableCards(gameState.currentTrick, gameState.currentTrump).random()
 
         // TODO: maybe update player data here and return it as well
@@ -50,7 +51,7 @@ class CpuPlayer(val playerEmail: String, private val threadSleepTime: Long = 300
                 bettingFuture.complete(
                     bettingState.nextPlayer(
                         Bet(
-                            playerEmail = playerEmail,
+                            playerId = playerId,
                             bet = bettingState.availableBets().first(),
                             suit = bettingState.availableTrumps().random(),
                         )

@@ -13,10 +13,38 @@ class GameStateHolder {
 
     companion object {
         private val shuffledDeck = Deck.STANDARD_DECK.shuffled()
-        private val playerData1 = PlayerData("email_1", 0, "first_1", "second_1", Deck.sortPlayerCards(shuffledDeck.cards.subList(4, 12)), 0, "123")
-        private val playerData2 = PlayerData("email_2", 1, "first_2", "second_2", Deck.sortPlayerCards(shuffledDeck.cards.subList(12, 20)), 0, "123")
-        private val playerData3 = PlayerData("email_3", 2, "first_3", "second_3", Deck.sortPlayerCards(shuffledDeck.cards.subList(20, 28)), 0, "123")
-        private val playerData4 = PlayerData("email_4", 3, "first_4", "second_4", Deck.sortPlayerCards(shuffledDeck.cards.subList(28, 36)), 0, "123")
+        private val playerData1 = PlayerData(
+            PlayerId.PLAYER_1,
+            "first_1",
+            "second_1",
+            Deck.sortPlayerCards(shuffledDeck.cards.subList(4, 12)),
+            0,
+            "123"
+        )
+        private val playerData2 = PlayerData(
+            PlayerId.PLAYER_2,
+            "first_2",
+            "second_2",
+            Deck.sortPlayerCards(shuffledDeck.cards.subList(12, 20)),
+            0,
+            "123"
+        )
+        private val playerData3 = PlayerData(
+            PlayerId.PLAYER_3,
+            "first_3",
+            "second_3",
+            Deck.sortPlayerCards(shuffledDeck.cards.subList(20, 28)),
+            0,
+            "123"
+        )
+        private val playerData4 = PlayerData(
+            PlayerId.PLAYER_4,
+            "first_4",
+            "second_4",
+            Deck.sortPlayerCards(shuffledDeck.cards.subList(28, 36)),
+            0,
+            "123"
+        )
 
         /**
          * The current player datas.
@@ -27,17 +55,17 @@ class GameStateHolder {
          * The current game state.
          */
         var gameState: GameState = GameState(
-            currentUserIdx = 0,
-            playerEmails = players.map { it.email },
-            currentPlayerEmail = playerData1.email,
-            startingPlayerEmail = playerData1.email,
+            currentUserId = playerData1.id,
+            playerEmails = listOf(),
+            currentPlayerId = playerData1.id,
+            startingPlayerId = playerData1.id,
             currentRound = 1,
-            currentTrick = Trick(shuffledDeck.cards.subList(0, 4).mapIndexed { i, c -> Trick.TrickCard(c, players[i].email) }),
+            currentTrick = Trick(shuffledDeck.cards.subList(0, 4).mapIndexed { i, c -> Trick.TrickCard(c, players[i].id) }),
             currentRoundTrickWinners = listOf(),
             currentTrickNumber = 1,
             currentTrump = Trump.UNGER_UFE,
-            winningBet = Bet(playerData2.email, Trump.CLUBS, BetHeight.FORTY),
-            playerCards = Deck.STANDARD_DECK.dealCards(players.map { it.email }),
+            winningBet = Bet(playerData2.id, Trump.CLUBS, BetHeight.FORTY),
+            playerCards = Deck.STANDARD_DECK.dealCards(),
         )
 
         /**
@@ -45,16 +73,14 @@ class GameStateHolder {
          */
         var bettingState: BettingState =
             BettingState(
-                currentUserIdx = 0,
-                playerEmails = players.map { it.email },
-                currentBetterEmail = playerData1.email,
-                startingBetterEmail = playerData1.email,
-                jassType = JassType.SIDI_BARAHNI,
-                bets = listOf(
-                    Bet(playerData2.email, Trump.CLUBS, BetHeight.FORTY)
-                ),
+                currentUserId = playerData1.id,
+                playerEmails = listOf(),
+                currentBetterId = playerData1.id,
+                startingBetterId = playerData1.id,
+                jassType = JassType.SCHIEBER,
+                bets = listOf(),
                 betActions = listOf(),
-                gameState = GameState()
+                gameState = GameState(),
             )
 
         /**
@@ -79,10 +105,10 @@ class GameStateHolder {
         /**
          * Updates the betting state to go to the next betting state round.
          *
-         * @param startingBetterEmail The player that starts the next betting round.
+         * @param startingBetter The player that starts the next betting round.
          */
-        fun goToNextBettingStateRound(startingBetterEmail: String) {
-            bettingState = bettingState.nextBettingRound(startingBetterEmail)
+        fun goToNextBettingStateRound(startingBetter: PlayerId) {
+            bettingState = bettingState.nextBettingRound(startingBetter)
         }
     }
 }

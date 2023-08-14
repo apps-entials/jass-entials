@@ -1,6 +1,7 @@
 package com.github.lucaengel.jass_entials.data.cards
 
 import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
+import com.github.lucaengel.jass_entials.data.game_state.PlayerId
 import com.github.lucaengel.jass_entials.data.jass.Trump
 
 /**
@@ -17,26 +18,23 @@ data class Trick(
      */
     data class TrickCard(
         val card: Card,
-        val email: String,
+        val playerId: PlayerId,
     )
 
     /**
      * Represents the winner of a trick.
      */
-    data class TrickWinner(val playerEmail: String, val trick: Trick) {
+    data class TrickWinner(val playerId: PlayerId, val trick: Trick) {
         init {
             if (trick.trickCards.size != GameStateHolder.players.size)
                 throw IllegalArgumentException("A trick must have exactly as many cards as there are players to be completed.")
-
-            if (!trick.trickCards.map { it.email }.contains(playerEmail))
-                throw IllegalArgumentException("The player must be one of the players in the trick.")
         }
     }
 
     constructor() : this(trickCards = listOf())
 
-    fun withNewCardPlayed(card: Card, email: String): Trick {
-        return this.copy(trickCards = trickCards + TrickCard(card, email))
+    fun withNewCardPlayed(card: Card, playerId: PlayerId): Trick {
+        return this.copy(trickCards = trickCards + TrickCard(card, playerId))
     }
 
     /**
@@ -55,13 +53,13 @@ data class Trick(
      * @return The player who played the highest card.
      */
     fun winner(trump: Trump): TrickWinner {
-        return trickCards.foldRight(trickCards.first()) { (card, email), prevWinner ->
+        return trickCards.foldRight(trickCards.first()) { (card, playerId), prevWinner ->
             if (prevWinner.card.isHigherThan(card, trump)) {
                 prevWinner
             } else {
-                TrickCard(card, email)
+                TrickCard(card, playerId)
             }
-        }.email.let { TrickWinner(it, this) }
+        }.playerId.let { TrickWinner(it, this) }
     }
 
     /**

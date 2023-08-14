@@ -44,6 +44,7 @@ import com.github.lucaengel.jass_entials.data.game_state.Bet
 import com.github.lucaengel.jass_entials.data.game_state.BetHeight
 import com.github.lucaengel.jass_entials.data.game_state.BettingState
 import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
+import com.github.lucaengel.jass_entials.data.game_state.PlayerId
 import com.github.lucaengel.jass_entials.data.jass.JassType
 import com.github.lucaengel.jass_entials.data.jass.Trump
 import com.github.lucaengel.jass_entials.game.JassComposables
@@ -58,6 +59,9 @@ class PreRoundBettingActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        println("current user id gamestate: ${GameStateHolder.gameState.currentUserId}")
+        println("current user id bettingstate: ${GameStateHolder.bettingState.currentUserId}")
 
         setContent {
             MyPreview()
@@ -87,25 +91,25 @@ fun BettingRound() {
     var bettingState by remember { mutableStateOf(GameStateHolder.bettingState/*BettingState()*/) }
     var players by remember { mutableStateOf(GameStateHolder.players/*BettingState()*/) }
 
-    val currentUserIdx by remember { mutableStateOf(bettingState.currentUserIdx) }
-    val currentUserEmail by remember { mutableStateOf(bettingState.playerEmails[currentUserIdx]) }
+    val currentUserId by remember { mutableStateOf(bettingState.currentUserId) }
 
     val opponents by remember {
-        mutableStateOf(bettingState.playerEmails
-            .filter { it != bettingState.playerEmails[bettingState.currentUserIdx] }
+        mutableStateOf(
+            PlayerId.values()
+            .filter { it != currentUserId }
             .map { it to CpuPlayer(it) }
         )}
 
-    var tmpFirstName by remember { mutableStateOf(mapOf<String, String>().withDefault { "" }) }
-    var tmpLastName by remember { mutableStateOf(mapOf<String, String>().withDefault { "" }) }
-    fun setToThinking(playerEmail: String) {
-        val player = players.first { it.email == playerEmail }
+    var tmpFirstName by remember { mutableStateOf(mapOf<PlayerId, String>().withDefault { "" }) }
+    var tmpLastName by remember { mutableStateOf(mapOf<PlayerId, String>().withDefault { "" }) }
+    fun setToThinking(playerId: PlayerId) {
+        val player = players.first { it.id == playerId }
 
-        tmpFirstName = tmpFirstName.plus(playerEmail to player.firstName)
-        tmpLastName = tmpLastName.plus(playerEmail to player.lastName)
+        tmpFirstName = tmpFirstName.plus(playerId to player.firstName)
+        tmpLastName = tmpLastName.plus(playerId to player.lastName)
 
         players = players.map {
-            if (it.email == playerEmail) {
+            if (it.id == playerId) {
                 it.copy(firstName = "I'm", lastName = "Thinking...")
             } else {
                 it
@@ -113,10 +117,10 @@ fun BettingRound() {
         }
     }
 
-    fun setToNormalName(playerEmail: String) {
+    fun setToNormalName(playerId: PlayerId) {
         players = players.map {
-            if (it.email == playerEmail) {
-                it.copy(firstName = tmpFirstName[playerEmail]!!, lastName = tmpLastName[playerEmail]!!)
+            if (it.id == playerId) {
+                it.copy(firstName = tmpFirstName[playerId]!!, lastName = tmpLastName[playerId]!!)
             } else {
                 it
             }
@@ -124,21 +128,21 @@ fun BettingRound() {
     }
 
     // this launched effect is responsible for the cpu players' actions
-    LaunchedEffect(key1 = bettingState.currentBetterEmail) {
-        val currentBetterEmail = bettingState.currentBetterEmail
+    LaunchedEffect(key1 = bettingState.currentBetterId) {
+        val currentBetterId = bettingState.currentBetterId
 
-        if (currentBetterEmail == currentUserEmail)
+        if (currentBetterId == currentUserId)
             return@LaunchedEffect
 
-        val player = opponents.first { it.first == currentBetterEmail }.second
-        setToThinking(currentBetterEmail)
+        val player = opponents.first { it.first == currentBetterId }.second
+        setToThinking(currentBetterId)
 
 
         // TODO: consider refactoring since context switches cannot be tested well when in futures and LaunchedEffects
         val oldBettingState = bettingState
         val betFuture = player.bet(bettingState)
             .thenApply {
-                setToNormalName(currentBetterEmail)
+                setToNormalName(currentBetterId)
                 bettingState = it
 
                 // Checks for game start when not playing sidi barahni
@@ -157,7 +161,7 @@ fun BettingRound() {
 
         // cpu starting the game for sidi barahni
         if (oldBettingState.jassType == JassType.SIDI_BARAHNI
-            && oldBettingState.bets.lastOrNull()?.playerEmail == currentBetterEmail) {
+            && oldBettingState.bets.lastOrNull()?.playerId == currentBetterId) {
             // TODO: for now, if cpu can start the game, the start game is signalled by
             //  a pass after the last bet (since you cannot pass if you have made the last bet).
             //  This is not ideal, but it works for now.
@@ -188,14 +192,14 @@ fun BettingRound() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        val topPlayerEmail = bettingState.playerEmails[(currentUserIdx + 2) % 4]
+        val topPlayerId = currentUserId.teamMate()
 
-        JassComposables.PlayerBox(playerData = players.first { it.email == topPlayerEmail }, playerSpot = 2)
+        JassComposables.PlayerBox(playerData = players.first { it.id == topPlayerId }, playerSpot = 2)
 
         Spacer(modifier = Modifier.weight(1f))
 
 
-        if (bettingState.currentBetterEmail == currentUserEmail) {
+        if (bettingState.currentBetterId == currentUserId) {
 
             fun startGameFun(currBettingState: BettingState) {
                 val gameState = currBettingState.startGame()
@@ -226,12 +230,12 @@ fun BettingRound() {
                 }
             )
         } else {
-            MiddleRowInfo(bettingState = bettingState, players = players, currentPlayerIdx = currentUserIdx)
+            MiddleRowInfo(bettingState = bettingState, players = players, currentPlayerId = currentUserId)
         }
 
         Spacer(modifier = Modifier.weight(1f))
 
-        JassComposables.CurrentPlayerBox(playerEmail = currentUserEmail, player = players.first { it.email == currentUserEmail })
+        JassComposables.CurrentPlayerBox(player = players.first { it.id == currentUserId })
     }
 }
 
@@ -239,12 +243,11 @@ fun BettingRound() {
  * Betting row composable (contains the betting elements or the players in the middle row).
  */
 @Composable
-private fun MiddleRowInfo(bettingState: BettingState, players: List<PlayerData>, currentPlayerIdx: Int) {
+private fun MiddleRowInfo(bettingState: BettingState, players: List<PlayerData>, currentPlayerId: PlayerId) {
     Row {
 
-        val leftPlayerEmail = bettingState.playerEmails[(currentPlayerIdx + 3) % 4]
         JassComposables.PlayerBox(
-            playerData = players.first { it.email == leftPlayerEmail },
+            playerData = players.first { it.id == currentPlayerId.teamMate().nextPlayer() },
             playerSpot = 3,
             modifier = Modifier
                 .fillMaxHeight(0.5F)
@@ -274,7 +277,7 @@ private fun MiddleRowInfo(bettingState: BettingState, players: List<PlayerData>,
                 )
             } else {
                 val lastBet = bettingState.bets.last()
-                val lastBetter = players.first { it.email == lastBet.playerEmail }
+                val lastBetter = players.first { it.id == lastBet.playerId }
                 Text(
                     text = "${lastBet.bet} ${lastBet.suit} by\n" +
                         "${lastBetter.firstName} ${lastBetter.lastName}",
@@ -286,10 +289,10 @@ private fun MiddleRowInfo(bettingState: BettingState, players: List<PlayerData>,
 
         Spacer(modifier = Modifier.weight(0.1f))
 
-        val rightPlayerEmail = bettingState.playerEmails[(currentPlayerIdx + 1) % 4]
+        val rightPlayerId = currentPlayerId.nextPlayer()
 
         JassComposables.PlayerBox(
-            playerData = players.first { it.email == rightPlayerEmail },
+            playerData = players.first { it.id == rightPlayerId },
             playerSpot = 1,
             modifier = Modifier
                 .fillMaxHeight(0.5F)
@@ -334,7 +337,7 @@ fun BettingRow(
             )
         } else {
             val lastBet = bettingState.bets.last()
-            val lastBetter = players.first { it.email == lastBet.playerEmail }
+            val lastBetter = players.first { it.id == lastBet.playerId }
 
             Text(
                 text = "${lastBet.bet} ${lastBet.suit} by\n" +
@@ -426,7 +429,7 @@ fun BettingRow(
                         println("bet placed!")
                         onBetPlace(
                             Bet(
-                                bettingState.currentBetterEmail,
+                                bettingState.currentBetterId,
                                 selectedTrump!!,
                                 selectedBet
                             )
@@ -454,7 +457,7 @@ fun BettingRow(
             Button(
                 onClick = {
                     // If the last bet was placed by the current player, the player can start the game
-                    if (bettingState.bets.lastOrNull()?.playerEmail == bettingState.currentBetterEmail) {
+                    if (bettingState.bets.lastOrNull()?.playerId == bettingState.currentBetterId) {
                         onStartGame()
 
                         selectedTrump = null
@@ -470,7 +473,7 @@ fun BettingRow(
                     .align(Alignment.CenterVertically)
                     .padding(5.dp, 5.dp, 20.dp, 5.dp),
             ) {
-                if (bettingState.bets.lastOrNull()?.playerEmail == bettingState.currentBetterEmail)
+                if (bettingState.bets.lastOrNull()?.playerId == bettingState.currentBetterId)
                     Text(text = "Start Game")
                 else if (bettingState.availableActions().contains(Bet.BetAction.PASS))
                     Text(text = "Pass")

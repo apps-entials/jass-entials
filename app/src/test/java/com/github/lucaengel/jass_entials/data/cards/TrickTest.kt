@@ -3,6 +3,7 @@ package com.github.lucaengel.jass_entials.data.cards
 import com.github.lucaengel.jass_entials.data.game_state.Bet
 import com.github.lucaengel.jass_entials.data.game_state.GameState
 import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
+import com.github.lucaengel.jass_entials.data.game_state.PlayerId
 import com.github.lucaengel.jass_entials.data.jass.Trump
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
@@ -14,35 +15,35 @@ class TrickTest {
 
     private val defaultPlayerDatas = listOf(
         PlayerData().copy(
-            email = "email1",
+            id = PlayerId.PLAYER_1,
             firstName = "player1",
             cards = Deck.STANDARD_DECK.cards.subList(0, 9)),
         PlayerData().copy(
-            email = "email2",
+            id = PlayerId.PLAYER_2,
             firstName = "player2",
             cards = Deck.STANDARD_DECK.cards.subList(9, 18)),
         PlayerData().copy(
-            email = "email3",
+            id = PlayerId.PLAYER_3,
             firstName = "player3",
             cards = Deck.STANDARD_DECK.cards.subList(18, 27)),
         PlayerData().copy(
-            email = "email4",
+            id = PlayerId.PLAYER_4,
             firstName = "player4",
             cards = Deck.STANDARD_DECK.cards.subList(27, 36)),
     )
 
     private val defaultGameState = GameState(
-        currentUserIdx = 0,
-        playerEmails = defaultPlayerDatas.map { it.email },
-        currentPlayerEmail = defaultPlayerDatas[0].email,
-        startingPlayerEmail = defaultPlayerDatas[0].email,
+        currentUserId = PlayerId.PLAYER_1,
+        playerEmails = listOf(),
+        currentPlayerId = defaultPlayerDatas[0].id,
+        startingPlayerId = defaultPlayerDatas[0].id,
         currentRound = 0,
         currentTrick = Trick(),
         currentRoundTrickWinners = listOf(),
         currentTrickNumber = 0,
         currentTrump = Trump.CLUBS,
         winningBet = Bet(),
-        playerCards = defaultPlayerDatas.associate { it.email to it.cards },
+        playerCards = defaultPlayerDatas.associate { it.id to it.cards },
     )
 
     @Before
@@ -59,7 +60,7 @@ class TrickTest {
                 Card(
                     Suit.CLUBS,
                     Rank.SIX
-                ), "email_1"
+                ), PlayerId.PLAYER_1
             )
             )
 
@@ -70,60 +71,45 @@ class TrickTest {
     @Test
     fun winnerReturnsHighestCardPlayerOfStartingSuit() {
         val trick = Trick(listOf(
-            Trick.TrickCard(Card(Suit.HEARTS, Rank.SEVEN), "1"),
-            Trick.TrickCard(Card(Suit.DIAMONDS, Rank.ACE), "2"),
-            Trick.TrickCard(Card(Suit.HEARTS, Rank.EIGHT), "3"),
-            Trick.TrickCard(Card(Suit.CLUBS, Rank.SEVEN), "4"),
+            Trick.TrickCard(Card(Suit.HEARTS, Rank.SEVEN), PlayerId.PLAYER_1),
+            Trick.TrickCard(Card(Suit.DIAMONDS, Rank.ACE), PlayerId.PLAYER_2),
+            Trick.TrickCard(Card(Suit.HEARTS, Rank.EIGHT), PlayerId.PLAYER_3),
+            Trick.TrickCard(Card(Suit.CLUBS, Rank.SEVEN), PlayerId.PLAYER_4),
         ))
-        assertThat(trick.winner(Trump.SPADES).playerEmail, `is`("3"))
+        assertThat(trick.winner(Trump.SPADES).playerId, `is`(PlayerId.PLAYER_3))
     }
 
     @Test
     fun winnerReturnsHighestTrumpPlayer() {
         val trick = Trick(listOf(
-            Trick.TrickCard(Card(Suit.CLUBS, Rank.SEVEN), "1"),
-            Trick.TrickCard(Card(Suit.DIAMONDS, Rank.ACE), "2"),
-            Trick.TrickCard(Card(Suit.HEARTS, Rank.EIGHT), "3"),
-            Trick.TrickCard(Card(Suit.CLUBS, Rank.SEVEN), "4"),
+            Trick.TrickCard(Card(Suit.CLUBS, Rank.SEVEN), PlayerId.PLAYER_1),
+            Trick.TrickCard(Card(Suit.DIAMONDS, Rank.ACE), PlayerId.PLAYER_2),
+            Trick.TrickCard(Card(Suit.HEARTS, Rank.EIGHT), PlayerId.PLAYER_3),
+            Trick.TrickCard(Card(Suit.CLUBS, Rank.SEVEN), PlayerId.PLAYER_4),
         ))
-        assertThat(trick.winner(Trump.HEARTS).playerEmail, `is`("3"))
+        assertThat(trick.winner(Trump.HEARTS).playerId, `is`(PlayerId.PLAYER_3))
     }
 
     @Test
     fun winnerReturnsCorrectPlayerForUngerUfe() {
         val trick = Trick(listOf(
-            Trick.TrickCard(Card(Suit.CLUBS, Rank.ACE), "1"),
-            Trick.TrickCard(Card(Suit.DIAMONDS, Rank.ACE), "2"),
-            Trick.TrickCard(Card(Suit.HEARTS, Rank.EIGHT), "3"),
-            Trick.TrickCard(Card(Suit.CLUBS, Rank.SIX), "4"),
+            Trick.TrickCard(Card(Suit.CLUBS, Rank.ACE), PlayerId.PLAYER_1),
+            Trick.TrickCard(Card(Suit.DIAMONDS, Rank.ACE), PlayerId.PLAYER_2),
+            Trick.TrickCard(Card(Suit.HEARTS, Rank.EIGHT), PlayerId.PLAYER_3),
+            Trick.TrickCard(Card(Suit.CLUBS, Rank.SIX), PlayerId.PLAYER_4),
         ))
-        assertThat(trick.winner(Trump.UNGER_UFE).playerEmail, `is`("4"))
+        assertThat(trick.winner(Trump.UNGER_UFE).playerId, `is`(PlayerId.PLAYER_4))
     }
 
     @Test
     fun trickWinnerConstructorThrowsWhenNon4CardsInTheTrick() {
         assertThrows(IllegalArgumentException::class.java) {
             Trick.TrickWinner(
-                defaultPlayerDatas[0].email,
+                defaultPlayerDatas[0].id,
                 Trick(listOf(
-                Trick.TrickCard(Card(Suit.CLUBS, Rank.ACE), "1"),
-                Trick.TrickCard(Card(Suit.DIAMONDS, Rank.ACE), "2"),
-                Trick.TrickCard(Card(Suit.HEARTS, Rank.EIGHT), "3"),
-                ))
-            )
-        }
-    }
-
-    @Test
-    fun trickWinnerConstructorThrowsWhenNonExistentEmailIsPassed() {
-        assertThrows(IllegalArgumentException::class.java) {
-            Trick.TrickWinner(
-                "nonExistentMail",
-                Trick(listOf(
-                    Trick.TrickCard(Card(Suit.CLUBS, Rank.ACE), "1"),
-                    Trick.TrickCard(Card(Suit.DIAMONDS, Rank.ACE), "2"),
-                    Trick.TrickCard(Card(Suit.HEARTS, Rank.EIGHT), "3"),
-                    Trick.TrickCard(Card(Suit.HEARTS, Rank.NINE), "4"),
+                Trick.TrickCard(Card(Suit.CLUBS, Rank.ACE), PlayerId.PLAYER_1),
+                Trick.TrickCard(Card(Suit.DIAMONDS, Rank.ACE), PlayerId.PLAYER_2),
+                Trick.TrickCard(Card(Suit.HEARTS, Rank.EIGHT), PlayerId.PLAYER_3),
                 ))
             )
         }
@@ -132,18 +118,18 @@ class TrickTest {
     @Test
     fun trickWinnerWorksForLegalInputs() {
         val trick = Trick(listOf(
-            Trick.TrickCard(Card(Suit.CLUBS, Rank.ACE), "1"),
-            Trick.TrickCard(Card(Suit.DIAMONDS, Rank.ACE), "2"),
-            Trick.TrickCard(Card(Suit.HEARTS, Rank.EIGHT), "3"),
-            Trick.TrickCard(Card(Suit.HEARTS, Rank.NINE), "4"),
+            Trick.TrickCard(Card(Suit.CLUBS, Rank.ACE), PlayerId.PLAYER_1),
+            Trick.TrickCard(Card(Suit.DIAMONDS, Rank.ACE), PlayerId.PLAYER_2),
+            Trick.TrickCard(Card(Suit.HEARTS, Rank.EIGHT), PlayerId.PLAYER_3),
+            Trick.TrickCard(Card(Suit.HEARTS, Rank.NINE), PlayerId.PLAYER_4),
         ))
 
         val trickWinner = Trick.TrickWinner(
-            "1",
+            PlayerId.PLAYER_1,
             trick
         )
 
-        assertThat(trickWinner.playerEmail, `is`("1"))
+        assertThat(trickWinner.playerId, `is`(PlayerId.PLAYER_1))
         assertThat(trickWinner.trick, `is`(trick))
     }
 }

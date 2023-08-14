@@ -2,24 +2,24 @@
 
     import com.github.lucaengel.jass_entials.data.game_state.Bet
     import com.github.lucaengel.jass_entials.data.game_state.BettingState
+    import com.github.lucaengel.jass_entials.data.game_state.PlayerId
 
     class SchieberBettingLogic : BettingLogic {
 
         // inherit the javadoc
 
         override fun nextPlayer(
-            currentBetterEmail: String,
+            currentBetter: PlayerId,
             currentPlayerBet: Bet?,
             bettingState: BettingState
-        ): String {
-            if (currentPlayerBet != null) return currentBetterEmail
+        ): PlayerId {
+            if (currentPlayerBet != null) return currentBetter
 
-            val idx = bettingState.playerEmails.indexOf(currentBetterEmail)
-            return bettingState.playerEmails[(idx + 2) % bettingState.playerEmails.size]
+            return currentBetter.teamMate()
         }
 
         override fun availableActions(
-            currentBetterEmail: String,
+            currentBetter: PlayerId,
             bettingState: BettingState
         ): List<Bet.BetAction> {
             if (bettingState.betActions.size >= 2) // both players passed

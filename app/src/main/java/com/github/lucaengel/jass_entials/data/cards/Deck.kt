@@ -1,6 +1,7 @@
 package com.github.lucaengel.jass_entials.data.cards
 
 import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
+import com.github.lucaengel.jass_entials.data.game_state.PlayerId
 
 /**
  * A deck of cards.
@@ -23,13 +24,12 @@ data class Deck(val cards: List<Card> = listOf()) {
     /**
      * Deals the cards of the deck to the given players.
      *
-     * @param emails the emails of the players
      * @return a map of the players and their cards
      */
-    fun dealCards(emails: List<String>): Map<String, List<Card>> {
-        return emails.zip(cards.chunked(9)).associate { (email, c) ->
-            GameStateHolder.players = GameStateHolder.players.map { if (it.email == email) it.copy(cards = c) else it }
-            email to sortPlayerCards(c)
+    fun dealCards(): Map<PlayerId, List<Card>> {
+        return PlayerId.values().zip(cards.chunked(9)).associate { (id, c) ->
+            GameStateHolder.players = GameStateHolder.players.map { if (it.id == id) it.copy(cards = c) else it }
+            id to sortPlayerCards(c)
         }
     }
 

@@ -19,16 +19,9 @@ class DeckTest {
     fun dealCardsDeals9CardsToEachPersonWithAFullDeck() {
         val deck = Deck.STANDARD_DECK
 
-        val playerDatas = listOf(
-            PlayerData().copy(email = "email_1", firstName = "player1"),
-            PlayerData().copy(email = "email_2", firstName = "player2"),
-            PlayerData().copy(email = "email_3", firstName = "player3"),
-            PlayerData().copy(email = "email_4", firstName = "player4")
-        )
-
-        deck.dealCards(playerDatas.map { it.email }).toList().forEachIndexed { _, (email, cards) ->
+        deck.dealCards().toList().forEachIndexed { _, (playerId, cards) ->
             assertThat(cards.size, `is`(9))
-            assertThat(cards, containsInAnyOrder(*GameStateHolder.players.first { it.email == email }.cards.toTypedArray()))
+            assertThat(cards, containsInAnyOrder(*GameStateHolder.players.first { it.id == playerId }.cards.toTypedArray()))
         }
     }
 

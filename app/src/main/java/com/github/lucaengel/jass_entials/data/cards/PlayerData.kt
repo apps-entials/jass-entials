@@ -1,5 +1,6 @@
 package com.github.lucaengel.jass_entials.data.cards
 
+import com.github.lucaengel.jass_entials.data.game_state.PlayerId
 import com.github.lucaengel.jass_entials.data.jass.Trump
 import java.io.Serializable
 
@@ -7,8 +8,7 @@ import java.io.Serializable
  * A player in a game of Jass.
  */
 data class PlayerData(
-    val email: String,
-    val playerIdx: Int,
+    val id: PlayerId,
     val firstName: String,
     val lastName: String,
     val cards: List<Card>,
@@ -16,8 +16,7 @@ data class PlayerData(
     val token: String,
 ) : Serializable {
     constructor() : this(
-        email = "",
-        playerIdx = 0,
+        id = PlayerId.PLAYER_1,
         firstName = "",
         lastName = "",
         cards = listOf(),

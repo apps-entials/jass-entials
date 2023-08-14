@@ -29,6 +29,7 @@ import com.github.lucaengel.jass_entials.data.cards.Card
 import com.github.lucaengel.jass_entials.data.cards.PlayerData
 import com.github.lucaengel.jass_entials.data.game_state.GameState
 import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
+import com.github.lucaengel.jass_entials.data.game_state.PlayerId
 import com.github.lucaengel.jass_entials.game.JassComposables.Companion.CurrentTrick
 import com.github.lucaengel.jass_entials.game.player.CpuPlayer
 import com.github.lucaengel.jass_entials.game.postgame.SidiBarahniPostRoundActivity
@@ -74,13 +75,12 @@ fun JassRound() {
     var gameState by remember { mutableStateOf(GameStateHolder.gameState) }
     var players by remember { mutableStateOf(GameStateHolder.players) }
 
-    val currentUserIdx by remember { mutableStateOf(gameState.currentUserIdx) }
-    val currentUserEmail by remember { mutableStateOf(gameState.playerEmails[currentUserIdx]) }
+    val currentUserId by remember { mutableStateOf(gameState.currentUserId) }
 
     val opponents by remember {
-        mutableStateOf(gameState.playerEmails
-            .filter { email -> email != gameState.playerEmails[currentUserIdx] }
-            .map { email -> email to CpuPlayer(playerEmail = email) }
+        mutableStateOf(PlayerId.values()
+            .filter { id -> id != currentUserId }
+            .map { id -> id to CpuPlayer(playerId = id) }
         )}
 
     val nextTrickFun: () -> Unit = {
@@ -96,16 +96,16 @@ fun JassRound() {
         }
     }
 
-    var tmpFirstName by remember { mutableStateOf(mapOf<String, String>().withDefault { "" }) }
-    var tmpLastName by remember { mutableStateOf(mapOf<String, String>().withDefault { "" }) }
-    fun setToThinking(playerEmail: String) {
-        val player = players.first { it.email == playerEmail }
+    var tmpFirstName by remember { mutableStateOf(mapOf<PlayerId, String>().withDefault { "" }) }
+    var tmpLastName by remember { mutableStateOf(mapOf<PlayerId, String>().withDefault { "" }) }
+    fun setToThinking(playerId: PlayerId) {
+        val player = players.first { it.id == playerId }
 
-        tmpFirstName = tmpFirstName.plus(playerEmail to player.firstName)
-        tmpLastName = tmpLastName.plus(playerEmail to player.lastName)
+        tmpFirstName = tmpFirstName.plus(playerId to player.firstName)
+        tmpLastName = tmpLastName.plus(playerId to player.lastName)
 
         players = players.map {
-            if (it.email == playerEmail) {
+            if (it.id == playerId) {
                 it.copy(firstName = "I'm", lastName = "Thinking...")
             } else {
                 it
@@ -113,19 +113,19 @@ fun JassRound() {
         }
     }
 
-    fun setToNormalName(playerEmail: String) {
+    fun setToNormalName(playerId: PlayerId) {
         players = players.map {
-            if (it.email == playerEmail) {
-                it.copy(firstName = tmpFirstName[playerEmail]!!, lastName = tmpLastName[playerEmail]!!)
+            if (it.id == playerId) {
+                it.copy(firstName = tmpFirstName[playerId]!!, lastName = tmpLastName[playerId]!!)
             } else {
                 it
             }
         }
     }
 
-    fun updatePlayer(email: String, card: Card) {
+    fun updatePlayer(playerId: PlayerId, card: Card) {
         players = players.map { player ->
-            if (player.email == email) {
+            if (player.id == playerId) {
                 player.withCardPlayed(card)
             } else {
                 player
@@ -134,20 +134,20 @@ fun JassRound() {
     }
 
     // this launched effect is responsible for the cpu players' actions
-    LaunchedEffect(key1 = gameState.currentPlayerEmail) {
-        val currentPlayerEmail = gameState.currentPlayerEmail
+    LaunchedEffect(key1 = gameState.currentPlayerId) {
+        val currentPlayerId = gameState.currentPlayerId
 
-        if (currentPlayerEmail == currentUserEmail || gameState.isLastTrick())
+        if (currentPlayerId == currentUserId || gameState.isLastTrick())
             return@LaunchedEffect
 
-        val player = opponents.first { it.first == currentPlayerEmail }.second
-        setToThinking(currentPlayerEmail)
-        player.cardToPlay(gameState, players.first { it.email == currentPlayerEmail })
+        val player = opponents.first { it.first == currentPlayerId }.second
+        setToThinking(currentPlayerId)
+        player.cardToPlay(gameState, players.first { it.id == currentPlayerId })
             .thenAccept {
-                setToNormalName(currentPlayerEmail)
+                setToNormalName(currentPlayerId)
 
-                gameState = gameState.playCard(currentPlayerEmail, it, currentUserIdx)
-                updatePlayer(currentPlayerEmail, it)
+                gameState = gameState.playCard(currentPlayerId, it, currentUserId)
+                updatePlayer(currentPlayerId, it)
             }
     }
 
@@ -157,9 +157,9 @@ fun JassRound() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        val topPlayerEmail = gameState.playerEmails[(currentUserIdx + 2) % 4]
+        val topPlayerId = currentUserId.nextPlayer().nextPlayer()
         Row {
-            JassComposables.PlayerBox(playerData = players.first { it.email == topPlayerEmail }, playerSpot = 2)
+            JassComposables.PlayerBox(playerData = players.first { it.id == topPlayerId }, playerSpot = 2)
 
             Text(text = "Trump: ${gameState.winningBet}")
         }
@@ -168,25 +168,24 @@ fun JassRound() {
         JassMiddleRowInfo(
             gameState = gameState,
             players = players,
-            currentUserIdx = currentUserIdx,
-            onClick = {
-                if (gameState.currentTrick.isFull()) {
-                    nextTrickFun()
-                }
-            })
+            currentUserId = currentUserId
+        ) {
+            if (gameState.currentTrick.isFull()) {
+                nextTrickFun()
+            }
+        }
         Spacer(modifier = Modifier.weight(1f))
 
         JassComposables.CurrentPlayerBox(
-            playerEmail = currentUserEmail,
-            player = players[currentUserIdx],
+            player = players[currentUserId.ordinal],
         ) { card ->
             if (gameState.currentTrick.isFull()) {
                 nextTrickFun()
                 return@CurrentPlayerBox
             }
 
-            if ((players.indexOfFirst { it.email == gameState.startingPlayerEmail }
-                        + gameState.currentTrick.trickCards.size) % 4 != currentUserIdx) {
+            if ((players.indexOfFirst { it.id == gameState.startingPlayerId }
+                        + gameState.currentTrick.trickCards.size) % 4 != currentUserId.ordinal) {
                 Toast.makeText(
                     context,
                     "It is not your turn",
@@ -195,7 +194,7 @@ fun JassRound() {
                 return@CurrentPlayerBox
             }
 
-            if (!players[currentUserIdx]
+            if (!players[currentUserId.ordinal]
                     .playableCards(gameState.currentTrick, gameState.currentTrump)
                     .contains(card)
             ) {
@@ -207,9 +206,9 @@ fun JassRound() {
                 return@CurrentPlayerBox
             }
 
-            gameState = gameState.playCard(currentUserEmail, card, currentUserIdx)
+            gameState = gameState.playCard(currentUserId, card, currentUserId)
 
-            updatePlayer(currentUserEmail, card)
+            updatePlayer(currentUserId, card)
             GameStateHolder.gameState = gameState
             GameStateHolder.players = players
         }
@@ -220,11 +219,14 @@ fun JassRound() {
  * Composable for the current trick and the players in the middle (left and right opponents).
  */
 @Composable
-private fun JassMiddleRowInfo(gameState: GameState, players: List<PlayerData>, currentUserIdx: Int, onClick: () -> Unit) {
+private fun JassMiddleRowInfo(gameState: GameState, players: List<PlayerData>, currentUserId: PlayerId, onClick: () -> Unit) {
     Row() {
-        val leftPlayer = gameState.playerEmails[(currentUserIdx + 3) % 4]
+        val leftPlayer = currentUserId
+            .nextPlayer()
+            .nextPlayer()
+            .nextPlayer()
         JassComposables.PlayerBox(
-            playerData = players.first { it.email == leftPlayer },
+            playerData = players.first { it.id == leftPlayer },
             playerSpot = 3,
             modifier = Modifier
                 .fillMaxHeight(0.5F)
@@ -236,13 +238,13 @@ private fun JassMiddleRowInfo(gameState: GameState, players: List<PlayerData>, c
         CurrentTrick(
             gameState = gameState,
             players = players,
-            currentUserIdx = currentUserIdx,
+            currentUserId = currentUserId,
             onClick = onClick)
         Spacer(modifier = Modifier.weight(0.1f))
 
-        val rightPlayer = gameState.playerEmails[(currentUserIdx + 1) % 4]
+        val rightPlayer = currentUserId.nextPlayer()
         JassComposables.PlayerBox(
-            playerData = players.first { it.email == rightPlayer },
+            playerData = players.first { it.id == rightPlayer },
             playerSpot = 1, Modifier
                 .fillMaxHeight(0.5F)
                 .fillMaxWidth(0.25F)

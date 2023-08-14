@@ -6,6 +6,7 @@ import com.github.lucaengel.jass_entials.data.game_state.Bet
 import com.github.lucaengel.jass_entials.data.game_state.BetHeight
 import com.github.lucaengel.jass_entials.data.game_state.BettingState
 import com.github.lucaengel.jass_entials.data.game_state.GameState
+import com.github.lucaengel.jass_entials.data.game_state.PlayerId
 import com.github.lucaengel.jass_entials.data.jass.JassType
 import com.github.lucaengel.jass_entials.data.jass.Trump
 import org.hamcrest.CoreMatchers.`is`
@@ -17,30 +18,30 @@ class SchieberBettingLogicTest {
 
     private val defaultPlayerDatas = listOf(
         PlayerData().copy(
-            email = "email1",
+            id = PlayerId.PLAYER_1,
             firstName = "player1",
             cards = Deck.STANDARD_DECK.cards.subList(0, 9)),
         PlayerData().copy(
-            email = "email2",
+            id = PlayerId.PLAYER_2,
             firstName = "player2",
             cards = Deck.STANDARD_DECK.cards.subList(9, 18)),
         PlayerData().copy(
-            email = "email3",
+            id = PlayerId.PLAYER_3,
             firstName = "player3",
             cards = Deck.STANDARD_DECK.cards.subList(18, 27)),
         PlayerData().copy(
-            email = "email4",
+            id = PlayerId.PLAYER_4,
             firstName = "player4",
             cards = Deck.STANDARD_DECK.cards.subList(27, 36)),
     )
 
     private val defaultBettingState = BettingState(
-        currentUserIdx = 0,
-        playerEmails = defaultPlayerDatas.map { it.email },
-        currentBetterEmail = defaultPlayerDatas[0].email,
-        startingBetterEmail = defaultPlayerDatas[0].email,
+        currentUserId = PlayerId.PLAYER_1,
+        playerEmails = listOf(),
+        currentBetterId = defaultPlayerDatas[0].id,
+        startingBetterId = defaultPlayerDatas[0].id,
         jassType = JassType.SIDI_BARAHNI,
-        bets = listOf(Bet(defaultPlayerDatas[1].email, Trump.UNGER_UFE, BetHeight.HUNDRED)),
+        bets = listOf(Bet(defaultPlayerDatas[1].id, Trump.UNGER_UFE, BetHeight.HUNDRED)),
         betActions = listOf(Bet.BetAction.BET),
         gameState = GameState(),
     )
@@ -54,33 +55,33 @@ class SchieberBettingLogicTest {
         )
 
         val result = bettingLogic.nextPlayer(
-            currentBetterEmail = defaultPlayerDatas[1].email,
-            currentPlayerBet = Bet(defaultPlayerDatas[1].email, Trump.UNGER_UFE, BetHeight.HUNDRED),
+            currentBetter = defaultPlayerDatas[1].id,
+            currentPlayerBet = Bet(defaultPlayerDatas[1].id, Trump.UNGER_UFE, BetHeight.HUNDRED),
             bettingState = bettingState,
             )
-        assertThat(result, `is`(defaultPlayerDatas[1].email))
+        assertThat(result, `is`(defaultPlayerDatas[1].id))
     }
 
     @Test // team partner sits in the after next position
     fun ifCurrentPlayerPassesTheTeamPartnerIsReturned() {
         val bettingLogic = SchieberBettingLogic()
         val result = bettingLogic.nextPlayer(
-            currentBetterEmail = defaultPlayerDatas[1].email,
+            currentBetter = defaultPlayerDatas[1].id,
             currentPlayerBet = null,
             bettingState = defaultBettingState,
             )
-        assertThat(result, `is`(defaultPlayerDatas[3].email))
+        assertThat(result, `is`(defaultPlayerDatas[3].id))
     }
 
     @Test
     fun ifCurrentPlayerPassesTheTeamPartnerIsReturnedAlsoWorksWithListOverflow() {
         val bettingLogic = SchieberBettingLogic()
         val result = bettingLogic.nextPlayer(
-            currentBetterEmail = defaultPlayerDatas[3].email,
+            currentBetter = defaultPlayerDatas[3].id,
             currentPlayerBet = null,
             bettingState = defaultBettingState,
         )
-        assertThat(result, `is`(defaultPlayerDatas[1].email))
+        assertThat(result, `is`(defaultPlayerDatas[1].id))
     }
 
     @Test
@@ -91,7 +92,7 @@ class SchieberBettingLogicTest {
             betActions = listOf(Bet.BetAction.PASS, Bet.BetAction.PASS),
         )
         val result = bettingLogic.availableActions(
-            currentBetterEmail = defaultPlayerDatas[1].email,
+            currentBetter = defaultPlayerDatas[1].id,
             bettingState = bettingState,
         )
         assertThat(result, Matchers.containsInAnyOrder(Bet.BetAction.BET))
@@ -105,7 +106,7 @@ class SchieberBettingLogicTest {
             betActions = listOf(),
         )
         val noPassResult = bettingLogic.availableActions(
-            currentBetterEmail = defaultPlayerDatas[1].email,
+            currentBetter = defaultPlayerDatas[1].id,
             bettingState = noPassBettingState,
         )
 
@@ -119,7 +120,7 @@ class SchieberBettingLogicTest {
         )
 
         val onePassResult = bettingLogic.availableActions(
-            currentBetterEmail = defaultPlayerDatas[1].email,
+            currentBetter = defaultPlayerDatas[1].id,
             bettingState = onePassBettingState,
         )
 

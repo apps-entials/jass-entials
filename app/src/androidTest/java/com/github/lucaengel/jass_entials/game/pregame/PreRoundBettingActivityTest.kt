@@ -18,6 +18,7 @@ import com.github.lucaengel.jass_entials.data.game_state.BetHeight
 import com.github.lucaengel.jass_entials.data.game_state.BettingState
 import com.github.lucaengel.jass_entials.data.game_state.GameState
 import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
+import com.github.lucaengel.jass_entials.data.game_state.PlayerId
 import com.github.lucaengel.jass_entials.data.jass.JassType
 import com.github.lucaengel.jass_entials.data.jass.Trump
 import com.github.lucaengel.jass_entials.game.JassRoundActivity
@@ -36,30 +37,30 @@ class PreRoundBettingActivityTest {
 
     private val defaultPlayerDatas = listOf(
         PlayerData().copy(
-            email = "email1",
+            id = PlayerId.PLAYER_1,
             firstName = "player1",
             cards = Deck.STANDARD_DECK.cards.subList(0, 9)),
         PlayerData().copy(
-            email = "email2",
+            id = PlayerId.PLAYER_2,
             firstName = "player2",
             cards = Deck.STANDARD_DECK.cards.subList(9, 18)),
         PlayerData().copy(
-            email = "email3",
+            id = PlayerId.PLAYER_3,
             firstName = "player3",
             cards = Deck.STANDARD_DECK.cards.subList(18, 27)),
         PlayerData().copy(
-            email = "email4",
+            id = PlayerId.PLAYER_4,
             firstName = "player4",
             cards = Deck.STANDARD_DECK.cards.subList(27, 36)),
     )
 
     private val defaultBettingState = BettingState(
-        currentUserIdx = 0,
-        playerEmails = defaultPlayerDatas.map { it.email },
-        currentBetterEmail = defaultPlayerDatas[0].email,
-        startingBetterEmail = defaultPlayerDatas[0].email,
+        currentUserId = PlayerId.PLAYER_1,
+        playerEmails = listOf(),
+        currentBetterId = defaultPlayerDatas[0].id,
+        startingBetterId = defaultPlayerDatas[0].id,
         jassType = JassType.SIDI_BARAHNI,
-        bets = listOf(Bet(defaultPlayerDatas[1].email, Trump.UNGER_UFE, BetHeight.HUNDRED)),
+        bets = listOf(Bet(defaultPlayerDatas[1].id, Trump.UNGER_UFE, BetHeight.HUNDRED)),
         betActions = listOf(Bet.BetAction.BET),
         gameState = GameState(),
     )
@@ -73,8 +74,8 @@ class PreRoundBettingActivityTest {
     @Test
     fun inSidiBarahniPlaceBetAndStartGameButtonIsPresentIfCurrentPlayerPlacedLastBetAndItWasNotAMatch() {
         GameStateHolder.bettingState = defaultBettingState.copy(
-            currentBetterEmail = defaultPlayerDatas[0].email,
-            bets = listOf(Bet(defaultPlayerDatas[0].email, Trump.UNGER_UFE, BetHeight.HUNDRED)),
+            currentBetterId = defaultPlayerDatas[0].id,
+            bets = listOf(Bet(defaultPlayerDatas[0].id, Trump.UNGER_UFE, BetHeight.HUNDRED)),
             betActions = listOf(
                 Bet.BetAction.BET,
                 Bet.BetAction.PASS,
@@ -102,8 +103,8 @@ class PreRoundBettingActivityTest {
     @Test
     fun inSidiBarahniOnlyStartGameButtonIsPresentIfTheyAreTheLastBetterAndBidMatch() {
         GameStateHolder.bettingState = defaultBettingState.copy(
-            currentBetterEmail = defaultPlayerDatas[0].email,
-            bets = listOf(Bet(defaultPlayerDatas[0].email, Trump.UNGER_UFE, BetHeight.MATCH)),
+            currentBetterId = defaultPlayerDatas[0].id,
+            bets = listOf(Bet(defaultPlayerDatas[0].id, Trump.UNGER_UFE, BetHeight.MATCH)),
             betActions = listOf(
                 Bet.BetAction.BET,
                 Bet.BetAction.PASS,
@@ -132,9 +133,9 @@ class PreRoundBettingActivityTest {
     @Test
     fun heartsBettingSimulationSchieber() {
         GameStateHolder.bettingState = defaultBettingState.copy(
-            currentBetterEmail = defaultPlayerDatas[0].email,
+            currentBetterId = defaultPlayerDatas[0].id,
             jassType = JassType.SCHIEBER,
-            bets = listOf(Bet(defaultPlayerDatas[0].email, Trump.UNGER_UFE, BetHeight.MATCH)),
+            bets = listOf(Bet(defaultPlayerDatas[0].id, Trump.UNGER_UFE, BetHeight.MATCH)),
             betActions = listOf(
                 Bet.BetAction.BET,
                 Bet.BetAction.PASS,

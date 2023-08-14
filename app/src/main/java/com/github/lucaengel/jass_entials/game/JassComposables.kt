@@ -32,6 +32,7 @@ import androidx.compose.ui.zIndex
 import com.github.lucaengel.jass_entials.data.cards.Card
 import com.github.lucaengel.jass_entials.data.cards.PlayerData
 import com.github.lucaengel.jass_entials.data.game_state.GameState
+import com.github.lucaengel.jass_entials.data.game_state.PlayerId
 import kotlin.math.absoluteValue
 
 /**
@@ -44,11 +45,10 @@ class JassComposables {
         /**
          * Displays the current player's cards.
          *
-         * @param playerEmail The current player's data.
          * @param onPlayCard The callback to be called when a card is played.
          */
         @Composable
-        fun CurrentPlayerBox(playerEmail: String, player: PlayerData, onPlayCard: (Card) -> Unit = {}) {
+        fun CurrentPlayerBox(player: PlayerData, onPlayCard: (Card) -> Unit = {}) {
 
             val screenWidth = LocalConfiguration.current.screenWidthDp.dp
             val cardWidth = screenWidth.value / 10 * 1.5f
@@ -137,16 +137,16 @@ class JassComposables {
          * @param onClick The callback to be called when a card is clicked.
          **/
         @Composable
-        fun CurrentTrick(gameState: GameState, players: List<PlayerData>, currentUserIdx: Int, onClick: () -> Unit) {
+        fun CurrentTrick(gameState: GameState, players: List<PlayerData>, currentUserId: PlayerId, onClick: () -> Unit) {
 
             val currentTrick = gameState.currentTrick
-            val startingPlayerIdx = gameState.playerEmails.indexOfFirst { it == gameState.startingPlayerEmail }
+            val startingPlayerIdx = gameState.startingPlayerId.ordinal
 
             // 0 is bottom, 1 is right, 2 is top, 3 is left
             val idxToCards = (0..3)
-                // Triple: (location of card, i.e. 0 is bottom, ..., index of player in [players], z-index)
-                .map { idx -> Triple(idx, (currentUserIdx + idx) % 4, Math.floorMod(idx - startingPlayerIdx, 4)) }
-                .associate { (i, playerIdx, zIndex) -> i to Pair(currentTrick.trickCards.firstOrNull { it.email == players[playerIdx].email }?.card, zIndex) }
+                // Triple: (location of card (i.e. 0 is bottom, ...), index of player in [players], z-index)
+                .map { idx -> Triple(idx, (currentUserId.ordinal + idx) % 4, Math.floorMod(idx - startingPlayerIdx, 4)) }
+                .associate { (i, playerIdx, zIndex) -> i to Pair(currentTrick.trickCards.firstOrNull { it.playerId == players[playerIdx].id }?.card, zIndex) }
 
             val screenWidth = LocalConfiguration.current.screenWidthDp.dp
             val cardWidth = screenWidth.value / 10

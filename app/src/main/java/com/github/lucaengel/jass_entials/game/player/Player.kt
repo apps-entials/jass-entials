@@ -18,7 +18,7 @@ interface Player {
      * @param gameState the current game state
      * @return the card to play
      */
-    fun playCard(gameState: GameState, player: PlayerData): CompletableFuture<Card>
+    fun cardToPlay(gameState: GameState, player: PlayerData): CompletableFuture<Card>
 
     /**
      * Bets for the given betting state.
