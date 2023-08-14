@@ -35,6 +35,10 @@ data class Trick(
 
     constructor() : this(trickCards = listOf())
 
+    fun withNewCardPlayed(card: Card, email: String): Trick {
+        return this.copy(trickCards = trickCards + TrickCard(card, email))
+    }
+
     /**
      * Returns true if the trick is full, i.e. if 4 cards have been played.
      *

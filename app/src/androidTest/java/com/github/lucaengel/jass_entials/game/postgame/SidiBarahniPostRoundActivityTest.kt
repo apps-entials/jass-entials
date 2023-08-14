@@ -52,10 +52,10 @@ class SidiBarahniPostRoundActivityTest {
         currentRoundTrickWinners = listOf(
             Trick.TrickWinner(playerData1.email,
             Trick(listOf(
-                Trick.TrickCard(Card(Rank.ACE, Suit.HEARTS), playerData1.email),
-                Trick.TrickCard(Card(Rank.KING, Suit.HEARTS), playerData2.email),
-                Trick.TrickCard(Card(Rank.SIX, Suit.HEARTS), playerData3.email),
-                Trick.TrickCard(Card(Rank.TEN, Suit.HEARTS), playerData4.email))))),
+                Trick.TrickCard(Card(Suit.HEARTS, Rank.ACE), playerData1.email),
+                Trick.TrickCard(Card(Suit.HEARTS, Rank.KING), playerData2.email),
+                Trick.TrickCard(Card(Suit.HEARTS, Rank.SIX), playerData3.email),
+                Trick.TrickCard(Card(Suit.HEARTS, Rank.TEN), playerData4.email))))),
         currentTrickNumber = 1,
         currentTrump = Trump.OBE_ABE,
         winningBet = Bet(),

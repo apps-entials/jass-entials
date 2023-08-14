@@ -80,7 +80,7 @@ fun JassRound() {
     val opponents by remember {
         mutableStateOf(gameState.playerEmails
             .filter { email -> email != gameState.playerEmails[currentUserIdx] }
-            .map { email -> email to CpuPlayer(email) }
+            .map { email -> email to CpuPlayer(playerEmail = email) }
         )}
 
     val nextTrickFun: () -> Unit = {
@@ -142,7 +142,7 @@ fun JassRound() {
 
         val player = opponents.first { it.first == currentPlayerEmail }.second
         setToThinking(currentPlayerEmail)
-        player.playCard(gameState, players.first { it.email == currentPlayerEmail })
+        player.cardToPlay(gameState, players.first { it.email == currentPlayerEmail })
             .thenAccept {
                 setToNormalName(currentPlayerEmail)
 

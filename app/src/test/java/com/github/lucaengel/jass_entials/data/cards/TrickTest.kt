@@ -57,8 +57,8 @@ class TrickTest {
         for (i in 0..3) {
             trick = trick.copy(trickCards = trick.trickCards + Trick.TrickCard(
                 Card(
-                    Rank.SIX,
-                    Suit.CLUBS
+                    Suit.CLUBS,
+                    Rank.SIX
                 ), "email_1"
             )
             )
@@ -70,10 +70,10 @@ class TrickTest {
     @Test
     fun winnerReturnsHighestCardPlayerOfStartingSuit() {
         val trick = Trick(listOf(
-            Trick.TrickCard(Card(Rank.SEVEN, Suit.HEARTS), "1"),
-            Trick.TrickCard(Card(Rank.ACE, Suit.DIAMONDS), "2"),
-            Trick.TrickCard(Card(Rank.EIGHT, Suit.HEARTS), "3"),
-            Trick.TrickCard(Card(Rank.SEVEN, Suit.CLUBS), "4"),
+            Trick.TrickCard(Card(Suit.HEARTS, Rank.SEVEN), "1"),
+            Trick.TrickCard(Card(Suit.DIAMONDS, Rank.ACE), "2"),
+            Trick.TrickCard(Card(Suit.HEARTS, Rank.EIGHT), "3"),
+            Trick.TrickCard(Card(Suit.CLUBS, Rank.SEVEN), "4"),
         ))
         assertThat(trick.winner(Trump.SPADES).playerEmail, `is`("3"))
     }
@@ -81,10 +81,10 @@ class TrickTest {
     @Test
     fun winnerReturnsHighestTrumpPlayer() {
         val trick = Trick(listOf(
-            Trick.TrickCard(Card(Rank.SEVEN, Suit.CLUBS), "1"),
-            Trick.TrickCard(Card(Rank.ACE, Suit.DIAMONDS), "2"),
-            Trick.TrickCard(Card(Rank.EIGHT, Suit.HEARTS), "3"),
-            Trick.TrickCard(Card(Rank.SEVEN, Suit.CLUBS), "4"),
+            Trick.TrickCard(Card(Suit.CLUBS, Rank.SEVEN), "1"),
+            Trick.TrickCard(Card(Suit.DIAMONDS, Rank.ACE), "2"),
+            Trick.TrickCard(Card(Suit.HEARTS, Rank.EIGHT), "3"),
+            Trick.TrickCard(Card(Suit.CLUBS, Rank.SEVEN), "4"),
         ))
         assertThat(trick.winner(Trump.HEARTS).playerEmail, `is`("3"))
     }
@@ -92,10 +92,10 @@ class TrickTest {
     @Test
     fun winnerReturnsCorrectPlayerForUngerUfe() {
         val trick = Trick(listOf(
-            Trick.TrickCard(Card(Rank.ACE, Suit.CLUBS), "1"),
-            Trick.TrickCard(Card(Rank.ACE, Suit.DIAMONDS), "2"),
-            Trick.TrickCard(Card(Rank.EIGHT, Suit.HEARTS), "3"),
-            Trick.TrickCard(Card(Rank.SIX, Suit.CLUBS), "4"),
+            Trick.TrickCard(Card(Suit.CLUBS, Rank.ACE), "1"),
+            Trick.TrickCard(Card(Suit.DIAMONDS, Rank.ACE), "2"),
+            Trick.TrickCard(Card(Suit.HEARTS, Rank.EIGHT), "3"),
+            Trick.TrickCard(Card(Suit.CLUBS, Rank.SIX), "4"),
         ))
         assertThat(trick.winner(Trump.UNGER_UFE).playerEmail, `is`("4"))
     }
@@ -106,9 +106,9 @@ class TrickTest {
             Trick.TrickWinner(
                 defaultPlayerDatas[0].email,
                 Trick(listOf(
-                Trick.TrickCard(Card(Rank.ACE, Suit.CLUBS), "1"),
-                Trick.TrickCard(Card(Rank.ACE, Suit.DIAMONDS), "2"),
-                Trick.TrickCard(Card(Rank.EIGHT, Suit.HEARTS), "3"),
+                Trick.TrickCard(Card(Suit.CLUBS, Rank.ACE), "1"),
+                Trick.TrickCard(Card(Suit.DIAMONDS, Rank.ACE), "2"),
+                Trick.TrickCard(Card(Suit.HEARTS, Rank.EIGHT), "3"),
                 ))
             )
         }
@@ -120,10 +120,10 @@ class TrickTest {
             Trick.TrickWinner(
                 "nonExistentMail",
                 Trick(listOf(
-                    Trick.TrickCard(Card(Rank.ACE, Suit.CLUBS), "1"),
-                    Trick.TrickCard(Card(Rank.ACE, Suit.DIAMONDS), "2"),
-                    Trick.TrickCard(Card(Rank.EIGHT, Suit.HEARTS), "3"),
-                    Trick.TrickCard(Card(Rank.NINE, Suit.HEARTS), "4"),
+                    Trick.TrickCard(Card(Suit.CLUBS, Rank.ACE), "1"),
+                    Trick.TrickCard(Card(Suit.DIAMONDS, Rank.ACE), "2"),
+                    Trick.TrickCard(Card(Suit.HEARTS, Rank.EIGHT), "3"),
+                    Trick.TrickCard(Card(Suit.HEARTS, Rank.NINE), "4"),
                 ))
             )
         }
@@ -132,10 +132,10 @@ class TrickTest {
     @Test
     fun trickWinnerWorksForLegalInputs() {
         val trick = Trick(listOf(
-            Trick.TrickCard(Card(Rank.ACE, Suit.CLUBS), "1"),
-            Trick.TrickCard(Card(Rank.ACE, Suit.DIAMONDS), "2"),
-            Trick.TrickCard(Card(Rank.EIGHT, Suit.HEARTS), "3"),
-            Trick.TrickCard(Card(Rank.NINE, Suit.HEARTS), "4"),
+            Trick.TrickCard(Card(Suit.CLUBS, Rank.ACE), "1"),
+            Trick.TrickCard(Card(Suit.DIAMONDS, Rank.ACE), "2"),
+            Trick.TrickCard(Card(Suit.HEARTS, Rank.EIGHT), "3"),
+            Trick.TrickCard(Card(Suit.HEARTS, Rank.NINE), "4"),
         ))
 
         val trickWinner = Trick.TrickWinner(

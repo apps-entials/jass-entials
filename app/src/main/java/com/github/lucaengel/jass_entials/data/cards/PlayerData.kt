@@ -69,7 +69,7 @@ data class PlayerData(
         // as you are allowed to keep the jack of trump even if you could play it as long as you have other cards
         if (playableCards.size == 1
             && trumpSuit != null
-            && playableCards.first() == Card(Rank.JACK, trumpSuit)) {
+            && playableCards.first() == Card(trumpSuit, Rank.JACK)) {
             return cards
         }
 

@@ -78,10 +78,10 @@ class GameStateTest {
         val gameState = GameState().copy(
             currentTrick = Trick(
                 listOf(
-                    Trick.TrickCard(Card(Rank.NINE, Suit.CLUBS), defaultPlayerDatas[0].email),
-                    Trick.TrickCard(Card(Rank.EIGHT, Suit.CLUBS), defaultPlayerDatas[1].email),
-                    Trick.TrickCard(Card(Rank.ACE, Suit.CLUBS), defaultPlayerDatas[2].email),
-                    Trick.TrickCard(Card(Rank.SIX, Suit.CLUBS), defaultPlayerDatas[3].email),
+                    Trick.TrickCard(Card(Suit.CLUBS, Rank.NINE), defaultPlayerDatas[0].email),
+                    Trick.TrickCard(Card(Suit.CLUBS, Rank.EIGHT), defaultPlayerDatas[1].email),
+                    Trick.TrickCard(Card(Suit.CLUBS, Rank.ACE), defaultPlayerDatas[2].email),
+                    Trick.TrickCard(Card(Suit.CLUBS, Rank.SIX), defaultPlayerDatas[3].email),
                 )
             ),
             currentTrump = Trump.CLUBS,
@@ -98,10 +98,10 @@ class GameStateTest {
         val gameState = GameState().copy(
             currentTrick = Trick(
                 listOf(
-                    Trick.TrickCard(Card(Rank.NINE, Suit.CLUBS), defaultPlayerDatas[0].email),
-                    Trick.TrickCard(Card(Rank.EIGHT, Suit.CLUBS), defaultPlayerDatas[1].email),
-                    Trick.TrickCard(Card(Rank.ACE, Suit.CLUBS), defaultPlayerDatas[2].email),
-                    Trick.TrickCard(Card(Rank.SIX, Suit.CLUBS), defaultPlayerDatas[3].email),
+                    Trick.TrickCard(Card(Suit.CLUBS, Rank.NINE), defaultPlayerDatas[0].email),
+                    Trick.TrickCard(Card(Suit.CLUBS, Rank.EIGHT), defaultPlayerDatas[1].email),
+                    Trick.TrickCard(Card(Suit.CLUBS, Rank.ACE), defaultPlayerDatas[2].email),
+                    Trick.TrickCard(Card(Suit.CLUBS, Rank.SIX), defaultPlayerDatas[3].email),
                 )
             ),
             currentTrump = Trump.CLUBS,
@@ -117,10 +117,10 @@ class GameStateTest {
     fun pointsAreCalculatedCorrectlyAfterAllCardsArePlayed() {
         val trick = Trick(
             listOf(
-                Trick.TrickCard(Card(Rank.NINE, Suit.CLUBS), defaultPlayerDatas[0].email),
-                Trick.TrickCard(Card(Rank.EIGHT, Suit.CLUBS), defaultPlayerDatas[1].email),
-                Trick.TrickCard(Card(Rank.ACE, Suit.CLUBS), defaultPlayerDatas[2].email),
-                Trick.TrickCard(Card(Rank.SIX, Suit.CLUBS), defaultPlayerDatas[3].email),
+                Trick.TrickCard(Card(Suit.CLUBS, Rank.NINE), defaultPlayerDatas[0].email),
+                Trick.TrickCard(Card(Suit.CLUBS, Rank.EIGHT), defaultPlayerDatas[1].email),
+                Trick.TrickCard(Card(Suit.CLUBS, Rank.ACE), defaultPlayerDatas[2].email),
+                Trick.TrickCard(Card(Suit.CLUBS, Rank.SIX), defaultPlayerDatas[3].email),
             )
         )
 

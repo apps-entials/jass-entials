@@ -41,7 +41,7 @@ data class Deck(val cards: List<Card> = listOf()) {
         val STANDARD_DECK = Deck(
             Suit.values().flatMap { suit ->
                 Rank.values().map { rank ->
-                    Card(rank, suit)
+                    Card(suit, rank)
                 }
             }
         )
