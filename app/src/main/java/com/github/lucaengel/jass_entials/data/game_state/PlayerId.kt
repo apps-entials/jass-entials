@@ -21,7 +21,7 @@ enum class PlayerId {
      * @param positions The number of positions to the right.
      * @return The player [positions] to the right of the current player.
      */
-    fun nextPlayer(positions: Int): PlayerId {
+    fun playerAtPosition(positions: Int): PlayerId {
         return PlayerId.values()[(this.ordinal + positions) % PlayerId.values().size]
     }
 

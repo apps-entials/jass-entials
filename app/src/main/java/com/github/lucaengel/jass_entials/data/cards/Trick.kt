@@ -14,16 +14,6 @@ data class Trick(
     val trump: Trump,
 ) {
 
-//    /**
-//     * Represents the winner of a trick.
-//     */
-//    data class TrickWinner(val playerId: PlayerId, val trick: Trick) {
-//        init {
-//            if (trick.cards.size != GameStateHolder.players.size)
-//                throw IllegalArgumentException("A trick must have exactly as many cards as there are players to be completed.")
-//        }
-//    }
-
     fun withNewCardPlayed(card: Card): Trick {
         if (isFull())
             throw IllegalStateException("Cannot add card to trick that is already full.")
@@ -39,6 +29,14 @@ data class Trick(
             cards = listOf(),
             startingPlayerId = winner(),
         )
+    }
+
+    fun cardForPlayer(playerId: PlayerId): Card? {
+        return cards.getOrNull(playerId.trickPosition(startingPlayerId))
+    }
+
+    fun playerForCard(card: Card): PlayerId? {
+        return cards.indexOf(card).let { if (it == -1) null else startingPlayerId.playerAtPosition(it) }
     }
 
     /**
@@ -67,7 +65,7 @@ data class Trick(
             }
         }
 
-        return startingPlayerId.nextPlayer(position)
+        return startingPlayerId.playerAtPosition(position)
     }
 
     /**
