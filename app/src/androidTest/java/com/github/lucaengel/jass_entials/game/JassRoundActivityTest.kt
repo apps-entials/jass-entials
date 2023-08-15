@@ -11,13 +11,13 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.lucaengel.jass_entials.data.cards.Deck
 import com.github.lucaengel.jass_entials.data.cards.PlayerData
-import com.github.lucaengel.jass_entials.data.cards.Trick
 import com.github.lucaengel.jass_entials.data.game_state.Bet
 import com.github.lucaengel.jass_entials.data.game_state.BetHeight
 import com.github.lucaengel.jass_entials.data.game_state.BettingState
 import com.github.lucaengel.jass_entials.data.game_state.GameState
 import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
 import com.github.lucaengel.jass_entials.data.game_state.PlayerId
+import com.github.lucaengel.jass_entials.data.game_state.RoundState
 import com.github.lucaengel.jass_entials.data.jass.JassType
 import com.github.lucaengel.jass_entials.data.jass.Trump
 import org.hamcrest.MatcherAssert.assertThat
@@ -80,10 +80,11 @@ class JassRoundActivityTest {
         currentPlayerId = playerData1.id,
         startingPlayerId = playerData1.id,
         currentRound = 1,
-        currentTrick = Trick(Deck.STANDARD_DECK.cards.subList(0, 4).mapIndexed { index, card -> Trick.TrickCard(card, players[index].id) }),
-        currentRoundTrickWinners = listOf(),
-        currentTrickNumber = 1,
-        currentTrump = Trump.UNGER_UFE,
+        roundState = RoundState.initial(startingPlayerId = playerData1.id, trump = Trump.UNGER_UFE)
+            .withCardPlayed(Deck.STANDARD_DECK.cards[0])
+            .withCardPlayed(Deck.STANDARD_DECK.cards[1])
+            .withCardPlayed(Deck.STANDARD_DECK.cards[2])
+            .withCardPlayed(Deck.STANDARD_DECK.cards[3]),
         winningBet = Bet(playerData1.id, Trump.UNGER_UFE, BetHeight.SIXTY),
         playerCards = Deck.STANDARD_DECK.dealCards(),
     )
@@ -122,7 +123,7 @@ class JassRoundActivityTest {
                 composeTestRule.onNodeWithContentDescription(it.toString()).assertExists()
             }
 
-            val trickCards = GameStateHolder.gameState.currentTrick.trickCards.map { it.card }
+            val trickCards = GameStateHolder.gameState.roundState.trick().cards
             trickCards.forEach {
                 composeTestRule.onNodeWithContentDescription(it.toString()).assertExists()
             }
@@ -144,12 +145,12 @@ class JassRoundActivityTest {
                 .performClick() // play the card
 
             assertThat(GameStateHolder.players[GameStateHolder.gameState.currentUserId.ordinal].cards.contains(cardToPlay), `is`(false))
-            assertThat(GameStateHolder.gameState.currentTrick.trickCards.map { it.card }.contains(cardToPlay), `is`(true))
+            assertThat(GameStateHolder.gameState.roundState.trick().cards.contains(cardToPlay), `is`(true))
         }
     }
 
     @Test
-    fun emptyingTrickWithTrickClickThenplayingACardRemovesItFromThePlayersHand() {
+    fun emptyingTrickWithTrickClickThenPlayingACardRemovesItFromThePlayersHand() {
         ActivityScenario.launch<JassRoundActivity>(defaultJassRoundIntent).use {
             val currentPlayer =
                 GameStateHolder.players[GameStateHolder.gameState.currentUserId.ordinal]
@@ -169,7 +170,7 @@ class JassRoundActivityTest {
                 .performClick() // play the card
 
             assertThat(GameStateHolder.players[GameStateHolder.gameState.currentUserId.ordinal].cards.contains(cardToPlay), `is`(false))
-            assertThat(GameStateHolder.gameState.currentTrick.trickCards.map { it.card }.contains(cardToPlay), `is`(true))
+            assertThat(GameStateHolder.gameState.roundState.trick().cards.contains(cardToPlay), `is`(true))
         }
     }
 }

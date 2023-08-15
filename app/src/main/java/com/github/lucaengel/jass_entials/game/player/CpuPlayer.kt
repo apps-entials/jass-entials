@@ -18,7 +18,7 @@ import kotlin.random.Random
 class CpuPlayer(val playerId: PlayerId, private val threadSleepTime: Long = 300) : Player {
 
     override fun cardToPlay(gameState: GameState, player: PlayerData): CompletableFuture<Card> {
-        val card = player.playableCards(gameState.currentTrick, gameState.currentTrump).random()
+        val card = player.playableCards(gameState.roundState.trick(), gameState.roundState.trick().trump).random()
 
         // TODO: maybe update player data here and return it as well
 
@@ -53,7 +53,7 @@ class CpuPlayer(val playerId: PlayerId, private val threadSleepTime: Long = 300)
                         Bet(
                             playerId = playerId,
                             bet = bettingState.availableBets().first(),
-                            suit = bettingState.availableTrumps().random(),
+                            trump = bettingState.availableTrumps().random(),
                         )
                     )
                 )

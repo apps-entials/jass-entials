@@ -1,7 +1,6 @@
 package com.github.lucaengel.jass_entials.data.game_state
 
 import com.github.lucaengel.jass_entials.data.cards.PlayerData
-import com.github.lucaengel.jass_entials.data.cards.Trick
 import com.github.lucaengel.jass_entials.data.jass.JassType
 import com.github.lucaengel.jass_entials.data.jass.Trump
 import junit.framework.TestCase.assertTrue
@@ -120,10 +119,7 @@ class BettingStateTest {
             currentPlayerId = defaultPlayerDatas[0].id,
             startingPlayerId = defaultPlayerDatas[0].id,
             currentRound = 0,
-            currentTrick = Trick(),
-            currentRoundTrickWinners = listOf(),
-            currentTrickNumber = 0,
-            currentTrump = Trump.UNGER_UFE,
+            roundState = RoundState.initial(defaultPlayerDatas[0].id, winningBet.trump),
             winningBet = winningBet,
             playerCards = defaultPlayerDatas.associate { it.id to it.cards }
         )

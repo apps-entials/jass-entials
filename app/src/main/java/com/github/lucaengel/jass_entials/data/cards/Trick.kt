@@ -1,40 +1,44 @@
 package com.github.lucaengel.jass_entials.data.cards
 
-import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
 import com.github.lucaengel.jass_entials.data.game_state.PlayerId
 import com.github.lucaengel.jass_entials.data.jass.Trump
 
 /**
  * A trick is a collection of cards played by each player in a round.
  *
- * @param trickCards A list of pairs of cards and the player who played them.
+ * @param cards A list of pairs of cards and the player who played them.
  */
 data class Trick(
-    val trickCards: List<TrickCard>,
+    val cards: List<Card>,
+    val startingPlayerId: PlayerId,
+    val trump: Trump,
 ) {
 
-    /**
-     * A card played by a player.
-     */
-    data class TrickCard(
-        val card: Card,
-        val playerId: PlayerId,
-    )
+//    /**
+//     * Represents the winner of a trick.
+//     */
+//    data class TrickWinner(val playerId: PlayerId, val trick: Trick) {
+//        init {
+//            if (trick.cards.size != GameStateHolder.players.size)
+//                throw IllegalArgumentException("A trick must have exactly as many cards as there are players to be completed.")
+//        }
+//    }
 
-    /**
-     * Represents the winner of a trick.
-     */
-    data class TrickWinner(val playerId: PlayerId, val trick: Trick) {
-        init {
-            if (trick.trickCards.size != GameStateHolder.players.size)
-                throw IllegalArgumentException("A trick must have exactly as many cards as there are players to be completed.")
-        }
+    fun withNewCardPlayed(card: Card): Trick {
+        if (isFull())
+            throw IllegalStateException("Cannot add card to trick that is already full.")
+
+        return this.copy(cards = cards + card)
     }
 
-    constructor() : this(trickCards = listOf())
+    fun nextTrick(): Trick {
+        if (!isFull())
+            throw IllegalStateException("Cannot move on to next trick if current trick is not full.")
 
-    fun withNewCardPlayed(card: Card, playerId: PlayerId): Trick {
-        return this.copy(trickCards = trickCards + TrickCard(card, playerId))
+        return this.copy(
+            cards = listOf(),
+            startingPlayerId = winner(),
+        )
     }
 
     /**
@@ -43,32 +47,41 @@ data class Trick(
      * @return True if the trick is full.
      */
     fun isFull(): Boolean {
-        return trickCards.size == 4
+        return cards.size == 4
     }
 
     /**
      * Returns the player who played the highest card in the trick.
      *
-     * @param trump The trump of the round.
      * @return The player who played the highest card.
      */
-    fun winner(trump: Trump): TrickWinner {
-        return trickCards.foldRight(trickCards.first()) { (card, playerId), prevWinner ->
-            if (prevWinner.card.isHigherThan(card, trump)) {
-                prevWinner
+    fun winner(): PlayerId {
+        if (!isFull())
+            throw IllegalStateException("Cannot determine winner of trick that is not full.")
+
+        val (_, position) = cards.foldRightIndexed(Pair(cards.first(), 0)) { idx, card, (highestCard, position) ->
+            if (highestCard.isHigherThan(card, trump)) {
+                Pair(highestCard, position)
             } else {
-                TrickCard(card, playerId)
+                Pair(card, idx)
             }
-        }.playerId.let { TrickWinner(it, this) }
+        }
+
+        return startingPlayerId.nextPlayer(position)
     }
 
     /**
      * Returns the points of the trick.
      *
-     * @param trump The trump of the round.
      * @return The points of the trick.
      */
-    fun points(trump: Trump): Int {
-        return trickCards.sumOf { it.card.points(trump) }
+    fun points(): Int {
+        return cards.sumOf { it.points(trump) }
+    }
+
+    companion object {
+        fun initial(startingPlayerId: PlayerId, trump: Trump): Trick {
+            return Trick(listOf(), startingPlayerId, trump)
+        }
     }
 }

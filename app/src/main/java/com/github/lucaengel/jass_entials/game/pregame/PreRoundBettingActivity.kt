@@ -279,7 +279,7 @@ private fun MiddleRowInfo(bettingState: BettingState, players: List<PlayerData>,
                 val lastBet = bettingState.bets.last()
                 val lastBetter = players.first { it.id == lastBet.playerId }
                 Text(
-                    text = "${lastBet.bet} ${lastBet.suit} by\n" +
+                    text = "${lastBet.bet} ${lastBet.trump} by\n" +
                         "${lastBetter.firstName} ${lastBetter.lastName}",
                     textAlign = TextAlign.Center,
                     maxLines = 3,
@@ -340,7 +340,7 @@ fun BettingRow(
             val lastBetter = players.first { it.id == lastBet.playerId }
 
             Text(
-                text = "${lastBet.bet} ${lastBet.suit} by\n" +
+                text = "${lastBet.bet} ${lastBet.trump} by\n" +
                         "${lastBetter.firstName} ${lastBetter.lastName}",
                 textAlign = TextAlign.Center,
                 maxLines = 3,

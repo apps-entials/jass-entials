@@ -38,9 +38,8 @@ data class PlayerData(
      * @return the cards that can be played
      */
     fun playableCards(trick: Trick, trump: Trump): List<Card> {
-        val firstCard = trick.trickCards
+        val firstCard = trick.cards
             .firstOrNull()
-            ?.card
             ?: return cards // no card has been played yet --> can play any card
 
         // cards of the suit of the first card played
@@ -94,13 +93,13 @@ data class PlayerData(
 
         var playableTrumpCards = trumpCards
 
-        return when (trick.trickCards.indexOfFirst { it.card.suit == trump }) {
+        return when (trick.cards.indexOfFirst { it.suit == trump }) {
             -1 -> playableTrumpCards // no trump has been played yet
             0 -> playableTrumpCards // first card is trump --> can play any trump
             else -> { // no under trumping (ungertrumpfe) possible
-                val maxTrumpRank = trick.trickCards.maxOf {
-                    if (it.card.suit == trump)
-                        it.card.rank.trumpHeight
+                val maxTrumpRank = trick.cards.maxOf {
+                    if (it.suit == trump)
+                        it.rank.trumpHeight
                     else
                         Rank.SIX.trumpHeight
                 }

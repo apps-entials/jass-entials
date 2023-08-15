@@ -170,7 +170,7 @@ fun JassRound() {
             players = players,
             currentUserId = currentUserId
         ) {
-            if (gameState.currentTrick.isFull()) {
+            if (gameState.roundState.trick().isFull()) {
                 nextTrickFun()
             }
         }
@@ -179,13 +179,13 @@ fun JassRound() {
         JassComposables.CurrentPlayerBox(
             player = players[currentUserId.ordinal],
         ) { card ->
-            if (gameState.currentTrick.isFull()) {
+            if (gameState.roundState.trick().isFull()) {
                 nextTrickFun()
                 return@CurrentPlayerBox
             }
 
             if ((players.indexOfFirst { it.id == gameState.startingPlayerId }
-                        + gameState.currentTrick.trickCards.size) % 4 != currentUserId.ordinal) {
+                        + gameState.roundState.trick().cards.size) % 4 != currentUserId.ordinal) {
                 Toast.makeText(
                     context,
                     "It is not your turn",
@@ -195,7 +195,7 @@ fun JassRound() {
             }
 
             if (!players[currentUserId.ordinal]
-                    .playableCards(gameState.currentTrick, gameState.currentTrump)
+                    .playableCards(gameState.roundState.trick(), gameState.roundState.trick().trump)
                     .contains(card)
             ) {
                 Toast.makeText(

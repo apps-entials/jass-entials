@@ -2,7 +2,6 @@ package com.github.lucaengel.jass_entials.data.game_state
 
 import com.github.lucaengel.jass_entials.data.cards.Deck
 import com.github.lucaengel.jass_entials.data.cards.PlayerData
-import com.github.lucaengel.jass_entials.data.cards.Trick
 import com.github.lucaengel.jass_entials.data.jass.JassType
 import com.github.lucaengel.jass_entials.data.jass.Trump
 
@@ -60,10 +59,11 @@ class GameStateHolder {
             currentPlayerId = playerData1.id,
             startingPlayerId = playerData1.id,
             currentRound = 1,
-            currentTrick = Trick(shuffledDeck.cards.subList(0, 4).mapIndexed { i, c -> Trick.TrickCard(c, players[i].id) }),
-            currentRoundTrickWinners = listOf(),
-            currentTrickNumber = 1,
-            currentTrump = Trump.UNGER_UFE,
+            roundState = RoundState.initial(startingPlayerId = playerData2.id, trump = Trump.CLUBS)
+                .withCardPlayed(Deck.STANDARD_DECK.cards[0])
+                .withCardPlayed(Deck.STANDARD_DECK.cards[1])
+                .withCardPlayed(Deck.STANDARD_DECK.cards[2])
+                .withCardPlayed(Deck.STANDARD_DECK.cards[3]),
             winningBet = Bet(playerData2.id, Trump.CLUBS, BetHeight.FORTY),
             playerCards = Deck.STANDARD_DECK.dealCards(),
         )

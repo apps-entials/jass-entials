@@ -53,7 +53,7 @@ fun ScoreSheet() {
         PlayerId.values()
             .map {
                 val player = players.first { p -> p.id == it }
-                Text(text = "${player.firstName} ${player.lastName}: ${gameState.points(it)}")
+                Text(text = "${player.firstName} ${player.lastName}: ${gameState.roundState.score().roundPoints(it.team())}")
             }
 
         Button(

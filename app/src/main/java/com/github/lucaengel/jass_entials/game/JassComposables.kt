@@ -133,20 +133,29 @@ class JassComposables {
          *
          * @param gameState The current game state.
          * @param players The list of playerData's.
-         * @param currentUserIdx The index of the current user in [players].
+         * @param currentUserId The id of the current user.
          * @param onClick The callback to be called when a card is clicked.
          **/
         @Composable
         fun CurrentTrick(gameState: GameState, players: List<PlayerData>, currentUserId: PlayerId, onClick: () -> Unit) {
 
-            val currentTrick = gameState.currentTrick
-            val startingPlayerIdx = gameState.startingPlayerId.ordinal
+            val currentTrick = gameState.roundState.trick()
+            gameState.startingPlayerId.ordinal
+            val startingPlayerId = gameState.startingPlayerId
+
+            // playerId to (card, z-index)
+            val playerToCard = mapOf(
+                startingPlayerId to Pair(currentTrick.cards.getOrNull(0), 0),
+                startingPlayerId.nextPlayer() to Pair(currentTrick.cards.getOrNull(1), 1),
+                startingPlayerId.nextPlayer().nextPlayer() to Pair(currentTrick.cards.getOrNull(2), 2),
+                startingPlayerId.nextPlayer().nextPlayer().nextPlayer() to Pair(currentTrick.cards.getOrNull(3), 3),
+            )
 
             // 0 is bottom, 1 is right, 2 is top, 3 is left
-            val idxToCards = (0..3)
-                // Triple: (location of card (i.e. 0 is bottom, ...), index of player in [players], z-index)
-                .map { idx -> Triple(idx, (currentUserId.ordinal + idx) % 4, Math.floorMod(idx - startingPlayerIdx, 4)) }
-                .associate { (i, playerIdx, zIndex) -> i to Pair(currentTrick.trickCards.firstOrNull { it.playerId == players[playerIdx].id }?.card, zIndex) }
+//            val idxToCards = (0..3)
+//                // Triple: (location of card (i.e. 0 is bottom, ...), index of player in [players], z-index)
+//                .map { idx -> Triple(idx, (currentUserId.ordinal + idx) % 4, Math.floorMod(idx - startingPlayerIdx, 4)) }
+//                .associate { (i, playerIdx, zIndex) -> i to Pair(currentTrick.cards.firstOrNull { it.playerId == players[playerIdx].id }?.card, zIndex) }
 
             val screenWidth = LocalConfiguration.current.screenWidthDp.dp
             val cardWidth = screenWidth.value / 10
@@ -161,33 +170,33 @@ class JassComposables {
                 // (also need to remove rotate modifier to go back)
 
                 // Card at the top middle
-                Column(modifier = Modifier.zIndex(idxToCards[2]?.second?.toFloat() ?: 0f)) {
+                Column(modifier = Modifier.zIndex(playerToCard[currentUserId.teamMate()]?.second?.toFloat() ?: 0f)) {
                     CardBox(
-                        card = idxToCards[2]?.first,
+                        card = playerToCard[currentUserId.teamMate()]?.first,
                         onClick = onClick,
                         cardWidth = cardWidth.dp
                     )
                 }
 
                 // Card at the bottom middle
-                Column(modifier = Modifier.zIndex(idxToCards[0]?.second?.toFloat() ?: 0f)) {
+                Column(modifier = Modifier.zIndex(playerToCard[currentUserId]?.second?.toFloat() ?: 0f)) {
                     Spacer(modifier = Modifier.height((cardHeight - 2 * cardWidth / 3).dp) /*(cardHeight * 2 / 3).dp*/)
 
                     CardBox(
-                        card = idxToCards[0]?.first,
+                        card = playerToCard[currentUserId]?.first,
                         onClick = onClick,
                         cardWidth = cardWidth.dp
                     )
                 }
 
                 // Card in the middle on the left
-                Column(modifier = Modifier.zIndex(idxToCards[3]?.second?.toFloat() ?: 0f)) {
+                Column(modifier = Modifier.zIndex(playerToCard[currentUserId.teamMate().nextPlayer()]?.second?.toFloat() ?: 0f)) {
                     // if it should be on the same height as the end of the top card, use: cardWidth
                     Spacer(modifier = Modifier.height(((cardHeight - 2 * cardWidth / 3) / 2).dp/*(cardHeight / 3).dp*/))
 
                     Row {
                         CardBox(
-                            card = idxToCards[3]?.first,
+                            card = playerToCard[currentUserId.teamMate().nextPlayer()]?.first,
                             onClick = onClick,
                             cardWidth = cardWidth.dp,
                             zRotation = 90f
@@ -198,14 +207,14 @@ class JassComposables {
                 }
 
                 // Card in the middle on the right
-                Column(modifier = Modifier.zIndex(idxToCards[1]?.second?.toFloat() ?: 0f)) {
+                Column(modifier = Modifier.zIndex(playerToCard[currentUserId.nextPlayer()]?.second?.toFloat() ?: 0f)) {
                     Spacer(modifier = Modifier.height(((cardHeight - 2 * cardWidth / 3) / 2).dp/*(cardHeight / 3).dp*/))
 
                     Row {
                         Spacer(modifier = Modifier.width((cardHeight - 2 * cardWidth / 3/*cardWidth * 1.25f*/).dp))
 
                         CardBox(
-                            card = idxToCards[1]?.first,
+                            card = playerToCard[currentUserId.nextPlayer()]?.first,
                             onClick = onClick,
                             cardWidth = cardWidth.dp,
                             zRotation = 90f

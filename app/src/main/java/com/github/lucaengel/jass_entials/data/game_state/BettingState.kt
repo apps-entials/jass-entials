@@ -1,7 +1,6 @@
 package com.github.lucaengel.jass_entials.data.game_state
 
 import com.github.lucaengel.jass_entials.data.cards.Deck
-import com.github.lucaengel.jass_entials.data.cards.Trick
 import com.github.lucaengel.jass_entials.data.jass.JassType
 import com.github.lucaengel.jass_entials.data.jass.Trump
 import com.github.lucaengel.jass_entials.game.betting.BettingLogic
@@ -110,7 +109,7 @@ data class BettingState(
      */
     fun availableTrumps(): List<Trump> {
         if (bets.lastOrNull()?.playerId == currentBetterId) {
-            return Trump.values().filter { it != bets.last().suit }
+            return Trump.values().filter { it != bets.last().trump }
         }
 
         return Trump.values().toList()
@@ -132,10 +131,10 @@ data class BettingState(
             currentPlayerId = if (jassType == JassType.SCHIEBER) startingBetterId else bets.last().playerId,
             startingPlayerId = if (jassType == JassType.SCHIEBER) startingBetterId else bets.last().playerId,
             currentRound = 0,
-            currentTrick = Trick(),
-            currentRoundTrickWinners = listOf(),
-            currentTrickNumber = 0,
-            currentTrump = bets.last().suit,
+            roundState = RoundState.initial(
+                startingPlayerId = if (jassType == JassType.SCHIEBER) startingBetterId else bets.last().playerId,
+                trump = bets.last().trump,
+            ),
             winningBet = bets.last(),
             playerCards = GameStateHolder.players.associate { it.id to it.cards },
         )
@@ -146,10 +145,10 @@ data class BettingState(
  * Represents a bet that has been placed by a player.
  *
  * @param playerId the player who placed the bet
- * @param suit the selected trump suit for the bet
+ * @param trump the selected trump suit for the bet
  * @param bet the bet height
  */
-data class Bet(val playerId: PlayerId, val suit: Trump, val bet: BetHeight) {
+data class Bet(val playerId: PlayerId, val trump: Trump, val bet: BetHeight) {
 
     constructor(): this(PlayerId.PLAYER_1, Trump.HEARTS, BetHeight.NONE)
 
@@ -165,7 +164,7 @@ data class Bet(val playerId: PlayerId, val suit: Trump, val bet: BetHeight) {
 
     override fun toString(): String {
         val player = GameStateHolder.players.first { it.id == playerId }
-        return "$suit${if (bet == BetHeight.NONE) "" else bet} by ${player.firstName} ${player.lastName}"
+        return "$trump${if (bet == BetHeight.NONE) "" else bet} by ${player.firstName} ${player.lastName}"
     }
 }
 

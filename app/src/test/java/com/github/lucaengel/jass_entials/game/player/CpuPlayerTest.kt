@@ -2,13 +2,13 @@ package com.github.lucaengel.jass_entials.game.player
 
 import com.github.lucaengel.jass_entials.data.cards.Deck
 import com.github.lucaengel.jass_entials.data.cards.PlayerData
-import com.github.lucaengel.jass_entials.data.cards.Trick
 import com.github.lucaengel.jass_entials.data.game_state.Bet
 import com.github.lucaengel.jass_entials.data.game_state.BetHeight
 import com.github.lucaengel.jass_entials.data.game_state.BettingState
 import com.github.lucaengel.jass_entials.data.game_state.GameState
 import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
 import com.github.lucaengel.jass_entials.data.game_state.PlayerId
+import com.github.lucaengel.jass_entials.data.game_state.RoundState
 import com.github.lucaengel.jass_entials.data.jass.JassType
 import com.github.lucaengel.jass_entials.data.jass.Trump
 import org.hamcrest.MatcherAssert.assertThat
@@ -44,10 +44,7 @@ class CpuPlayerTest {
         currentPlayerId = defaultPlayerDatas[0].id,
         startingPlayerId = defaultPlayerDatas[0].id,
         currentRound = 0,
-        currentTrick = Trick(),
-        currentRoundTrickWinners = listOf(),
-        currentTrickNumber = 0,
-        currentTrump = Trump.CLUBS,
+        roundState = RoundState.initial(defaultPlayerDatas[0].id, Trump.CLUBS),
         winningBet = Bet(),
         playerCards = defaultPlayerDatas.associate { it.id to it.cards },
     )
