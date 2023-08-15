@@ -142,7 +142,7 @@ fun JassRound() {
 
         val player = opponents.first { it.first == currentPlayerId }.second
         setToThinking(currentPlayerId)
-        player.cardToPlay(gameState, players.first { it.id == currentPlayerId })
+        player.cardToPlay(gameState.roundState, players.first { it.id == currentPlayerId }.cards)
             .thenAccept {
                 setToNormalName(currentPlayerId)
 

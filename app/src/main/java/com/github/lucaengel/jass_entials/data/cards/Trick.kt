@@ -39,6 +39,21 @@ data class Trick(
         return cards.indexOf(card).let { if (it == -1) null else startingPlayerId.playerAtPosition(it) }
     }
 
+    fun lastPlayer(): PlayerId {
+        return startingPlayerId.playerAtPosition(cards.size - 1)
+    }
+
+    /**
+     * Returns the player who is next to play a card.
+     */
+    fun nextPlayer(): PlayerId {
+        return startingPlayerId.playerAtPosition(cards.size)
+    }
+
+    fun size(): Int {
+        return cards.size
+    }
+
     /**
      * Returns true if the trick is full, i.e. if 4 cards have been played.
      *

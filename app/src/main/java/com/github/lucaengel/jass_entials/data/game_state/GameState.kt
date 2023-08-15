@@ -31,7 +31,7 @@ data class GameState(
         currentPlayerId = PlayerId.PLAYER_1,
         startingPlayerId = PlayerId.PLAYER_1,
         currentRound = 0,
-        roundState = RoundState.initial(PlayerId.PLAYER_1, Trump.CLUBS),
+        roundState = RoundState.initial(Trump.CLUBS, PlayerId.PLAYER_1),
         winningBet = Bet(PlayerId.PLAYER_1, Trump.CLUBS, BetHeight.NONE),
         playerCards = mapOf(),
     )
@@ -42,7 +42,7 @@ data class GameState(
      * @return true iff it is the last trick of the round
      */
     fun isLastTrick(): Boolean {
-        return roundState.isLastTrick()
+        return roundState.isRoundOver()
     }
 
     /**

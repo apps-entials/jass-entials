@@ -44,7 +44,7 @@ class CpuPlayerTest {
         currentPlayerId = defaultPlayerDatas[0].id,
         startingPlayerId = defaultPlayerDatas[0].id,
         currentRound = 0,
-        roundState = RoundState.initial(defaultPlayerDatas[0].id, Trump.CLUBS),
+        roundState = RoundState.initial(Trump.CLUBS, defaultPlayerDatas[0].id),
         winningBet = Bet(),
         playerCards = defaultPlayerDatas.associate { it.id to it.cards },
     )
@@ -72,7 +72,7 @@ class CpuPlayerTest {
         val player = CpuPlayer(defaultPlayerDatas[0].id, 0)
         val playerData = GameStateHolder.players.first { it.id == player.playerId }
         val oldCards = playerData.cards
-        val card = player.cardToPlay(defaultGameState, playerData).join()
+        val card = player.cardToPlay(defaultGameState.roundState, playerData.cards).join()
 
         assertTrue(oldCards.contains(card))
         // TODO: maybe also update the player in this method and return it in a pair?

@@ -80,7 +80,7 @@ class JassRoundActivityTest {
         currentPlayerId = playerData1.id,
         startingPlayerId = playerData1.id,
         currentRound = 1,
-        roundState = RoundState.initial(startingPlayerId = playerData1.id, trump = Trump.UNGER_UFE)
+        roundState = RoundState.initial(trump = Trump.UNGER_UFE, startingPlayerId = playerData1.id)
             .withCardPlayed(Deck.STANDARD_DECK.cards[0])
             .withCardPlayed(Deck.STANDARD_DECK.cards[1])
             .withCardPlayed(Deck.STANDARD_DECK.cards[2])

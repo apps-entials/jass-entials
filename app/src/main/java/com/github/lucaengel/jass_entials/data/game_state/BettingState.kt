@@ -132,8 +132,8 @@ data class BettingState(
             startingPlayerId = if (jassType == JassType.SCHIEBER) startingBetterId else bets.last().playerId,
             currentRound = 0,
             roundState = RoundState.initial(
-                startingPlayerId = if (jassType == JassType.SCHIEBER) startingBetterId else bets.last().playerId,
                 trump = bets.last().trump,
+                startingPlayerId = if (jassType == JassType.SCHIEBER) startingBetterId else bets.last().playerId,
             ),
             winningBet = bets.last(),
             playerCards = GameStateHolder.players.associate { it.id to it.cards },

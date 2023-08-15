@@ -74,7 +74,7 @@ class SidiBarahniPostRoundActivityTest {
         currentPlayerId= playerData1.id,
         startingPlayerId= playerData1.id,
         currentRound = 1,
-        roundState = RoundState.initial(startingPlayerId = playerData1.id, trump = Trump.CLUBS),
+        roundState = RoundState.initial(trump = Trump.CLUBS, startingPlayerId = playerData1.id),
         winningBet = Bet(),
         playerCards = Deck.STANDARD_DECK.dealCards(),
     )

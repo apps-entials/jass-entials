@@ -44,6 +44,13 @@ data class RoundState(
     }
 
     /**
+     * Returns the player who is next to play a card.
+     */
+    fun nextPlayer(): PlayerId {
+        return trick.nextPlayer()
+    }
+
+    /**
      * Returns a new [RoundState] with the given [startingPlayerId] and [trump].
      *
      * @throws IllegalStateException If the current round is not finished.
@@ -67,7 +74,7 @@ data class RoundState(
         )
     }
 
-    fun isLastTrick(): Boolean {
+    fun isRoundOver(): Boolean {
         return trickNumber > JassConstants.TRICKS_PER_ROUND
     }
 
@@ -119,7 +126,7 @@ data class RoundState(
          * @param trump The trump of the round.
          * @return The new [RoundState].
          */
-        fun initial(startingPlayerId: PlayerId, trump: Trump): RoundState {
+        fun initial(trump: Trump, startingPlayerId: PlayerId): RoundState {
             return RoundState(
                 score = Score.INITIAL,
                 unplayedCards = Deck.STANDARD_DECK.cards,

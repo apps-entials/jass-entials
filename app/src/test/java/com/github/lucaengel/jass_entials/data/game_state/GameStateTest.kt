@@ -42,7 +42,7 @@ class GameStateTest {
         currentPlayerId = defaultPlayerDatas[0].id,
         startingPlayerId = defaultPlayerDatas[0].id,
         currentRound = 0,
-        roundState = RoundState.initial(defaultPlayerDatas[0].id, Trump.SPADES),
+        roundState = RoundState.initial(Trump.SPADES, defaultPlayerDatas[0].id),
         winningBet = Bet(),
         playerCards = defaultPlayerDatas.associate { it.id to it.cards },
     )
@@ -56,14 +56,20 @@ class GameStateTest {
     @Test
     fun isLastTrickReturnsTrueOnlyWhenCurrentTrickNumberIsPastNine() {
         for (i in 1..10) {
-            val gameState = GameState().copy(roundState = RoundState.initial(PlayerId.PLAYER_1, Trump.HEARTS).copy(trickNumber = i))
+            val gameState = GameState().copy(roundState = RoundState.initial(
+                Trump.HEARTS,
+                PlayerId.PLAYER_1
+            ).copy(trickNumber = i))
             assertThat(gameState.isLastTrick(), `is`(i == 10))
         }
     }
 
     @Test
     fun nextTrickThrowsIfCurrentTrickIsNotFull() {
-        val gameState = defaultGameState.copy(roundState = RoundState.initial(PlayerId.PLAYER_1, Trump.HEARTS).copy(trick = Trick.initial(PlayerId.PLAYER_1, Trump.HEARTS)))
+        val gameState = defaultGameState.copy(roundState = RoundState.initial(
+            Trump.HEARTS,
+            PlayerId.PLAYER_1
+        ).copy(trick = Trick.initial(PlayerId.PLAYER_1, Trump.HEARTS)))
 
         assertThrows(IllegalStateException::class.java) {
             gameState.nextTrick()
@@ -73,7 +79,7 @@ class GameStateTest {
     @Test
     fun nextTrickContainsNoCardsAndCorrectStartingPlayer() {
         val gameState = GameState().copy(
-            roundState = RoundState.initial(PlayerId.PLAYER_1, Trump.HEARTS).copy(trick = Trick.initial(defaultPlayerDatas[0].id, Trump.OBE_ABE)
+            roundState = RoundState.initial(Trump.HEARTS, PlayerId.PLAYER_1).copy(trick = Trick.initial(defaultPlayerDatas[0].id, Trump.OBE_ABE)
                     .withNewCardPlayed(Card(Suit.CLUBS, Rank.NINE))
                     .withNewCardPlayed(Card(Suit.CLUBS, Rank.EIGHT))
                     .withNewCardPlayed(Card(Suit.CLUBS, Rank.ACE))
@@ -88,7 +94,7 @@ class GameStateTest {
     @Test
     fun pointsAreCalculatedCorrectly() {
         val gameState = GameState().copy(
-            roundState = RoundState.initial(PlayerId.PLAYER_1, Trump.HEARTS).copy(trick = Trick.initial(defaultPlayerDatas[0].id, Trump.CLUBS)
+            roundState = RoundState.initial(Trump.HEARTS, PlayerId.PLAYER_1).copy(trick = Trick.initial(defaultPlayerDatas[0].id, Trump.CLUBS)
                     .withNewCardPlayed(Card(Suit.CLUBS, Rank.NINE))
                     .withNewCardPlayed(Card(Suit.CLUBS, Rank.EIGHT))
                     .withNewCardPlayed(Card(Suit.CLUBS, Rank.ACE))

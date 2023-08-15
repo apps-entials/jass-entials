@@ -119,7 +119,7 @@ class BettingStateTest {
             currentPlayerId = defaultPlayerDatas[0].id,
             startingPlayerId = defaultPlayerDatas[0].id,
             currentRound = 0,
-            roundState = RoundState.initial(defaultPlayerDatas[0].id, winningBet.trump),
+            roundState = RoundState.initial(winningBet.trump, defaultPlayerDatas[0].id),
             winningBet = winningBet,
             playerCards = defaultPlayerDatas.associate { it.id to it.cards }
         )

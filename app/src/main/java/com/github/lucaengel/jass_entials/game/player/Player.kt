@@ -1,9 +1,9 @@
 package com.github.lucaengel.jass_entials.game.player
 
 import com.github.lucaengel.jass_entials.data.cards.Card
-import com.github.lucaengel.jass_entials.data.cards.PlayerData
 import com.github.lucaengel.jass_entials.data.game_state.BettingState
 import com.github.lucaengel.jass_entials.data.game_state.GameState
+import com.github.lucaengel.jass_entials.data.game_state.RoundState
 import com.github.lucaengel.jass_entials.data.jass.Trump
 import java.util.concurrent.CompletableFuture
 
@@ -15,10 +15,10 @@ interface Player {
     /**
      * Plays a card from the player's hand for the given game state.
      *
-     * @param gameState the current game state
+     * @param roundState the current game state
      * @return the card to play
      */
-    fun cardToPlay(gameState: GameState, player: PlayerData): CompletableFuture<Card>
+    fun cardToPlay(roundState: RoundState, handCards: List<Card>): CompletableFuture<Card>
 
     /**
      * Bets for the given betting state.
