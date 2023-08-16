@@ -39,17 +39,29 @@ data class Trick(
         return cards.indexOf(card).let { if (it == -1) null else startingPlayerId.playerAtPosition(it) }
     }
 
+    /**
+     * Returns the player who played the last card in the current trick.
+     *
+     * @return The player who played the last card.
+     */
     fun lastPlayer(): PlayerId {
         return startingPlayerId.playerAtPosition(cards.size - 1)
     }
 
     /**
      * Returns the player who is next to play a card.
+     *
+     * @return The player who is next to play a card.
      */
     fun nextPlayer(): PlayerId {
         return startingPlayerId.playerAtPosition(cards.size)
     }
 
+    /**
+     * Returns the number of cards in the trick.
+     *
+     * @return The number of cards in the trick.
+     */
     fun size(): Int {
         return cards.size
     }

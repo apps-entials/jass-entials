@@ -110,7 +110,7 @@ data class Card(
     }
 
     override fun toString(): String {
-        return "$rank${suit.symbol}"
+        return "${suit.symbol}$rank"
     }
 
     companion object {

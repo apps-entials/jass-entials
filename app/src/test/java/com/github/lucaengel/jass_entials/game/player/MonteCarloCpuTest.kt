@@ -17,8 +17,10 @@ import java.util.concurrent.TimeUnit
 
 class MonteCarloCpuTest {
 
-    private val SEED: Int = 0
-    private val ITERATIONS = 10000
+    companion object {
+        private const val SEED = 0L
+        private const val ITERATIONS = 10_000
+    }
 
     /**
      * Timeout for all tests in this class.
@@ -27,10 +29,10 @@ class MonteCarloCpuTest {
     @Rule
     val globalTimeout = Timeout(15, TimeUnit.SECONDS)
 
-    private data class CardSet(val cards: Set<Card>) {
+    private data class CardSet(val cards: List<Card>) {
         companion object {
-            val EMPTY = CardSet(emptySet())
-            val ALL_CARDS = CardSet(Deck.STANDARD_DECK.cards.toSet())
+            val EMPTY = CardSet(emptyList())
+            val ALL_CARDS = CardSet(Deck.STANDARD_DECK.cards)
         }
 
         fun add(card: Card): CardSet {
@@ -347,20 +349,25 @@ class MonteCarloCpuTest {
             .remove(Card(Suit.HEARTS, Rank.SIX))
             .remove(Card(Suit.HEARTS, Rank.SEVEN))
             .remove(Card(Suit.HEARTS, Rank.KING))
+
             .remove(Card(Suit.CLUBS, Rank.SIX))
             .remove(Card(Suit.CLUBS, Rank.SEVEN))
             .remove(Card(Suit.CLUBS, Rank.KING))
             .remove(Card(Suit.CLUBS, Rank.ACE))
+
             .remove(Card(Suit.DIAMONDS, Rank.ACE))
+
         val state: RoundState = stateAfterPlayingAllCardsIn(toPlay, Trump.DIAMONDS, PlayerId.PLAYER_1)
             .withCardPlayed(Card(Suit.CLUBS, Rank.SEVEN))
             .withCardPlayed(Card(Suit.CLUBS, Rank.SIX))
             .withCardPlayed(Card(Suit.HEARTS, Rank.SEVEN))
         assert(state.trick().cards.size == 3)
+
         val p = CpuPlayer(state.nextPlayer(), seed = SEED, nbSimulations = ITERATIONS)
         val hand: CardSet = CardSet.EMPTY
             .add(Card(Suit.DIAMONDS, Rank.ACE))
             .add(Card(Suit.HEARTS, Rank.KING))
+
 //        assertTimeoutPreemptively(TIMEOUT) {
         val c: Card = p.cardToPlay(state, hand.cards()).join()
         assertEquals(

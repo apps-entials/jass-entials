@@ -20,9 +20,9 @@ import kotlin.random.Random
  *
  * @property playerId the player data
  */
-class CpuPlayer(val playerId: PlayerId, val seed: Int = Random.nextInt(), private val nbSimulations: Int = 9, private val threadSleepTime: Long = 300) : Player {
+class CpuPlayer(val playerId: PlayerId, val seed: Long = Random.nextLong(), private val nbSimulations: Int = 9, private val threadSleepTime: Long = 300) : Player {
     private val EXPLORATION_CONSTANT = 40
-    private val rng = SplittableRandom(seed.toLong())
+    private val rng = SplittableRandom(seed)
 
     init {
         if (nbSimulations < 9) {
@@ -114,18 +114,16 @@ class CpuPlayer(val playerId: PlayerId, val seed: Int = Random.nextInt(), privat
     private fun monteCarloCardToPlay(roundState: RoundState, handCards: List<Card>): Card {
         val playableCards = determinePlayableCards(roundState, roundState.nextPlayer(), handCards)
 
-        println("total child nodes: " + playableCards.size)
         val root = Node(
             roundState = roundState,
             childNodes = ArrayList(List(playableCards.size) { null }),
             nonExistentChildNodes = playableCards,
-            totalPoints = 0.0,
+            totalPoints = 0,
             nbTurnsSimulated = 0,
         )
 
         while (root.nbTurnsSimulated < nbSimulations) {
             val path = addNodeAndGetPath(root, handCards)
-//            println("path: $path")
             val score = simulateRandomRound(path.last().roundState, handCards)
 
             root.nbTurnsSimulated++
@@ -136,25 +134,10 @@ class CpuPlayer(val playerId: PlayerId, val seed: Int = Random.nextInt(), privat
                 val nodeTrick = node.roundState.trick()
 
                 node.totalPoints += score.roundPoints(nodeTrick.lastPlayer().team())
-//                node.totalPoints = node.totalPoints / node.nbTurnsSimulated * (node.nbTurnsSimulated - 1) +
-//                        score.gamePoints(nodeTrick.lastPlayer().team()) / node.nbTurnsSimulated
             }
         }
-
-        for ((idx, child) in root.childNodes.withIndex()) {
-
-            if (child != null) {
-                val trick = child.roundState.trick()
-                println("selected (idx, card): " + idx + ", " + trick.cards[trick.size() - 1])
-
-            }
-        }
-
 
         val trick = root.childNodes[root.getBestChildIndex(0)]!!.roundState.trick()
-
-        println("Actual sel (idx, card): " + root.getBestChildIndex(0) + " "+ trick.cards[trick.size() - 1])
-//        println("round state: " + root.childNodes[root.getBestChildIndex(0)]!!.roundState)
 
         // need last player who played a card
         return trick.cards[trick.size() - 1]
@@ -171,10 +154,7 @@ class CpuPlayer(val playerId: PlayerId, val seed: Int = Random.nextInt(), privat
     private fun addNodeAndGetPath(root: Node, handCards: List<Card>): List<Node> {
 
         var currNode = root
-//        val path = mutableListOf(root)
         val path: MutableList<Node> = mutableListOf()
-
-
 
         // scan for node with non-existent child nodes and who does not have a child yet
         while (currNode.nonExistentChildNodes.isEmpty()
@@ -190,7 +170,6 @@ class CpuPlayer(val playerId: PlayerId, val seed: Int = Random.nextInt(), privat
         // as all cards have been simulated
         if (currNode.childNodes.isEmpty()) return path
 
-        if (i++ < 5) println("after the if")
         val cardToPlay = currNode.nonExistentChildNodes[0]
         var currState =
             (if (currNode.roundState.trick().isFull()) {
@@ -202,11 +181,6 @@ class CpuPlayer(val playerId: PlayerId, val seed: Int = Random.nextInt(), privat
         // add card of the current player
         currState = currState.withCardPlayed(cardToPlay)
 
-        if (i++ < 5) println("curr trick: ${currState.trick()}")
-
-//        if (currState.trick().isFull()) {
-//            currState = currState.withTrickCollected()
-//        }
         val nextPlayer =
             if (currState.trick().isFull()) {
                 currState.trick().winner()
@@ -215,29 +189,23 @@ class CpuPlayer(val playerId: PlayerId, val seed: Int = Random.nextInt(), privat
             }
 
         // playable cards of the next player
-        val newPlayableCards = determinePlayableCards(currState, currState.nextPlayer(), handCards)
-
-        if (i++ < 5) println("new playable cards: $newPlayableCards")
+        val newPlayableCards = determinePlayableCards(currState, nextPlayer, handCards)
 
 
         val newLeaf = Node(
             roundState = currState,
             childNodes = ArrayList(List(newPlayableCards.size) { null }),
             nonExistentChildNodes = newPlayableCards.toMutableList(),
-            totalPoints = 0.0,
+            totalPoints = 0,
             nbTurnsSimulated = 0,
         )
-        // todo: change it to replace!!!
+
         val index = currNode.childNodes.size - currNode.nonExistentChildNodes.size
 
         currNode.nonExistentChildNodes -= cardToPlay
-
-        if (i++ < 6) println("index to insert: $index")
-
         currNode.childNodes.add(index, newLeaf)
 
         path.add(newLeaf)
-
         return path
     }
 
@@ -259,11 +227,12 @@ class CpuPlayer(val playerId: PlayerId, val seed: Int = Random.nextInt(), privat
 
         while (!currState.isRoundOver()) {
             val playableCards = determinePlayableCards(currState, currState.nextPlayer(), handCards)
-//            println("hand cards: $handCards")
-//            println("playable cards: $playableCards")
+
             if (playableCards.isEmpty()) break // todo: check why isRoundOver() does not work
 
-            val cardToPlay = playableCards[rng.nextInt(playableCards.size)]
+            val num = rng.nextInt(playableCards.size)
+            val cardToPlay = playableCards[num]
+
             currState = currState.withCardPlayed(cardToPlay)
 
             if (currState.trick().isFull()) {
@@ -293,7 +262,6 @@ class CpuPlayer(val playerId: PlayerId, val seed: Int = Random.nextInt(), privat
 
         if (state.isRoundOver()) return listOf()
 
-
         val cards =
             if (playerId == this.playerId) {
                 handCards.intersect(state.unplayedCards().toSet()).toList()
@@ -320,7 +288,7 @@ class CpuPlayer(val playerId: PlayerId, val seed: Int = Random.nextInt(), privat
         val roundState: RoundState,
         var childNodes: ArrayList<Node?>,
         var nonExistentChildNodes: List<Card>,
-        var totalPoints: Double,
+        var totalPoints: Int,
         var nbTurnsSimulated: Int,
     ) {
 
@@ -345,10 +313,6 @@ class CpuPlayer(val playerId: PlayerId, val seed: Int = Random.nextInt(), privat
                 val currV = child.totalPoints / child.nbTurnsSimulated.toDouble() +
                         c * sqrt(2 * ln(nbTurnsSimulated.toDouble()) / child.nbTurnsSimulated.toDouble())
 
-                if (c == 0) {
-                    println("child: ${child.totalPoints}")
-                    println("current (v, idx): ($currV, $idx)")
-                }
                 if (currV > highestV) {
                     highestV = currV
                     bestChildIdx = idx

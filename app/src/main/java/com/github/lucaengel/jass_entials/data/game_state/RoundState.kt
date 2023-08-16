@@ -92,10 +92,11 @@ data class RoundState(
         return RoundState(
             score = score.withPointsAdded(trick.winner().team(), points),
             unplayedCards = unplayedCards,
-            trick = Trick.initial(
-                startingPlayerId = trick.winner(),
-                trump = trick.trump,
-            ),
+            trick = //trick.nextTrick(),
+                Trick.initial(
+                    startingPlayerId = trick.winner(),
+                    trump = trick.trump,
+                ),
             trickNumber = trickNumber + 1,
         )
     }
