@@ -4,11 +4,9 @@ import com.github.lucaengel.jass_entials.data.cards.Card
 import com.github.lucaengel.jass_entials.data.cards.PlayerData
 import com.github.lucaengel.jass_entials.data.game_state.Bet
 import com.github.lucaengel.jass_entials.data.game_state.BettingState
-import com.github.lucaengel.jass_entials.data.game_state.GameState
 import com.github.lucaengel.jass_entials.data.game_state.PlayerId
 import com.github.lucaengel.jass_entials.data.game_state.RoundState
 import com.github.lucaengel.jass_entials.data.game_state.Score
-import com.github.lucaengel.jass_entials.data.jass.Trump
 import java.util.SplittableRandom
 import java.util.concurrent.CompletableFuture
 import kotlin.math.ln
@@ -20,8 +18,15 @@ import kotlin.random.Random
  *
  * @property playerId the player data
  */
-class CpuPlayer(val playerId: PlayerId, val seed: Long = Random.nextLong(), private val nbSimulations: Int = 9, private val threadSleepTime: Long = 300) : Player {
-    private val EXPLORATION_CONSTANT = 40
+class CpuPlayer(
+    val playerId: PlayerId,
+    val seed: Long = Random.nextLong(),
+    private val nbSimulations: Int = 9
+) : Player {
+    companion object {
+        private const val EXPLORATION_CONSTANT = 40
+    }
+
     private val rng = SplittableRandom(seed)
 
     init {
@@ -33,76 +38,38 @@ class CpuPlayer(val playerId: PlayerId, val seed: Long = Random.nextLong(), priv
 
     override fun bet(bettingState: BettingState): CompletableFuture<BettingState> {
 
-        val bettingFuture = CompletableFuture<BettingState>()
-        CompletableFuture.runAsync {
-            Thread.sleep(3*threadSleepTime)
+        if ((bettingState.availableActions().contains(Bet.BetAction.PASS))
+            && (Random.nextFloat() > 0.2 || bettingState.availableBets().isEmpty())) {
 
-            if ((bettingState.availableActions().contains(Bet.BetAction.PASS))
-                && (Random.nextFloat() > 0.2 || bettingState.availableBets().isEmpty())) {
+            return CompletableFuture.completedFuture(bettingState.nextPlayer())
 
-                bettingFuture.complete(bettingState.nextPlayer())
-            // if player can start the game, do it with a 80% chance
-            // if player has to start the game, do it (available actions only contains start game)
-            } else if (bettingState.availableActions().contains(Bet.BetAction.START_GAME)
-                && (Random.nextFloat() > 0.2 || bettingState.availableActions().size == 1)) {
+        // if player can start the game, do it with a 80% chance
+        // if player has to start the game, do it (available actions only contains start game)
+        } else if (bettingState.availableActions().contains(Bet.BetAction.START_GAME)
+            && (Random.nextFloat() > 0.2 || bettingState.availableActions().size == 1)) {
 
-                bettingFuture.complete(bettingState.nextPlayer())
-            } else {
-                bettingFuture.complete(
-                    bettingState.nextPlayer(
-                        Bet(
-                            playerId = playerId,
-                            bet = bettingState.availableBets().first(),
-                            trump = bettingState.availableTrumps().random(),
-                        )
+            return CompletableFuture.completedFuture(bettingState.nextPlayer())
+        } else {
+            return CompletableFuture.completedFuture(
+                bettingState.nextPlayer(
+                    Bet(
+                        playerId = playerId,
+                        bet = bettingState.availableBets().first(),
+                        trump = bettingState.availableTrumps().random(),
                     )
                 )
-            }
+            )
         }
-        return bettingFuture
-    }
-
-    override fun chooseTrump(gameState: GameState): CompletableFuture<Trump> {
-        TODO("Not yet implemented")
     }
 
     override fun cardToPlay(roundState: RoundState, handCards: List<Card>): CompletableFuture<Card> {
-//        val card = player.playableCards(gameState.roundState.trick(), gameState.roundState.trick().trump).random()
-//
-//        // TODO: maybe update player data here and return it as well
-//
-//        val cardFuture = CompletableFuture<Card>()
-//        CompletableFuture.runAsync {
-//            Thread.sleep(threadSleepTime)
-//            cardFuture.complete(card)
-//        }
-//
-//        return cardFuture
-
-        val cardFuture = CompletableFuture<Card>()
-//        CompletableFuture.runAsync {
-            val card = monteCarloCardToPlay(
+        return CompletableFuture.completedFuture(
+            monteCarloCardToPlay(
                 roundState = roundState,
-                handCards = handCards,
+                handCards = handCards
             )
-            cardFuture.complete(card)
-//        }
-        return cardFuture
+        )
     }
-
-
-
-
-
-
-
-
-
-
-
-
-    var i = 0
-
 
     /**
      * Class representing a CPU player using the Monte Carlo Tree Search algorithm

@@ -31,7 +31,7 @@ import com.github.lucaengel.jass_entials.data.game_state.GameState
 import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
 import com.github.lucaengel.jass_entials.data.game_state.PlayerId
 import com.github.lucaengel.jass_entials.game.JassComposables.Companion.CurrentTrick
-import com.github.lucaengel.jass_entials.game.player.CpuPlayer
+import com.github.lucaengel.jass_entials.game.player.DelayedCpuPlayer
 import com.github.lucaengel.jass_entials.game.postgame.SidiBarahniPostRoundActivity
 import com.github.lucaengel.jass_entials.ui.theme.JassentialsTheme
 
@@ -80,7 +80,7 @@ fun JassRound() {
     val opponents by remember {
         mutableStateOf(PlayerId.values()
             .filter { id -> id != currentUserId }
-            .map { id -> id to CpuPlayer(playerId = id) }
+            .map { id -> id to DelayedCpuPlayer(playerId = id) }
         )}
 
     val nextTrickFun: () -> Unit = {

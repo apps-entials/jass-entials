@@ -80,7 +80,7 @@ class CpuPlayerTest {
 
     @Test
     fun cpuPlayerOnceInAWhileSelectsABet() {
-        val player = CpuPlayer(defaultPlayerDatas[0].id, threadSleepTime = 0)
+        val player = CpuPlayer(defaultPlayerDatas[0].id)
         val bettingState = defaultBettingState.copy(
             bets = listOf(Bet(defaultPlayerDatas[1].id, Trump.UNGER_UFE, BetHeight.FIFTY)),
         )

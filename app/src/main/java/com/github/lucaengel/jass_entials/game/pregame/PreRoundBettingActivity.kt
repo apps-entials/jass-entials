@@ -49,7 +49,7 @@ import com.github.lucaengel.jass_entials.data.jass.JassType
 import com.github.lucaengel.jass_entials.data.jass.Trump
 import com.github.lucaengel.jass_entials.game.JassComposables
 import com.github.lucaengel.jass_entials.game.JassRoundActivity
-import com.github.lucaengel.jass_entials.game.player.CpuPlayer
+import com.github.lucaengel.jass_entials.game.player.DelayedCpuPlayer
 import com.github.lucaengel.jass_entials.ui.theme.JassentialsTheme
 
 /**
@@ -94,7 +94,7 @@ fun BettingRound() {
         mutableStateOf(
             PlayerId.values()
             .filter { it != currentUserId }
-            .map { it to CpuPlayer(it) }
+            .map { it to DelayedCpuPlayer(playerId = it) }
         )}
 
     var tmpFirstName by remember { mutableStateOf(mapOf<PlayerId, String>().withDefault { "" }) }
