@@ -60,9 +60,6 @@ class PreRoundBettingActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        println("current user id gamestate: ${GameStateHolder.gameState.currentUserId}")
-        println("current user id bettingstate: ${GameStateHolder.bettingState.currentUserId}")
-
         setContent {
             MyPreview()
         }
@@ -426,7 +423,6 @@ fun BettingRow(
 
                     if ((selectedBet != BetHeight.NONE || bettingState.jassType != JassType.SIDI_BARAHNI) && selectedTrump != null) {
 
-                        println("bet placed!")
                         onBetPlace(
                             Bet(
                                 bettingState.currentBetterId,

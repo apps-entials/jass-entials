@@ -39,45 +39,7 @@ data class PlayerData(
      */
     fun playableCards(trick: Trick, trump: Trump): List<Card> {
         return playableCards(trick, trump, cards)
-//        val firstCard = trick.cards
-//            .firstOrNull()
-//            ?: return cards // no card has been played yet --> can play any card
-//
-//        // cards of the suit of the first card played
-//        val firstCardSuitCards = cardsOfSuit(firstCard.suit)
-//        // if the player does not have any cards of the suit of the first card played, they can play any card
-//        if (firstCardSuitCards.isEmpty())
-//            return cards
-//
-//        val trumpSuit = Trump.asSuit(trump)
-//
-//        // get trump cards (null if trump was unger ufe or obe abe)
-//        val trumpCards: List<Card> = if (trumpSuit != null) {
-//            cardsOfSuit(trumpSuit)
-//        } else {
-//            listOf()
-//        }
-//
-//
-//        // no under trumping (ungertrumpfe) possible
-//        val playableTrumpCards = playableTrumpCards(trumpCards, trick, trumpSuit)
-//
-//        val playableCards = (firstCardSuitCards + playableTrumpCards).distinct()
-//
-//        // if the player only has one card left and it is a jack of trump, they can play any card
-//        // as you are allowed to keep the jack of trump even if you could play it as long as you have other cards
-//        if (playableCards.size == 1
-//            && trumpSuit != null
-//            && playableCards.first() == Card(trumpSuit, Rank.JACK)) {
-//            return cards
-//        }
-//
-//        // no empty check needed since we already checked if
-//        // the player has cards of the suit of the first card played
-//        return playableCards
     }
-
-
 
     companion object {
         fun playableCards(trick: Trick, trump: Trump, cards: List<Card>): List<Card> {
@@ -113,9 +75,6 @@ data class PlayerData(
                 return cards.filter { it.suit != trumpSuit || it.isHigherThan(highestTrickTrumpCard, trump) }
             }
 
-
-
-
             // no under trumping (ungertrumpfe) possible
             val playableTrumpCards = playableTrumpCards(trumpCards, trick, trumpSuit)
 
@@ -130,12 +89,10 @@ data class PlayerData(
                 return cards
             }
 
-
             // no empty check needed since we already checked if
             // the player has cards of the suit of the first card played
             return playableCards
         }
-
 
         /**
          * Returns the trump cards that can be played for the given [trick] with the given [trump].
