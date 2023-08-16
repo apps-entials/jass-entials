@@ -85,12 +85,6 @@ data class PlayerData(
                 .firstOrNull()
                 ?: return cards // no card has been played yet --> can play any card
 
-            // cards of the suit of the first card played
-            val firstCardSuitCards = cardsOfSuit(firstCard.suit, cards)
-            // if the player does not have any cards of the suit of the first card played, they can play any card
-            if (firstCardSuitCards.isEmpty())
-                return cards
-
             val trumpSuit = Trump.asSuit(trump)
 
             // get trump cards (null if trump was unger ufe or obe abe)
@@ -99,6 +93,27 @@ data class PlayerData(
             } else {
                 listOf()
             }
+
+            // cards of the suit of the first card played
+            val firstCardSuitCards = cardsOfSuit(firstCard.suit, cards)
+
+            // if the player does not have any cards of the suit of the first card played, they can play any card
+            // as long as they do not under trump (ungertrumpfe)
+            if (firstCardSuitCards.isEmpty()) {
+                if (trumpSuit == null) return cards
+
+                val trickTrumpCards = cardsOfSuit(trumpSuit, trick.cards)
+
+                // if no trump lying, no under trumping (ungertrumpfe) possible
+                if (trickTrumpCards.isEmpty()) return cards
+
+                val highestTrickTrumpCard = trickTrumpCards
+                    .reduceRight { c1, c2 -> if (c1.isHigherThan(c2, trump)) c1 else c2 }
+
+                return cards.filter { it.suit != trumpSuit || it.isHigherThan(highestTrickTrumpCard, trump) }
+            }
+
+
 
 
             // no under trumping (ungertrumpfe) possible
@@ -114,6 +129,7 @@ data class PlayerData(
             ) {
                 return cards
             }
+
 
             // no empty check needed since we already checked if
             // the player has cards of the suit of the first card played

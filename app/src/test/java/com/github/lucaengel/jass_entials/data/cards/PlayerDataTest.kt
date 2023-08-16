@@ -352,7 +352,7 @@ class PlayerDataTest {
     }
 
     @Test
-    fun allCardsArePlayableIfASuitIsOutThatThePlayerDoesNotHaveAndThePlayerHasTrumpAndNonTrumpCards() {
+    fun allCardsArePlayableIfASuitIsOutThatThePlayerDoesNotHaveAndThePlayerHasTrumpAndNonTrumpCardsExceptUnderTrumping() {
         val player = defaultPlayerData.copy(cards = listOf(
             Card(Suit.HEARTS, Rank.TEN),
             Card(Suit.HEARTS, Rank.SIX),
@@ -364,17 +364,27 @@ class PlayerDataTest {
 
             Card(Suit.CLUBS, Rank.JACK),
             Card(Suit.CLUBS, Rank.TEN),
+            Card(Suit.CLUBS, Rank.SEVEN),
         ))
 
         val trick = Trick.initial(PlayerId.PLAYER_3, Trump.CLUBS)
             .withNewCardPlayed(Card(Suit.DIAMONDS, Rank.TEN))
-            .withNewCardPlayed(Card(Suit.CLUBS, Rank.TEN))
+            .withNewCardPlayed(Card(Suit.CLUBS, Rank.EIGHT))
 
         val playableCards = player.playableCards(trick, Trump.CLUBS)
 
         // All cards should be able to be played since the current player does not have any diamonds
         assertThat(playableCards, Matchers.containsInAnyOrder(
-            *player.cards.toTypedArray()
+            Card(Suit.HEARTS, Rank.TEN),
+            Card(Suit.HEARTS, Rank.SIX),
+            Card(Suit.HEARTS, Rank.NINE),
+
+            Card(Suit.SPADES, Rank.ACE),
+            Card(Suit.SPADES, Rank.SEVEN),
+            Card(Suit.SPADES, Rank.SIX),
+
+            Card(Suit.CLUBS, Rank.JACK),
+            Card(Suit.CLUBS, Rank.TEN),
         ))
     }
     @Test
@@ -418,5 +428,87 @@ class PlayerDataTest {
         assertThrows(IllegalStateException::class.java) {
             player.withCardPlayed(inExistentCard)
         }
+    }
+
+    @Test
+    fun noUndertrumping() {
+        val player = defaultPlayerData.copy(cards = listOf(
+            Card(Suit.SPADES, Rank.NINE),
+            Card(Suit.SPADES, Rank.TEN),
+
+            Card(Suit.HEARTS, Rank.SEVEN),
+            Card(Suit.HEARTS, Rank.EIGHT),
+            Card(Suit.HEARTS, Rank.NINE),
+            Card(Suit.HEARTS, Rank.TEN),
+            Card(Suit.HEARTS, Rank.JACK),
+        ))
+
+        val trick = Trick.initial(PlayerId.PLAYER_2, Trump.SPADES)
+            .withNewCardPlayed(Card(Suit.CLUBS, Rank.NINE))
+            .withNewCardPlayed(Card(Suit.SPADES, Rank.ACE))
+            .withNewCardPlayed(Card(Suit.CLUBS, Rank.KING))
+
+        val playableCards = player.playableCards(trick, Trump.SPADES)
+
+        // All cards should be able to be played since the current player does not have any diamonds
+        assertThat(playableCards, Matchers.containsInAnyOrder(
+            Card(Suit.SPADES, Rank.NINE),
+            // no ten of spades, as this would be undertrumping
+
+            Card(Suit.HEARTS, Rank.SEVEN),
+            Card(Suit.HEARTS, Rank.EIGHT),
+            Card(Suit.HEARTS, Rank.NINE),
+            Card(Suit.HEARTS, Rank.TEN),
+            Card(Suit.HEARTS, Rank.JACK),
+        ))
+    }
+
+    @Test
+    fun allCardsPlayableWhenNoCardOfFirstPlayedSuitAndTrickHasNoTrump() {
+        val player = defaultPlayerData.copy(cards = listOf(
+            Card(Suit.SPADES, Rank.NINE),
+            Card(Suit.SPADES, Rank.TEN),
+
+            Card(Suit.HEARTS, Rank.SIX),
+            Card(Suit.HEARTS, Rank.SEVEN),
+            Card(Suit.HEARTS, Rank.EIGHT),
+            Card(Suit.HEARTS, Rank.NINE),
+            Card(Suit.HEARTS, Rank.TEN),
+            Card(Suit.HEARTS, Rank.JACK),
+        ))
+
+        val trick = Trick.initial(PlayerId.PLAYER_2, Trump.SPADES)
+            .withNewCardPlayed(Card(Suit.CLUBS, Rank.QUEEN))
+
+        val playableCards = player.playableCards(trick, Trump.SPADES)
+
+        // All cards should be able to be played since the current player does not have any diamonds
+        assertThat(playableCards, Matchers.containsInAnyOrder(
+            *player.cards.toTypedArray()
+        ))
+    }
+
+    @Test
+    fun jackOfTrumpCanBeKeptBackWhenTrumpIsOut() {
+        val player = defaultPlayerData.copy(cards = listOf(
+            Card(Suit.SPADES, Rank.JACK),
+
+            Card(Suit.HEARTS, Rank.SIX),
+            Card(Suit.HEARTS, Rank.SEVEN),
+            Card(Suit.HEARTS, Rank.EIGHT),
+            Card(Suit.HEARTS, Rank.NINE),
+            Card(Suit.HEARTS, Rank.TEN),
+            Card(Suit.HEARTS, Rank.JACK),
+        ))
+
+        val trick = Trick.initial(PlayerId.PLAYER_2, Trump.SPADES)
+            .withNewCardPlayed(Card(Suit.SPADES, Rank.QUEEN))
+
+        val playableCards = player.playableCards(trick, Trump.SPADES)
+
+        // All cards should be able to be played since the current player does not have any diamonds
+        assertThat(playableCards, Matchers.containsInAnyOrder(
+            *player.cards.toTypedArray()
+        ))
     }
 }
