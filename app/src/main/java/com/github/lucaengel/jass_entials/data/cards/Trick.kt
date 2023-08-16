@@ -25,18 +25,10 @@ data class Trick(
         if (!isFull())
             throw IllegalStateException("Cannot move on to next trick if current trick is not full.")
 
-        return this.copy(
-            cards = listOf(),
+        return initial(
             startingPlayerId = winner(),
+            trump = trump
         )
-    }
-
-    fun cardForPlayer(playerId: PlayerId): Card? {
-        return cards.getOrNull(playerId.trickPosition(startingPlayerId))
-    }
-
-    fun playerForCard(card: Card): PlayerId? {
-        return cards.indexOf(card).let { if (it == -1) null else startingPlayerId.playerAtPosition(it) }
     }
 
     /**
@@ -54,7 +46,11 @@ data class Trick(
      * @return The player who is next to play a card.
      */
     fun nextPlayer(): PlayerId {
-        return startingPlayerId.playerAtPosition(cards.size)
+        return if (isFull()) {
+            winner()
+        } else {
+            startingPlayerId.playerAtPosition(cards.size)
+        }
     }
 
     /**

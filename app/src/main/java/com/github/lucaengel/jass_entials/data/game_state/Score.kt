@@ -55,6 +55,20 @@ data class Score(
         }
     }
 
+    /**
+     * Returns the Score of the next round with the current points added to the game points.
+     *
+     * @return The Score of the next round.
+     */
+    fun nextRound(): Score {
+        return this.copy(
+            team1 = 0,
+            team2 = 0,
+            gamePointsTeam1 = this.gamePointsTeam1 + this.team1,
+            gamePointsTeam2 = this.gamePointsTeam2 + this.team2
+        )
+    }
+
     companion object {
 
         /**

@@ -148,15 +148,8 @@ class CpuPlayer(
         // add card of the current player
         currState = currState.withCardPlayed(cardToPlay)
 
-        val nextPlayer =
-            if (currState.trick().isFull()) {
-                currState.trick().winner()
-            } else {
-                currState.trick().nextPlayer()
-            }
-
         // playable cards of the next player
-        val newPlayableCards = determinePlayableCards(currState, nextPlayer, handCards)
+        val newPlayableCards = determinePlayableCards(currState, currState.nextPlayer(), handCards)
 
 
         val newLeaf = Node(

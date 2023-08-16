@@ -50,29 +50,29 @@ data class RoundState(
         return trick.nextPlayer()
     }
 
-    /**
-     * Returns a new [RoundState] with the given [startingPlayerId] and [trump].
-     *
-     * @throws IllegalStateException If the current round is not finished.
-     * @param startingPlayerId The id of the player that starts the round.
-     * @param trump The trump of the round.
-     *
-     * @return The new [RoundState].
-     */
-    fun nextRound(startingPlayerId: PlayerId, trump: Trump): RoundState {
-        if (trickNumber <= JassConstants.TRICKS_PER_ROUND) {
-            throw IllegalStateException("Cannot start a new round when the current round is not finished.")
-        }
-        return RoundState(
-            score = score,
-            unplayedCards = Deck.STANDARD_DECK.cards,
-            trick = Trick.initial(
-                startingPlayerId = startingPlayerId,
-                trump = trump,
-            ),
-            trickNumber = 0,
-        )
-    }
+//    /**
+//     * Returns a new [RoundState] with the given [startingPlayerId] and [trump].
+//     *
+//     * @throws IllegalStateException If the current round is not finished.
+//     * @param startingPlayerId The id of the player that starts the round.
+//     * @param trump The trump of the round.
+//     *
+//     * @return The new [RoundState].
+//     */
+//    fun nextRound(startingPlayerId: PlayerId, trump: Trump): RoundState {
+//        if (trickNumber <= JassConstants.TRICKS_PER_ROUND) {
+//            throw IllegalStateException("Cannot start a new round when the current round is not finished.")
+//        }
+//        return RoundState(
+//            score = score,
+//            unplayedCards = Deck.STANDARD_DECK.cards,
+//            trick = Trick.initial(
+//                startingPlayerId = startingPlayerId,
+//                trump = trump,
+//            ),
+//            trickNumber = 0,
+//        )
+//    }
 
     fun isRoundOver(): Boolean {
         return trickNumber > JassConstants.TRICKS_PER_ROUND
@@ -92,11 +92,7 @@ data class RoundState(
         return RoundState(
             score = score.withPointsAdded(trick.winner().team(), points),
             unplayedCards = unplayedCards,
-            trick = //trick.nextTrick(),
-                Trick.initial(
-                    startingPlayerId = trick.winner(),
-                    trump = trick.trump,
-                ),
+            trick = trick.nextTrick(),
             trickNumber = trickNumber + 1,
         )
     }

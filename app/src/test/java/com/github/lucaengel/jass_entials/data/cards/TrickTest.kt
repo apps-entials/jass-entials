@@ -105,4 +105,37 @@ class TrickTest {
 
         assertThat(trick.winner(), `is`(PlayerId.PLAYER_4))
     }
+
+    @Test
+    fun nextPlayerReturnsTheNextPlayerToTheRightWhenTheTrickIsNotFull() {
+        var trick = Trick.initial(PlayerId.values()[0], Trump.HEARTS)
+
+        for (playerId in PlayerId.values()) {
+            assertThat(trick.nextPlayer(), `is`(playerId))
+
+            trick = trick.withNewCardPlayed(Card(Suit.CLUBS, Rank.values()[playerId.ordinal]))
+        }
+
+    }
+    @Test
+    fun nextPlayerReturnsWinnerOfTheTrickIfTheTrickIsFull() {
+        val trick = Trick.initial(PlayerId.PLAYER_1, Trump.HEARTS)
+            .withNewCardPlayed(Card(Suit.CLUBS, Rank.SIX))
+            .withNewCardPlayed(Card(Suit.CLUBS, Rank.ACE)) // winner
+            .withNewCardPlayed(Card(Suit.CLUBS, Rank.TEN))
+            .withNewCardPlayed(Card(Suit.CLUBS, Rank.NINE))
+
+        assertThat(trick.nextPlayer(), `is`(PlayerId.PLAYER_2))
+    }
+
+    @Test
+    fun sizeReturnsNumberOfCardsInTrick() {
+        var trick = Trick.initial(PlayerId.PLAYER_1, Trump.HEARTS)
+        assertThat(trick.size(), `is`(0))
+
+        for (i in 0..3) {
+            trick = trick.withNewCardPlayed(Card(Suit.CLUBS, Rank.values()[i]))
+            assertThat(trick.size(), `is`(i + 1))
+        }
+    }
 }
