@@ -56,6 +56,9 @@ data class PlayerData(
                 listOf()
             }
 
+            // only trump cards --> can play any card and under trump (ungertrumpfe) is allowed
+            if (trumpCards.size == cards.size) return cards
+
             // cards of the suit of the first card played
             val firstCardSuitCards = cardsOfSuit(firstCard.suit, cards)
 

@@ -464,6 +464,31 @@ class PlayerDataTest {
     }
 
     @Test
+    fun youCanUnderTrumpIfYouOnlyStillHaveTrumpLeft() {
+        val player = defaultPlayerData.copy(cards = listOf(
+            Card(Suit.HEARTS, Rank.SEVEN),
+            Card(Suit.HEARTS, Rank.EIGHT),
+
+            Card(Suit.HEARTS, Rank.TEN),
+            Card(Suit.HEARTS, Rank.JACK),
+        ))
+
+        // no under trumping the nel possible but the current player only has trump left
+        // so it is ok to under trump
+        val trick = Trick.initial(PlayerId.PLAYER_2, Trump.HEARTS)
+            .withNewCardPlayed(Card(Suit.SPADES, Rank.ACE))
+            .withNewCardPlayed(Card(Suit.HEARTS, Rank.NINE))
+            .withNewCardPlayed(Card(Suit.CLUBS, Rank.KING))
+
+        val playableCards = player.playableCards(trick, Trump.HEARTS)
+
+        // All cards should be able to be played since the current player only has trump left
+        assertThat(playableCards, Matchers.containsInAnyOrder(
+            *player.cards.toTypedArray()
+        ))
+    }
+
+    @Test
     fun allCardsPlayableWhenNoCardOfFirstPlayedSuitAndTrickHasNoTrump() {
         val player = defaultPlayerData.copy(cards = listOf(
             Card(Suit.SPADES, Rank.NINE),
