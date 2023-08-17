@@ -23,9 +23,9 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -35,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices.AUTOMOTIVE_1024p
 import androidx.compose.ui.tooling.preview.Preview
@@ -384,12 +385,15 @@ fun BettingRow(
                         modifier = Modifier.testTag("betDropdown")
                     ) {
                         bettingState.availableBets().forEach { bet ->
-                            DropdownMenuItem(
-                                text = { Text(text = bet.toString()) },
-                                onClick = {
-                                    selectedBet = bet
-                                    isBetDropdownExpanded = false
-                                })
+                            Text(
+                                text = bet.toString(),
+                                modifier = Modifier
+                                    .clickable {
+                                        selectedBet = bet
+                                        isBetDropdownExpanded = false
+                                    }.padding(vertical = 4.dp, horizontal = 8.dp)
+                                    .align(Alignment.CenterHorizontally)
+                            )
                         }
                     }
 
@@ -402,13 +406,36 @@ fun BettingRow(
                     modifier = Modifier.testTag("trumpDropdown")
                 ) {
                     bettingState.availableTrumps().forEach { trump ->
-                        DropdownMenuItem(
-                            modifier = Modifier.testTag(trump.toString()),
-                            text = { Text(text = trump.toString()) },
+                        IconButton(
                             onClick = {
                                 selectedTrump = trump
                                 isTrumpDropdownExpanded = false
-                            })
+                            },
+                        ) {
+                            Icon(
+                                painter = painterResource(id = trump.asPicture()),
+                                contentDescription = trump.toString(), // You can provide a content description here
+                                modifier = Modifier
+                                    .width(20.dp),
+                            )
+                        }
+//                        DropdownMenuItem(
+//                            modifier = Modifier.testTag(trump.toString()),
+//                            text = { Text(text = ""/*trump.toString()*/) },
+//                            trailingIcon = { Icon(
+//                                painter = painterResource(id = trump.asPicture()),
+//                                contentDescription = trump.toString(), // You can provide a content description here
+//                                modifier = Modifier
+//                                    .width(20.dp),
+////                                    .fillMaxSize()
+////                                    .padding(8.dp), // Adjust padding as needed
+////                                contentScale = ContentScale.Fit
+//                                )
+//                            },
+//                            onClick = {
+//                                selectedTrump = trump
+//                                isTrumpDropdownExpanded = false
+//                        })
                     }
                 }
             }

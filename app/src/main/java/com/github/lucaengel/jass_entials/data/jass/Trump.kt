@@ -1,7 +1,10 @@
 package com.github.lucaengel.jass_entials.data.jass
 
+import com.github.lucaengel.jass_entials.R
 import com.github.lucaengel.jass_entials.data.cards.Card
+import com.github.lucaengel.jass_entials.data.cards.CardType
 import com.github.lucaengel.jass_entials.data.cards.Suit
+import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
 
 /**
  * Enum representing the trump suit in a Jass game.
@@ -13,6 +16,27 @@ enum class Trump() {
     CLUBS,
     UNGER_UFE,
     OBE_ABE;
+
+    fun asPicture(): Int {
+        return when (GameStateHolder.cardType) {
+            CardType.FRENCH -> when (this) {
+                CLUBS -> R.drawable.clubs
+                SPADES -> R.drawable.spades
+                HEARTS -> R.drawable.hearts
+                DIAMONDS -> R.drawable.diamonds
+                UNGER_UFE -> android.R.drawable.arrow_up_float
+                OBE_ABE -> android.R.drawable.arrow_down_float
+            }
+            CardType.GERMAN -> when (this) {
+                CLUBS -> R.drawable.eicheln
+                SPADES -> R.drawable.schilten
+                HEARTS -> R.drawable.rosen
+                DIAMONDS -> R.drawable.schellen
+                UNGER_UFE -> android.R.drawable.arrow_up_float
+                OBE_ABE -> android.R.drawable.arrow_down_float
+            }
+        }
+    }
 
     override fun toString(): String {
         return when (this) {
