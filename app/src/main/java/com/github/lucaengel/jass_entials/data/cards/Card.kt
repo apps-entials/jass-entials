@@ -53,6 +53,10 @@ enum class Rank(private val rank: String, private val normalHeight: Int, val tru
 
 enum class CardType(val string: String) {
     FRENCH("French"), GERMAN("German");
+
+    override fun toString(): String {
+        return string
+    }
 }
 
 /**
