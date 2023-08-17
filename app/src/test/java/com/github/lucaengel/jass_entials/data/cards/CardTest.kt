@@ -85,8 +85,8 @@ class CardTest {
     fun toStringContainsTheCorrectRank() {
         assertThat(Card(Suit.CLUBS, Rank.SIX).toString(), `is`("\u26636"))
         assertThat(Card(Suit.SPADES, Rank.SIX).toString(), `is`("\u26606"))
-        assertThat(Card(Suit.HEARTS, Rank.SIX).toString(), `is`("\u26656"))
-        assertThat(Card(Suit.DIAMONDS, Rank.SIX).toString(), `is`("\u26666"))
+        assertThat(Card(Suit.HEARTS, Rank.SIX).toString(), `is`("\u26616"))
+        assertThat(Card(Suit.DIAMONDS, Rank.SIX).toString(), `is`("\u26626"))
     }
 
 
