@@ -52,7 +52,7 @@ class MonteCarloCpuTest {
     fun constructorFailsWithTooFewIterations() {
         for (i in -10..8) {
             assertThrows(IllegalArgumentException::class.java) {
-                CpuPlayer(
+                MonteCarloCardPlayer(
                     PlayerId.PLAYER_1,
                     0,
                     i
@@ -62,7 +62,7 @@ class MonteCarloCpuTest {
     }
 
     @Test
-    fun CpuPlayerPlaysCorrectly1() {
+    fun cpuPlayerPlaysCorrectly1() {
         // Opponent team will win this trick, we have to minimize loss
         val p = CpuPlayer(playerId = PlayerId.PLAYER_2, seed = SEED, nbSimulations = ITERATIONS)
         val state: RoundState = RoundState.initial(Trump.SPADES, PlayerId.PLAYER_1)
@@ -78,7 +78,6 @@ class MonteCarloCpuTest {
             .add(Card(Suit.HEARTS, Rank.TEN))
             .add(Card(Suit.HEARTS, Rank.JACK))
 
-//        assertTimeoutPreemptively(TIMEOUT) {
         val c: Card = p.cardToPlay(state, hand.cards()).join()
         assertEquals(
             Card(
@@ -86,11 +85,10 @@ class MonteCarloCpuTest {
                 Rank.EIGHT
             ), c
         )
-//        }
     }
 
     @Test
-    fun CpuPlayerPlaysCorrectly2() {
+    fun cpuPlayerPlaysCorrectly2() {
         // Our team will win this trick, play the 10 to maximize points
         val p = CpuPlayer(playerId = PlayerId.PLAYER_4, seed = SEED, nbSimulations = ITERATIONS)
         val state: RoundState = RoundState.initial(Trump.CLUBS, PlayerId.PLAYER_1)
@@ -107,7 +105,7 @@ class MonteCarloCpuTest {
             .add(Card(Suit.HEARTS, Rank.NINE))
             .add(Card(Suit.HEARTS, Rank.TEN))
             .add(Card(Suit.HEARTS, Rank.JACK))
-//        assertTimeoutPreemptively(TIMEOUT) {
+
         val c: Card = p.cardToPlay(state, hand.cards()).join()
         assertEquals(
             Card(
@@ -115,11 +113,10 @@ class MonteCarloCpuTest {
                 Rank.TEN
             ), c
         )
-//        }
     }
 
     @Test
-    fun CpuPlayerPlaysCorrectly3() {
+    fun cpuPlayerPlaysCorrectly3() {
         // Lots of points in this trick, over-cut to get them
         val p = CpuPlayer(playerId = PlayerId.PLAYER_4, seed = SEED, nbSimulations = ITERATIONS)
         val state: RoundState = RoundState.initial(Trump.CLUBS, PlayerId.PLAYER_1)
@@ -136,7 +133,7 @@ class MonteCarloCpuTest {
             .add(Card(Suit.HEARTS, Rank.NINE))
             .add(Card(Suit.HEARTS, Rank.JACK))
             .add(Card(Suit.HEARTS, Rank.QUEEN))
-//        assertTimeoutPreemptively(TIMEOUT) {
+
         val c: Card = p.cardToPlay(state, hand.cards()).join()
         assertEquals(
             Card(
@@ -144,11 +141,10 @@ class MonteCarloCpuTest {
                 Rank.JACK
             ), c
         )
-//        }
     }
 
     @Test
-    fun CpuPlayerPlaysCorrectly4() {
+    fun cpuPlayerPlaysCorrectly4() {
         // Lots of points in this trick, cut to get them, but don't waste the Jack
         val p = CpuPlayer(playerId = PlayerId.PLAYER_4, seed = SEED, nbSimulations = ITERATIONS)
         val state: RoundState = RoundState.initial(Trump.CLUBS, PlayerId.PLAYER_1)
@@ -165,7 +161,7 @@ class MonteCarloCpuTest {
             .add(Card(Suit.HEARTS, Rank.NINE))
             .add(Card(Suit.HEARTS, Rank.JACK))
             .add(Card(Suit.HEARTS, Rank.QUEEN))
-//        assertTimeoutPreemptively(TIMEOUT) {
+
         val c: Card = p.cardToPlay(state, hand.cards()).join()
         assertEquals(
             Card(
@@ -173,11 +169,10 @@ class MonteCarloCpuTest {
                 Rank.SEVEN
             ), c
         )
-//        }
     }
 
     @Test
-    fun CpuPlayerPlaysCorrectly5() {
+    fun cpuPlayerPlaysCorrectly5() {
         // Trick winner unclear, follow but don't risk the 10
         val p = CpuPlayer(playerId = PlayerId.PLAYER_3, seed = SEED, nbSimulations = ITERATIONS)
         val state: RoundState = RoundState.initial(Trump.DIAMONDS, PlayerId.PLAYER_1)
@@ -193,7 +188,7 @@ class MonteCarloCpuTest {
             .add(Card(Suit.HEARTS, Rank.NINE))
             .add(Card(Suit.HEARTS, Rank.JACK))
             .add(Card(Suit.HEARTS, Rank.QUEEN))
-//        assertTimeoutPreemptively(TIMEOUT) {
+
         val c: Card = p.cardToPlay(state, hand.cards()).join()
         assertEquals(
             Card(
@@ -201,11 +196,10 @@ class MonteCarloCpuTest {
                 Rank.NINE
             ), c
         )
-//        }
     }
 
     @Test
-    fun CpuPlayerPlaysCorrectly6() {
+    fun cpuPlayerPlaysCorrectly6() {
         // Very strong hand in trump, enter with the Jack
         val p = CpuPlayer(playerId = PlayerId.PLAYER_1, seed = SEED, nbSimulations = ITERATIONS)
         val state: RoundState = RoundState.initial(Trump.SPADES, PlayerId.PLAYER_1)
@@ -219,7 +213,7 @@ class MonteCarloCpuTest {
             .add(Card(Suit.HEARTS, Rank.NINE))
             .add(Card(Suit.HEARTS, Rank.JACK))
             .add(Card(Suit.HEARTS, Rank.QUEEN))
-//        assertTimeoutPreemptively(TIMEOUT) {
+
         val c: Card = p.cardToPlay(state, hand.cards()).join()
         assertEquals(
             Card(
@@ -227,11 +221,10 @@ class MonteCarloCpuTest {
                 Rank.JACK
             ), c
         )
-//        }
     }
 
     @Test
-    fun CpuPlayerPlaysCorrectly7() {
+    fun cpuPlayerPlaysCorrectly7() {
         // We can only play one card, play it
         val p = CpuPlayer(playerId = PlayerId.PLAYER_2, seed = SEED, nbSimulations = ITERATIONS)
         val state: RoundState = RoundState.initial(Trump.CLUBS, PlayerId.PLAYER_1)
@@ -246,7 +239,7 @@ class MonteCarloCpuTest {
             .add(Card(Suit.HEARTS, Rank.TEN))
             .add(Card(Suit.HEARTS, Rank.JACK))
             .add(Card(Suit.HEARTS, Rank.QUEEN))
-//        assertTimeoutPreemptively(TIMEOUT) {
+
         val c: Card = p.cardToPlay(state, hand.cards()).join()
         assertEquals(
             Card(
@@ -254,11 +247,10 @@ class MonteCarloCpuTest {
                 Rank.NINE
             ), c
         )
-//        }
     }
 
     @Test
-    fun CpuPlayerPlaysCorrectly8() {
+    fun cpuPlayerPlaysCorrectly8() {
         // We don't have to follow, save the Jack of trump for later (0 points in trick)
         val p = CpuPlayer(playerId = PlayerId.PLAYER_4, seed = SEED, nbSimulations = ITERATIONS)
         val state: RoundState = RoundState.initial(Trump.CLUBS, PlayerId.PLAYER_1)
@@ -275,7 +267,7 @@ class MonteCarloCpuTest {
             .add(Card(Suit.HEARTS, Rank.TEN))
             .add(Card(Suit.HEARTS, Rank.ACE))
             .add(Card(Suit.HEARTS, Rank.KING))
-//        assertTimeoutPreemptively(TIMEOUT) {
+
         val c: Card = p.cardToPlay(state, hand.cards()).join()
         assertEquals(
             Card(
@@ -283,11 +275,10 @@ class MonteCarloCpuTest {
                 Rank.SIX
             ), c
         )
-//        }
     }
 
     @Test
-    fun CpuPlayerPlaysCorrectly9() {
+    fun cpuPlayerPlaysCorrectly9() {
         // Two tricks left, no trump left, we have an ace, we must enter with it
         val toPlay: CardSet = CardSet.ALL_CARDS
             .remove(Card(Suit.HEARTS, Rank.SIX))
@@ -304,17 +295,16 @@ class MonteCarloCpuTest {
         val hand: CardSet = CardSet.EMPTY
             .add(Card(Suit.CLUBS, Rank.SIX))
             .add(Card(Suit.CLUBS, Rank.ACE))
-//        assertTimeoutPreemptively(TIMEOUT) {
+
         val c: Card = p.cardToPlay(state, hand.cards()).join()
         assertEquals(
             Card(Suit.CLUBS, Rank.ACE),
             c
         )
-//        }
     }
 
     @Test
-    fun CpuPlayerPlaysCorrectly10() {
+    fun cpuPlayerPlaysCorrectly10() {
         // Two tricks left, two trumps left, we have the higher one, we must enter with it
         val toPlay: CardSet = CardSet.ALL_CARDS
             .remove(Card(Suit.HEARTS, Rank.SIX))
@@ -331,7 +321,7 @@ class MonteCarloCpuTest {
         val hand: CardSet = CardSet.EMPTY
             .add(Card(Suit.DIAMONDS, Rank.ACE))
             .add(Card(Suit.CLUBS, Rank.ACE))
-//        assertTimeoutPreemptively(TIMEOUT) {
+
         val c: Card = p.cardToPlay(state, hand.cards()).join()
         assertEquals(
             Card(
@@ -339,11 +329,10 @@ class MonteCarloCpuTest {
                 Rank.ACE
             ), c
         )
-//        }
     }
 
     @Test
-    fun CpuPlayerPlaysCorrectly11() {
+    fun cpuPlayerPlaysCorrectly11() {
         // Two tricks left, we are loosing the trick, we must cut to win the last tricks
         val toPlay: CardSet = CardSet.ALL_CARDS
             .remove(Card(Suit.HEARTS, Rank.SIX))
@@ -368,7 +357,6 @@ class MonteCarloCpuTest {
             .add(Card(Suit.DIAMONDS, Rank.ACE))
             .add(Card(Suit.HEARTS, Rank.KING))
 
-//        assertTimeoutPreemptively(TIMEOUT) {
         val c: Card = p.cardToPlay(state, hand.cards()).join()
         assertEquals(
             Card(
@@ -376,11 +364,10 @@ class MonteCarloCpuTest {
                 Rank.ACE
             ), c
         )
-//        }
     }
 
     @Test
-    fun CpuPlayerPlaysCorrectly12() {
+    fun cpuPlayerPlaysCorrectly12() {
         // Same as above, but we're second to play
         val toPlay: CardSet = CardSet.ALL_CARDS
             .remove(Card(Suit.HEARTS, Rank.SIX))
@@ -398,7 +385,7 @@ class MonteCarloCpuTest {
         val hand: CardSet = CardSet.EMPTY
             .add(Card(Suit.DIAMONDS, Rank.ACE))
             .add(Card(Suit.HEARTS, Rank.KING))
-//        assertTimeoutPreemptively(TIMEOUT) {
+
         val c: Card = p.cardToPlay(state, hand.cards()).join()
         assertEquals(
             Card(
@@ -406,11 +393,10 @@ class MonteCarloCpuTest {
                 Rank.ACE
             ), c
         )
-//        }
     }
 
     @Test
-    fun CpuPlayerPlaysCorrectly13() {
+    fun cpuPlayerPlaysCorrectly13() {
         // We have the last trump and a 10, our partner has the lead, we must play the 10
         val toPlay: CardSet = CardSet.ALL_CARDS
             .remove(Card(Suit.HEARTS, Rank.SIX))
@@ -430,17 +416,16 @@ class MonteCarloCpuTest {
         val hand: CardSet = CardSet.EMPTY
             .add(Card(Suit.CLUBS, Rank.TEN))
             .add(Card(Suit.DIAMONDS, Rank.SIX))
-//        assertTimeoutPreemptively(TIMEOUT) {
+
         val c: Card = p.cardToPlay(state, hand.cards()).join()
         assertEquals(
             Card(Suit.CLUBS, Rank.TEN),
             c
         )
-//        }
     }
 
     @Test
-    fun CpuPlayerPlaysCorrectly14() {
+    fun cpuPlayerPlaysCorrectly14() {
         // Two zero-points tricks remain, we must accept loosing the first to get the 5 final points
         val toPlay: CardSet = CardSet.ALL_CARDS
             .remove(Card(Suit.SPADES, Rank.SIX))
@@ -460,7 +445,7 @@ class MonteCarloCpuTest {
         val hand: CardSet = CardSet.EMPTY
             .add(Card(Suit.SPADES, Rank.SIX))
             .add(Card(Suit.HEARTS, Rank.SIX))
-//        assertTimeoutPreemptively(TIMEOUT) {
+
         val c: Card = p.cardToPlay(state, hand.cards()).join()
         assertEquals(
             Card(
@@ -468,11 +453,10 @@ class MonteCarloCpuTest {
                 Rank.SIX
             ), c
         )
-//        }
     }
 
     @Test
-    fun CpuPlayerPlaysCorrectly15() {
+    fun cpuPlayerPlaysCorrectly15() {
         // Cannot undercut, must accept loss (only one playable card)
         val p = CpuPlayer(playerId = PlayerId.PLAYER_4, seed = SEED, nbSimulations = ITERATIONS)
         val state: RoundState = RoundState.initial(Trump.CLUBS, PlayerId.PLAYER_1)
@@ -489,7 +473,7 @@ class MonteCarloCpuTest {
             .add(Card(Suit.CLUBS, Rank.ACE))
             .add(Card(Suit.SPADES, Rank.SIX))
             .add(Card(Suit.HEARTS, Rank.TEN))
-//        assertTimeoutPreemptively(TIMEOUT) {
+
         val c: Card = p.cardToPlay(state, hand.cards()).join()
         assertEquals(
             Card(
@@ -497,7 +481,6 @@ class MonteCarloCpuTest {
                 Rank.TEN
             ), c
         )
-//        }
     }
 
 
