@@ -12,9 +12,9 @@ class CardTest {
     @Test
     fun isHigherThanWorksForSameColor() {
         assertTrue(
-            Card(Rank.SEVEN, Suit.CLUBS)
+            Card(Suit.CLUBS, Rank.SEVEN)
                 .isHigherThan(
-                    Card(Rank.SIX, Suit.CLUBS),
+                    Card(Suit.CLUBS, Rank.SIX),
                     Trump.SPADES)
         )
 
@@ -23,16 +23,16 @@ class CardTest {
     @Test
     fun isHigherThanWorksForSameColorNelAndTrumpJack() {
         assertTrue(
-            Card(Rank.NINE, Suit.CLUBS)
+            Card(Suit.CLUBS, Rank.NINE)
                 .isHigherThan(
-                    Card(Rank.ACE, Suit.CLUBS),
+                    Card(Suit.CLUBS, Rank.ACE),
                     Trump.CLUBS)
         )
 
         assertTrue(
-            Card(Rank.JACK, Suit.CLUBS)
+            Card(Suit.CLUBS, Rank.JACK)
                 .isHigherThan(
-                    Card(Rank.NINE, Suit.CLUBS),
+                    Card(Suit.CLUBS, Rank.NINE),
                     Trump.CLUBS)
         )
     }
@@ -40,16 +40,16 @@ class CardTest {
     @Test
     fun stechenWorks() {
         assertTrue(
-            Card(Rank.SIX, Suit.CLUBS)
+            Card(Suit.CLUBS, Rank.SIX)
                 .isHigherThan(
-                    Card(Rank.ACE, Suit.HEARTS),
+                    Card(Suit.HEARTS, Rank.ACE),
                     Trump.CLUBS)
         )
 
         assertFalse(
-            Card(Rank.JACK, Suit.CLUBS)
+            Card(Suit.CLUBS, Rank.JACK)
                 .isHigherThan(
-                    Card(Rank.EIGHT, Suit.HEARTS),
+                    Card(Suit.HEARTS, Rank.EIGHT),
                     Trump.HEARTS)
         )
     }
@@ -57,9 +57,9 @@ class CardTest {
     @Test
     fun notKeepingSuitWithoutPlayingTrumpLooses() {
         assertTrue(
-            Card(Rank.SIX, Suit.CLUBS)
+            Card(Suit.CLUBS, Rank.SIX)
                 .isHigherThan(
-                    Card(Rank.ACE, Suit.HEARTS),
+                    Card(Suit.HEARTS, Rank.ACE),
                     Trump.DIAMONDS)
         )
     }
@@ -67,26 +67,26 @@ class CardTest {
     @Test
     fun ungerUfeMakesTheLowerCardWin() {
         assertTrue(
-            Card(Rank.SIX, Suit.CLUBS)
+            Card(Suit.CLUBS, Rank.SIX)
                 .isHigherThan(
-                    Card(Rank.ACE, Suit.CLUBS),
+                    Card(Suit.CLUBS, Rank.ACE),
                     Trump.UNGER_UFE)
         )
 
         assertFalse(
-            Card(Rank.ACE, Suit.CLUBS)
+            Card(Suit.CLUBS, Rank.ACE)
                 .isHigherThan(
-                    Card(Rank.SIX, Suit.CLUBS),
+                    Card(Suit.CLUBS, Rank.SIX),
                     Trump.UNGER_UFE)
         )
     }
 
     @Test
     fun toStringContainsTheCorrectRank() {
-        assertThat(Card(Rank.SIX, Suit.CLUBS).toString(), `is`("6\u2663"))
-        assertThat(Card(Rank.SIX, Suit.SPADES).toString(), `is`("6\u2660"))
-        assertThat(Card(Rank.SIX, Suit.HEARTS).toString(), `is`("6\u2665"))
-        assertThat(Card(Rank.SIX, Suit.DIAMONDS).toString(), `is`("6\u2666"))
+        assertThat(Card(Suit.CLUBS, Rank.SIX).toString(), `is`("\u26636"))
+        assertThat(Card(Suit.SPADES, Rank.SIX).toString(), `is`("\u26606"))
+        assertThat(Card(Suit.HEARTS, Rank.SIX).toString(), `is`("\u26656"))
+        assertThat(Card(Suit.DIAMONDS, Rank.SIX).toString(), `is`("\u26666"))
     }
 
 
@@ -94,15 +94,15 @@ class CardTest {
     @Test
     fun pointsCalculatesUngerUfeCardsCorrectly() {
         val cardToPoints = mapOf(
-            Card(Rank.SIX, Suit.CLUBS) to 11,
-            Card(Rank.SEVEN, Suit.CLUBS) to 0,
-            Card(Rank.EIGHT, Suit.CLUBS) to 8,
-            Card(Rank.NINE, Suit.CLUBS) to 0,
-            Card(Rank.TEN, Suit.CLUBS) to 10,
-            Card(Rank.JACK, Suit.CLUBS) to 2,
-            Card(Rank.QUEEN, Suit.CLUBS) to 3,
-            Card(Rank.KING, Suit.CLUBS) to 4,
-            Card(Rank.ACE, Suit.CLUBS) to 0,
+            Card(Suit.CLUBS, Rank.SIX) to 11,
+            Card(Suit.CLUBS, Rank.SEVEN) to 0,
+            Card(Suit.CLUBS, Rank.EIGHT) to 8,
+            Card(Suit.CLUBS, Rank.NINE) to 0,
+            Card(Suit.CLUBS, Rank.TEN) to 10,
+            Card(Suit.CLUBS, Rank.JACK) to 2,
+            Card(Suit.CLUBS, Rank.QUEEN) to 3,
+            Card(Suit.CLUBS, Rank.KING) to 4,
+            Card(Suit.CLUBS, Rank.ACE) to 0,
         )
 
         cardToPoints.keys.forEach {
@@ -113,15 +113,15 @@ class CardTest {
     @Test
     fun pointsCalculatesObeAbeCardsCorrectly() {
         val cardToPoints = mapOf(
-            Card(Rank.SIX, Suit.CLUBS) to 0,
-            Card(Rank.SEVEN, Suit.CLUBS) to 0,
-            Card(Rank.EIGHT, Suit.CLUBS) to 8,
-            Card(Rank.NINE, Suit.CLUBS) to 0,
-            Card(Rank.TEN, Suit.CLUBS) to 10,
-            Card(Rank.JACK, Suit.CLUBS) to 2,
-            Card(Rank.QUEEN, Suit.CLUBS) to 3,
-            Card(Rank.KING, Suit.CLUBS) to 4,
-            Card(Rank.ACE, Suit.CLUBS) to 11,
+            Card(Suit.CLUBS, Rank.SIX) to 0,
+            Card(Suit.CLUBS, Rank.SEVEN) to 0,
+            Card(Suit.CLUBS, Rank.EIGHT) to 8,
+            Card(Suit.CLUBS, Rank.NINE) to 0,
+            Card(Suit.CLUBS, Rank.TEN) to 10,
+            Card(Suit.CLUBS, Rank.JACK) to 2,
+            Card(Suit.CLUBS, Rank.QUEEN) to 3,
+            Card(Suit.CLUBS, Rank.KING) to 4,
+            Card(Suit.CLUBS, Rank.ACE) to 11,
         )
 
         cardToPoints.keys.forEach {
@@ -132,15 +132,15 @@ class CardTest {
     @Test
     fun pointsCalculatesTrumpCardsCorrectly() {
         val cardToPoints = mapOf(
-            Card(Rank.SIX, Suit.CLUBS) to 0,
-            Card(Rank.SEVEN, Suit.CLUBS) to 0,
-            Card(Rank.EIGHT, Suit.CLUBS) to 0,
-            Card(Rank.NINE, Suit.CLUBS) to 14,
-            Card(Rank.TEN, Suit.CLUBS) to 10,
-            Card(Rank.JACK, Suit.CLUBS) to 20,
-            Card(Rank.QUEEN, Suit.CLUBS) to 3,
-            Card(Rank.KING, Suit.CLUBS) to 4,
-            Card(Rank.ACE, Suit.CLUBS) to 11,
+            Card(Suit.CLUBS, Rank.SIX) to 0,
+            Card(Suit.CLUBS, Rank.SEVEN) to 0,
+            Card(Suit.CLUBS, Rank.EIGHT) to 0,
+            Card(Suit.CLUBS, Rank.NINE) to 14,
+            Card(Suit.CLUBS, Rank.TEN) to 10,
+            Card(Suit.CLUBS, Rank.JACK) to 20,
+            Card(Suit.CLUBS, Rank.QUEEN) to 3,
+            Card(Suit.CLUBS, Rank.KING) to 4,
+            Card(Suit.CLUBS, Rank.ACE) to 11,
         )
 
         cardToPoints.keys.forEach {
@@ -157,15 +157,15 @@ class CardTest {
     @Test
     fun pointsCalculatesNonTrumpCardsCorrectly() {
         val cardToPoints = mapOf(
-            Card(Rank.SIX, Suit.CLUBS) to 0,
-            Card(Rank.SEVEN, Suit.CLUBS) to 0,
-            Card(Rank.EIGHT, Suit.CLUBS) to 0,
-            Card(Rank.NINE, Suit.CLUBS) to 0,
-            Card(Rank.TEN, Suit.CLUBS) to 10,
-            Card(Rank.JACK, Suit.CLUBS) to 2,
-            Card(Rank.QUEEN, Suit.CLUBS) to 3,
-            Card(Rank.KING, Suit.CLUBS) to 4,
-            Card(Rank.ACE, Suit.CLUBS) to 11,
+            Card(Suit.CLUBS, Rank.SIX) to 0,
+            Card(Suit.CLUBS, Rank.SEVEN) to 0,
+            Card(Suit.CLUBS, Rank.EIGHT) to 0,
+            Card(Suit.CLUBS, Rank.NINE) to 0,
+            Card(Suit.CLUBS, Rank.TEN) to 10,
+            Card(Suit.CLUBS, Rank.JACK) to 2,
+            Card(Suit.CLUBS, Rank.QUEEN) to 3,
+            Card(Suit.CLUBS, Rank.KING) to 4,
+            Card(Suit.CLUBS, Rank.ACE) to 11,
         )
 
         cardToPoints.keys.forEach {

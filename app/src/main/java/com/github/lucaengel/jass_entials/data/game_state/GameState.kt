@@ -1,49 +1,38 @@
 package com.github.lucaengel.jass_entials.data.game_state
 
 import com.github.lucaengel.jass_entials.data.cards.Card
-import com.github.lucaengel.jass_entials.data.cards.Trick
 import com.github.lucaengel.jass_entials.data.jass.Trump
 import java.io.Serializable
 
 /**
  * Represents the state of a game.
  *
- * @property currentUserIdx the index of the current user in the [playerEmails] list
+ * @property currentUserId the index of the current user in the [playerEmails] list
  * @property playerEmails the list of all players
- * @property currentPlayerEmail the email of the player that has to play the next card
- * @property startingPlayerEmail the email of the player that started the current trick
+ * @property currentPlayerId the id of the player that has to play the next card
+ * @property startingPlayerId the id of the player that started the current trick
  * @property currentRound the current round number
- * @property currentTrick the current trick
- * @property currentRoundTrickWinners the list of pairs of player data and tricks that were won by the players in the previous tricks of the current round
- * @property currentTrickNumber the current trick number
- * @property currentTrump the current trump
  * @property playerCards the map of player data to their cards
  */
 data class GameState(
-    val currentUserIdx: Int,
-    val playerEmails: List<String> = listOf(),
-    val currentPlayerEmail: String, // player that has to play the next card
-    val startingPlayerEmail: String, // player that started the current trick
+    val currentUserId: PlayerId,
+    val playerEmails: List<String>,
+    val currentPlayerId: PlayerId, // player that has to play the next card
+    val startingPlayerId: PlayerId, // player that started the current trick
     val currentRound: Int,
-    val currentTrick: Trick = Trick(),
-    val currentRoundTrickWinners: List<Trick.TrickWinner> = listOf(),
-    val currentTrickNumber: Int = 0,
-    val currentTrump: Trump = Trump.CLUBS,
+    val roundState: RoundState,
     val winningBet: Bet,
-    val playerCards: Map<String, List<Card>> = mapOf(),
+    val playerCards: Map<PlayerId, List<Card>>,
 ) : Serializable {
 
     constructor() : this(
-        currentUserIdx = 0,
+        currentUserId = PlayerId.PLAYER_1,
         playerEmails = listOf(),
-        currentPlayerEmail = "",
-        startingPlayerEmail = "",
+        currentPlayerId = PlayerId.PLAYER_1,
+        startingPlayerId = PlayerId.PLAYER_1,
         currentRound = 0,
-        currentTrick = Trick(),
-        currentRoundTrickWinners = listOf(),
-        currentTrickNumber = 0,
-        currentTrump = Trump.CLUBS,
-        winningBet = Bet("", Trump.CLUBS, BetHeight.NONE),
+        roundState = RoundState.initial(Trump.CLUBS, PlayerId.PLAYER_1),
+        winningBet = Bet(PlayerId.PLAYER_1, Trump.CLUBS, BetHeight.NONE),
         playerCards = mapOf(),
     )
 
@@ -53,7 +42,7 @@ data class GameState(
      * @return true iff it is the last trick of the round
      */
     fun isLastTrick(): Boolean {
-        return currentTrickNumber == 9
+        return roundState.isRoundOver()
     }
 
     /**
@@ -62,61 +51,35 @@ data class GameState(
      * @return the new game state
      */
     fun nextTrick(): GameState {
-        if (!currentTrick.isFull())
-            throw IllegalStateException("Cannot move on to the next trick if the current trick is not full.")
-
-        val trickWinner = currentTrick.winner(trump = currentTrump)
+        val newRoundState = roundState.withTrickCollected()
         return this.copy(
-            currentTrick = Trick(),
-            currentTrickNumber = currentTrickNumber + 1,
-            currentRoundTrickWinners = currentRoundTrickWinners + trickWinner,
-            startingPlayerEmail = trickWinner.playerEmail,
-            currentPlayerEmail = trickWinner.playerEmail,
+            roundState = newRoundState,
+            startingPlayerId = newRoundState.trick().startingPlayerId,
+            currentPlayerId = newRoundState.trick().startingPlayerId,
         )
-    }
-
-    /**
-     * Calculates the points of the given player.
-     *
-     * @param playerEmail the player data whose points are to be calculated
-     * @return the points of the given player
-     */
-    fun points(playerEmail: String): Int {
-
-        // todo: do something about the emails that are not different for guests!!!
-        // TODO: get rid of such magic numbers!!!
-        val lastTrickBonus = if (currentTrickNumber >= 9 && currentRoundTrickWinners.last().playerEmail == playerEmail) 5 else 0
-
-        return lastTrickBonus + currentRoundTrickWinners
-            .filter { it.playerEmail == playerEmail }
-            .sumOf { trickWinner -> trickWinner.trick.points(trump = currentTrump) }
     }
 
     /**
      * Returns the updated game state after the given player played the given card.
      *
-     * @param playerEmail the player data of the player that played the card
+     * @param playerId the player data of the player that played the card
      * @param card the card that was played
      * @return the updated game state
      */
-    fun playCard(playerEmail: String, card: Card, currentUserIdx: Int): GameState {
-        val idx = GameStateHolder.players.indexOfFirst { it.email == playerEmail }
-
-        if (idx == -1) throw IllegalArgumentException("Player $playerEmail is not in the game!")
-
+    fun playCard(playerId: PlayerId, card: Card, currentUserId: PlayerId): GameState {
         // TODO: maybe update playerData as well
-        val newPlayer = GameStateHolder.players[idx].withCardPlayed(card)
+        val newPlayer = GameStateHolder.players[currentPlayerId.ordinal].withCardPlayed(card)
 
         val newGameState = this.copy(
-            currentTrick = currentTrick.copy(trickCards = currentTrick.trickCards + Trick.TrickCard(card, playerEmail)),
-            playerCards = playerCards.plus(playerEmail to newPlayer.cards),
+            roundState = roundState.withCardPlayed(card),
+            playerCards = playerCards.plus(playerId to newPlayer.cards),
         )
 
-        return if (newGameState.currentTrick.isFull()) {
+        return if (newGameState.roundState.trick().isFull()) {
             // if full, wait for the current user to click it away
-            newGameState.copy(currentPlayerEmail = playerEmails[currentUserIdx])
+            newGameState.copy(currentPlayerId = this.currentUserId)
         } else {
-            newGameState.copy(currentPlayerEmail = playerEmails[(idx + 1) % playerEmails.size])
+            newGameState.copy(currentPlayerId = playerId.nextPlayer())
         }
     }
 }

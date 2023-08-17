@@ -3,10 +3,11 @@ package com.github.lucaengel.jass_entials.data.cards
 import com.github.lucaengel.jass_entials.data.game_state.Bet
 import com.github.lucaengel.jass_entials.data.game_state.GameState
 import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
+import com.github.lucaengel.jass_entials.data.game_state.PlayerId
+import com.github.lucaengel.jass_entials.data.game_state.RoundState
 import com.github.lucaengel.jass_entials.data.jass.Trump
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
-import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
 
@@ -14,35 +15,32 @@ class TrickTest {
 
     private val defaultPlayerDatas = listOf(
         PlayerData().copy(
-            email = "email1",
+            id = PlayerId.PLAYER_1,
             firstName = "player1",
             cards = Deck.STANDARD_DECK.cards.subList(0, 9)),
         PlayerData().copy(
-            email = "email2",
+            id = PlayerId.PLAYER_2,
             firstName = "player2",
             cards = Deck.STANDARD_DECK.cards.subList(9, 18)),
         PlayerData().copy(
-            email = "email3",
+            id = PlayerId.PLAYER_3,
             firstName = "player3",
             cards = Deck.STANDARD_DECK.cards.subList(18, 27)),
         PlayerData().copy(
-            email = "email4",
+            id = PlayerId.PLAYER_4,
             firstName = "player4",
             cards = Deck.STANDARD_DECK.cards.subList(27, 36)),
     )
 
     private val defaultGameState = GameState(
-        currentUserIdx = 0,
-        playerEmails = defaultPlayerDatas.map { it.email },
-        currentPlayerEmail = defaultPlayerDatas[0].email,
-        startingPlayerEmail = defaultPlayerDatas[0].email,
+        currentUserId = PlayerId.PLAYER_1,
+        playerEmails = listOf(),
+        currentPlayerId = defaultPlayerDatas[0].id,
+        startingPlayerId = defaultPlayerDatas[0].id,
         currentRound = 0,
-        currentTrick = Trick(),
-        currentRoundTrickWinners = listOf(),
-        currentTrickNumber = 0,
-        currentTrump = Trump.CLUBS,
+        roundState = RoundState.initial(Trump.SPADES, defaultPlayerDatas[0].id),
         winningBet = Bet(),
-        playerCards = defaultPlayerDatas.associate { it.email to it.cards },
+        playerCards = defaultPlayerDatas.associate { it.id to it.cards },
     )
 
     @Before
@@ -53,14 +51,11 @@ class TrickTest {
 
     @Test
     fun isFullReturnsTrueOnlyForTrickWith4CardsInside() {
-        var trick = Trick()
+        var trick = Trick.initial(PlayerId.PLAYER_1, Trump.SPADES)
         for (i in 0..3) {
-            trick = trick.copy(trickCards = trick.trickCards + Trick.TrickCard(
-                Card(
-                    Rank.SIX,
-                    Suit.CLUBS
-                ), "email_1"
-            )
+            trick = trick.copy(cards = trick.cards + Card(
+                    Suit.CLUBS,
+                    Rank.SIX)
             )
 
             assertThat(trick.isFull(), `is`(i == 3))
@@ -69,81 +64,78 @@ class TrickTest {
 
     @Test
     fun winnerReturnsHighestCardPlayerOfStartingSuit() {
-        val trick = Trick(listOf(
-            Trick.TrickCard(Card(Rank.SEVEN, Suit.HEARTS), "1"),
-            Trick.TrickCard(Card(Rank.ACE, Suit.DIAMONDS), "2"),
-            Trick.TrickCard(Card(Rank.EIGHT, Suit.HEARTS), "3"),
-            Trick.TrickCard(Card(Rank.SEVEN, Suit.CLUBS), "4"),
-        ))
-        assertThat(trick.winner(Trump.SPADES).playerEmail, `is`("3"))
+        val trick = Trick.initial(PlayerId.PLAYER_1, Trump.HEARTS)
+            .withNewCardPlayed(Card(Suit.HEARTS, Rank.SEVEN))
+            .withNewCardPlayed(Card(Suit.DIAMONDS, Rank.ACE))
+            .withNewCardPlayed(Card(Suit.HEARTS, Rank.EIGHT))
+            .withNewCardPlayed(Card(Suit.CLUBS, Rank.SEVEN))
+
+        assertThat(trick.winner(), `is`(PlayerId.PLAYER_3))
     }
 
     @Test
     fun winnerReturnsHighestTrumpPlayer() {
-        val trick = Trick(listOf(
-            Trick.TrickCard(Card(Rank.SEVEN, Suit.CLUBS), "1"),
-            Trick.TrickCard(Card(Rank.ACE, Suit.DIAMONDS), "2"),
-            Trick.TrickCard(Card(Rank.EIGHT, Suit.HEARTS), "3"),
-            Trick.TrickCard(Card(Rank.SEVEN, Suit.CLUBS), "4"),
-        ))
-        assertThat(trick.winner(Trump.HEARTS).playerEmail, `is`("3"))
+        val trick = Trick.initial(PlayerId.PLAYER_1, Trump.HEARTS)
+            .withNewCardPlayed(Card(Suit.CLUBS, Rank.SEVEN))
+            .withNewCardPlayed(Card(Suit.DIAMONDS, Rank.ACE))
+            .withNewCardPlayed(Card(Suit.HEARTS, Rank.EIGHT))
+            .withNewCardPlayed(Card(Suit.CLUBS, Rank.SEVEN))
+
+        assertThat(trick.winner(), `is`(PlayerId.PLAYER_3))
     }
 
     @Test
     fun winnerReturnsCorrectPlayerForUngerUfe() {
-        val trick = Trick(listOf(
-            Trick.TrickCard(Card(Rank.ACE, Suit.CLUBS), "1"),
-            Trick.TrickCard(Card(Rank.ACE, Suit.DIAMONDS), "2"),
-            Trick.TrickCard(Card(Rank.EIGHT, Suit.HEARTS), "3"),
-            Trick.TrickCard(Card(Rank.SIX, Suit.CLUBS), "4"),
-        ))
-        assertThat(trick.winner(Trump.UNGER_UFE).playerEmail, `is`("4"))
-    }
+        val trick = Trick.initial(PlayerId.PLAYER_1, Trump.UNGER_UFE)
+            .withNewCardPlayed(Card(Suit.CLUBS, Rank.ACE))
+            .withNewCardPlayed(Card(Suit.DIAMONDS, Rank.ACE))
+            .withNewCardPlayed(Card(Suit.HEARTS, Rank.EIGHT))
+            .withNewCardPlayed(Card(Suit.CLUBS, Rank.SIX))
 
-    @Test
-    fun trickWinnerConstructorThrowsWhenNon4CardsInTheTrick() {
-        assertThrows(IllegalArgumentException::class.java) {
-            Trick.TrickWinner(
-                defaultPlayerDatas[0].email,
-                Trick(listOf(
-                Trick.TrickCard(Card(Rank.ACE, Suit.CLUBS), "1"),
-                Trick.TrickCard(Card(Rank.ACE, Suit.DIAMONDS), "2"),
-                Trick.TrickCard(Card(Rank.EIGHT, Suit.HEARTS), "3"),
-                ))
-            )
-        }
-    }
-
-    @Test
-    fun trickWinnerConstructorThrowsWhenNonExistentEmailIsPassed() {
-        assertThrows(IllegalArgumentException::class.java) {
-            Trick.TrickWinner(
-                "nonExistentMail",
-                Trick(listOf(
-                    Trick.TrickCard(Card(Rank.ACE, Suit.CLUBS), "1"),
-                    Trick.TrickCard(Card(Rank.ACE, Suit.DIAMONDS), "2"),
-                    Trick.TrickCard(Card(Rank.EIGHT, Suit.HEARTS), "3"),
-                    Trick.TrickCard(Card(Rank.NINE, Suit.HEARTS), "4"),
-                ))
-            )
-        }
+        assertThat(trick.winner(), `is`(PlayerId.PLAYER_4))
     }
 
     @Test
     fun trickWinnerWorksForLegalInputs() {
-        val trick = Trick(listOf(
-            Trick.TrickCard(Card(Rank.ACE, Suit.CLUBS), "1"),
-            Trick.TrickCard(Card(Rank.ACE, Suit.DIAMONDS), "2"),
-            Trick.TrickCard(Card(Rank.EIGHT, Suit.HEARTS), "3"),
-            Trick.TrickCard(Card(Rank.NINE, Suit.HEARTS), "4"),
-        ))
+        val trick = Trick.initial(PlayerId.PLAYER_1, Trump.HEARTS)
+             .withNewCardPlayed(Card(Suit.CLUBS, Rank.ACE))
+             .withNewCardPlayed(Card(Suit.DIAMONDS, Rank.ACE))
+             .withNewCardPlayed(Card(Suit.HEARTS, Rank.EIGHT))
+             .withNewCardPlayed(Card(Suit.HEARTS, Rank.NINE))
 
-        val trickWinner = Trick.TrickWinner(
-            "1",
-            trick
-        )
+        assertThat(trick.winner(), `is`(PlayerId.PLAYER_4))
+    }
 
-        assertThat(trickWinner.playerEmail, `is`("1"))
-        assertThat(trickWinner.trick, `is`(trick))
+    @Test
+    fun nextPlayerReturnsTheNextPlayerToTheRightWhenTheTrickIsNotFull() {
+        var trick = Trick.initial(PlayerId.values()[0], Trump.HEARTS)
+
+        for (playerId in PlayerId.values()) {
+            assertThat(trick.nextPlayer(), `is`(playerId))
+
+            trick = trick.withNewCardPlayed(Card(Suit.CLUBS, Rank.values()[playerId.ordinal]))
+        }
+
+    }
+    @Test
+    fun nextPlayerReturnsWinnerOfTheTrickIfTheTrickIsFull() {
+        val trick = Trick.initial(PlayerId.PLAYER_1, Trump.HEARTS)
+            .withNewCardPlayed(Card(Suit.CLUBS, Rank.SIX))
+            .withNewCardPlayed(Card(Suit.CLUBS, Rank.ACE)) // winner
+            .withNewCardPlayed(Card(Suit.CLUBS, Rank.TEN))
+            .withNewCardPlayed(Card(Suit.CLUBS, Rank.NINE))
+
+        assertThat(trick.nextPlayer(), `is`(PlayerId.PLAYER_2))
+    }
+
+    @Test
+    fun sizeReturnsNumberOfCardsInTrick() {
+        var trick = Trick.initial(PlayerId.PLAYER_1, Trump.HEARTS)
+        assertThat(trick.size(), `is`(0))
+
+        for (i in 0..3) {
+            trick = trick.withNewCardPlayed(Card(Suit.CLUBS, Rank.values()[i]))
+            assertThat(trick.size(), `is`(i + 1))
+        }
     }
 }

@@ -10,7 +10,7 @@ import java.io.Serializable
  * @property toString The name of the suit.
  * @property symbol The symbol of the suit.
  */
-enum class Suit(val toString: String, val symbol: Char) : Serializable  {
+enum class Suit(private val toString: String, val symbol: Char) : Serializable  {
     CLUBS("Clubs", '\u2663'),
     SPADES("Spades", '\u2660'),
     HEARTS("Hearts", '\u2665'),
@@ -24,7 +24,7 @@ enum class Suit(val toString: String, val symbol: Char) : Serializable  {
  * @property normalHeight The height of the card in a normal game.
  * @property trumpHeight The height of the card in a trump game.
  */
-enum class Rank(private val rank: String, normalHeight: Int, val trumpHeight: Int) : Serializable  {
+enum class Rank(private val rank: String, private val normalHeight: Int, val trumpHeight: Int) : Serializable  {
     SIX("6", 6, 6),
     SEVEN("7", 7, 7),
     EIGHT("8", 8, 8),
@@ -47,10 +47,10 @@ enum class Rank(private val rank: String, normalHeight: Int, val trumpHeight: In
  * @property suit The suit of the card.
  */
 data class Card(
-    val rank: Rank,
     val suit: Suit,
+    val rank: Rank,
 ) : Serializable {
-    constructor() : this(Rank.TEN, Suit.HEARTS)
+    constructor() : this(Suit.HEARTS, Rank.TEN)
 
     /**
      * Returns the points of this card considering the given trump.
@@ -110,51 +110,51 @@ data class Card(
     }
 
     override fun toString(): String {
-        return "$rank${suit.symbol}"
+        return "${suit.symbol}$rank"
     }
 
     companion object {
 
         private val cardImageMap = mapOf(
-            Card(Rank.SIX, Suit.CLUBS) to R.drawable.clubs_6,
-            Card(Rank.SEVEN, Suit.CLUBS) to R.drawable.clubs_7,
-            Card(Rank.EIGHT, Suit.CLUBS) to R.drawable.clubs_8,
-            Card(Rank.NINE, Suit.CLUBS) to R.drawable.clubs_9,
-            Card(Rank.TEN, Suit.CLUBS) to R.drawable.clubs_10,
-            Card(Rank.JACK, Suit.CLUBS) to R.drawable.clubs_jack,
-            Card(Rank.QUEEN, Suit.CLUBS) to R.drawable.clubs_queen,
-            Card(Rank.KING, Suit.CLUBS) to R.drawable.clubs_king,
-            Card(Rank.ACE, Suit.CLUBS) to R.drawable.clubs_ace,
+            Card(Suit.CLUBS, Rank.SIX) to R.drawable.clubs_6,
+            Card(Suit.CLUBS, Rank.SEVEN) to R.drawable.clubs_7,
+            Card(Suit.CLUBS, Rank.EIGHT) to R.drawable.clubs_8,
+            Card(Suit.CLUBS, Rank.NINE) to R.drawable.clubs_9,
+            Card(Suit.CLUBS, Rank.TEN) to R.drawable.clubs_10,
+            Card(Suit.CLUBS, Rank.JACK) to R.drawable.clubs_jack,
+            Card(Suit.CLUBS, Rank.QUEEN) to R.drawable.clubs_queen,
+            Card(Suit.CLUBS, Rank.KING) to R.drawable.clubs_king,
+            Card(Suit.CLUBS, Rank.ACE) to R.drawable.clubs_ace,
 
-            Card(Rank.SIX, Suit.DIAMONDS) to R.drawable.diamonds_6,
-            Card(Rank.SEVEN, Suit.DIAMONDS) to R.drawable.diamonds_7,
-            Card(Rank.EIGHT, Suit.DIAMONDS) to R.drawable.diamonds_8,
-            Card(Rank.NINE, Suit.DIAMONDS) to R.drawable.diamonds_9,
-            Card(Rank.TEN, Suit.DIAMONDS) to R.drawable.diamonds_10,
-            Card(Rank.JACK, Suit.DIAMONDS) to R.drawable.diamonds_jack,
-            Card(Rank.QUEEN, Suit.DIAMONDS) to R.drawable.diamonds_queen,
-            Card(Rank.KING, Suit.DIAMONDS) to R.drawable.diamonds_king,
-            Card(Rank.ACE, Suit.DIAMONDS) to R.drawable.diamonds_ace,
+            Card(Suit.DIAMONDS, Rank.SIX) to R.drawable.diamonds_6,
+            Card(Suit.DIAMONDS, Rank.SEVEN) to R.drawable.diamonds_7,
+            Card(Suit.DIAMONDS, Rank.EIGHT) to R.drawable.diamonds_8,
+            Card(Suit.DIAMONDS, Rank.NINE) to R.drawable.diamonds_9,
+            Card(Suit.DIAMONDS, Rank.TEN) to R.drawable.diamonds_10,
+            Card(Suit.DIAMONDS, Rank.JACK) to R.drawable.diamonds_jack,
+            Card(Suit.DIAMONDS, Rank.QUEEN) to R.drawable.diamonds_queen,
+            Card(Suit.DIAMONDS, Rank.KING) to R.drawable.diamonds_king,
+            Card(Suit.DIAMONDS, Rank.ACE) to R.drawable.diamonds_ace,
 
-            Card(Rank.SIX, Suit.HEARTS) to R.drawable.heart_6,
-            Card(Rank.SEVEN, Suit.HEARTS) to R.drawable.heart_7,
-            Card(Rank.EIGHT, Suit.HEARTS) to R.drawable.heart_8,
-            Card(Rank.NINE, Suit.HEARTS) to R.drawable.heart_9,
-            Card(Rank.TEN, Suit.HEARTS) to R.drawable.heart_10,
-            Card(Rank.JACK, Suit.HEARTS) to R.drawable.heart_jack,
-            Card(Rank.QUEEN, Suit.HEARTS) to R.drawable.heart_queen,
-            Card(Rank.KING, Suit.HEARTS) to R.drawable.heart_king,
-            Card(Rank.ACE, Suit.HEARTS) to R.drawable.heart_ace,
+            Card(Suit.HEARTS, Rank.SIX) to R.drawable.heart_6,
+            Card(Suit.HEARTS, Rank.SEVEN) to R.drawable.heart_7,
+            Card(Suit.HEARTS, Rank.EIGHT) to R.drawable.heart_8,
+            Card(Suit.HEARTS, Rank.NINE) to R.drawable.heart_9,
+            Card(Suit.HEARTS, Rank.TEN) to R.drawable.heart_10,
+            Card(Suit.HEARTS, Rank.JACK) to R.drawable.heart_jack,
+            Card(Suit.HEARTS, Rank.QUEEN) to R.drawable.heart_queen,
+            Card(Suit.HEARTS, Rank.KING) to R.drawable.heart_king,
+            Card(Suit.HEARTS, Rank.ACE) to R.drawable.heart_ace,
 
-            Card(Rank.SIX, Suit.SPADES) to R.drawable.spades_6,
-            Card(Rank.SEVEN, Suit.SPADES) to R.drawable.spades_7,
-            Card(Rank.EIGHT, Suit.SPADES) to R.drawable.spades_8,
-            Card(Rank.NINE, Suit.SPADES) to R.drawable.spades_9,
-            Card(Rank.TEN, Suit.SPADES) to R.drawable.spades_10,
-            Card(Rank.JACK, Suit.SPADES) to R.drawable.spades_jack,
-            Card(Rank.QUEEN, Suit.SPADES) to R.drawable.spades_queen,
-            Card(Rank.KING, Suit.SPADES) to R.drawable.spades_king,
-            Card(Rank.ACE, Suit.SPADES) to R.drawable.spades_ace,
+            Card(Suit.SPADES, Rank.SIX) to R.drawable.spades_6,
+            Card(Suit.SPADES, Rank.SEVEN) to R.drawable.spades_7,
+            Card(Suit.SPADES, Rank.EIGHT) to R.drawable.spades_8,
+            Card(Suit.SPADES, Rank.NINE) to R.drawable.spades_9,
+            Card(Suit.SPADES, Rank.TEN) to R.drawable.spades_10,
+            Card(Suit.SPADES, Rank.JACK) to R.drawable.spades_jack,
+            Card(Suit.SPADES, Rank.QUEEN) to R.drawable.spades_queen,
+            Card(Suit.SPADES, Rank.KING) to R.drawable.spades_king,
+            Card(Suit.SPADES, Rank.ACE) to R.drawable.spades_ace,
         )
 
         /**

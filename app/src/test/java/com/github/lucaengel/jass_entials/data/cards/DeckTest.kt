@@ -19,31 +19,24 @@ class DeckTest {
     fun dealCardsDeals9CardsToEachPersonWithAFullDeck() {
         val deck = Deck.STANDARD_DECK
 
-        val playerDatas = listOf(
-            PlayerData().copy(email = "email_1", firstName = "player1"),
-            PlayerData().copy(email = "email_2", firstName = "player2"),
-            PlayerData().copy(email = "email_3", firstName = "player3"),
-            PlayerData().copy(email = "email_4", firstName = "player4")
-        )
-
-        deck.dealCards(playerDatas.map { it.email }).toList().forEachIndexed { _, (email, cards) ->
+        deck.dealCards().toList().forEachIndexed { _, (playerId, cards) ->
             assertThat(cards.size, `is`(9))
-            assertThat(cards, containsInAnyOrder(*GameStateHolder.players.first { it.email == email }.cards.toTypedArray()))
+            assertThat(cards, containsInAnyOrder(*GameStateHolder.players.first { it.id == playerId }.cards.toTypedArray()))
         }
     }
 
     @Test
     fun sortPlayerCardsWorksForSingleColor() {
         val cards = listOf(
-            Card(Rank.QUEEN, Suit.HEARTS),
-            Card(Rank.ACE, Suit.HEARTS),
-            Card(Rank.KING, Suit.HEARTS),
+            Card(Suit.HEARTS, Rank.QUEEN),
+            Card(Suit.HEARTS, Rank.ACE),
+            Card(Suit.HEARTS, Rank.KING),
         )
 
         val expectedCards = listOf(
-            Card(Rank.ACE, Suit.HEARTS),
-            Card(Rank.KING, Suit.HEARTS),
-            Card(Rank.QUEEN, Suit.HEARTS),
+            Card(Suit.HEARTS, Rank.ACE),
+            Card(Suit.HEARTS, Rank.KING),
+            Card(Suit.HEARTS, Rank.QUEEN),
         )
 
         val sortedCards = Deck.sortPlayerCards(cards)
@@ -53,25 +46,25 @@ class DeckTest {
     @Test
     fun sortPlayerCardsWorksForMultipleColorsAndSwitchesBetweenRedAndBlack() {
         val cards = listOf(
-            Card(Rank.QUEEN, Suit.HEARTS),
-            Card(Rank.ACE, Suit.DIAMONDS),
-            Card(Rank.SIX, Suit.CLUBS),
-            Card(Rank.ACE, Suit.HEARTS),
-            Card(Rank.KING, Suit.CLUBS),
-            Card(Rank.NINE, Suit.DIAMONDS),
-            Card(Rank.KING, Suit.HEARTS),
+            Card(Suit.HEARTS, Rank.QUEEN),
+            Card(Suit.DIAMONDS, Rank.ACE),
+            Card(Suit.CLUBS, Rank.SIX),
+            Card(Suit.HEARTS, Rank.ACE),
+            Card(Suit.CLUBS, Rank.KING),
+            Card(Suit.DIAMONDS, Rank.NINE),
+            Card(Suit.HEARTS, Rank.KING),
         )
 
         val expectedCards = listOf(
-            Card(Rank.ACE, Suit.HEARTS),
-            Card(Rank.KING, Suit.HEARTS),
-            Card(Rank.QUEEN, Suit.HEARTS),
+            Card(Suit.HEARTS, Rank.ACE),
+            Card(Suit.HEARTS, Rank.KING),
+            Card(Suit.HEARTS, Rank.QUEEN),
 
-            Card(Rank.KING, Suit.CLUBS),
-            Card(Rank.SIX, Suit.CLUBS),
+            Card(Suit.CLUBS, Rank.KING),
+            Card(Suit.CLUBS, Rank.SIX),
 
-            Card(Rank.ACE, Suit.DIAMONDS),
-            Card(Rank.NINE, Suit.DIAMONDS),
+            Card(Suit.DIAMONDS, Rank.ACE),
+            Card(Suit.DIAMONDS, Rank.NINE),
         )
 
         val sortedCards = Deck.sortPlayerCards(cards)
@@ -81,30 +74,30 @@ class DeckTest {
     @Test
     fun sortPlayerCardsWorksForMultipleColorsAndSwitchesBetweenRedAndBlackForAllColors() {
         val cards = listOf(
-            Card(Rank.QUEEN, Suit.HEARTS),
-            Card(Rank.ACE, Suit.DIAMONDS),
-            Card(Rank.TEN, Suit.SPADES),
-            Card(Rank.SIX, Suit.CLUBS),
-            Card(Rank.ACE, Suit.HEARTS),
-            Card(Rank.KING, Suit.CLUBS),
-            Card(Rank.NINE, Suit.DIAMONDS),
-            Card(Rank.NINE, Suit.SPADES),
-            Card(Rank.KING, Suit.HEARTS),
+            Card(Suit.HEARTS, Rank.QUEEN),
+            Card(Suit.DIAMONDS, Rank.ACE),
+            Card(Suit.SPADES, Rank.TEN),
+            Card(Suit.CLUBS, Rank.SIX),
+            Card(Suit.HEARTS, Rank.ACE),
+            Card(Suit.CLUBS, Rank.KING),
+            Card(Suit.DIAMONDS, Rank.NINE),
+            Card(Suit.SPADES, Rank.NINE),
+            Card(Suit.HEARTS, Rank.KING),
         )
 
         val expectedCards = listOf(
-            Card(Rank.KING, Suit.CLUBS),
-            Card(Rank.SIX, Suit.CLUBS),
+            Card(Suit.CLUBS, Rank.KING),
+            Card(Suit.CLUBS, Rank.SIX),
 
-            Card(Rank.ACE, Suit.HEARTS),
-            Card(Rank.KING, Suit.HEARTS),
-            Card(Rank.QUEEN, Suit.HEARTS),
+            Card(Suit.HEARTS, Rank.ACE),
+            Card(Suit.HEARTS, Rank.KING),
+            Card(Suit.HEARTS, Rank.QUEEN),
 
-            Card(Rank.TEN, Suit.SPADES),
-            Card(Rank.NINE, Suit.SPADES),
+            Card(Suit.SPADES, Rank.TEN),
+            Card(Suit.SPADES, Rank.NINE),
 
-            Card(Rank.ACE, Suit.DIAMONDS),
-            Card(Rank.NINE, Suit.DIAMONDS),
+            Card(Suit.DIAMONDS, Rank.ACE),
+            Card(Suit.DIAMONDS, Rank.NINE),
         )
 
         val sortedCards = Deck.sortPlayerCards(cards)

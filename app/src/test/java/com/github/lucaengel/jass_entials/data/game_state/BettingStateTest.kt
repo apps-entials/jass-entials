@@ -1,7 +1,6 @@
 package com.github.lucaengel.jass_entials.data.game_state
 
 import com.github.lucaengel.jass_entials.data.cards.PlayerData
-import com.github.lucaengel.jass_entials.data.cards.Trick
 import com.github.lucaengel.jass_entials.data.jass.JassType
 import com.github.lucaengel.jass_entials.data.jass.Trump
 import junit.framework.TestCase.assertTrue
@@ -14,19 +13,19 @@ import org.junit.Test
 class BettingStateTest {
 
     private val defaultPlayerDatas = listOf(
-        PlayerData().copy(email = "email1", firstName = "player1"),
-        PlayerData().copy(email = "email2", firstName = "player2"),
-        PlayerData().copy(email = "email3", firstName = "player3"),
-        PlayerData().copy(email = "email4", firstName = "player4")
+        PlayerData().copy(id = PlayerId.PLAYER_1, firstName = "player1"),
+        PlayerData().copy(id = PlayerId.PLAYER_2, firstName = "player2"),
+        PlayerData().copy(id = PlayerId.PLAYER_3, firstName = "player3"),
+        PlayerData().copy(id = PlayerId.PLAYER_4, firstName = "player4")
     )
 
     private val defaultBettingState = BettingState(
-        currentUserIdx = 0,
-        playerEmails = defaultPlayerDatas.map { it.email },
-        currentBetterEmail = defaultPlayerDatas[0].email,
-        startingBetterEmail = defaultPlayerDatas[0].email,
+        currentUserId = PlayerId.PLAYER_1,
+        playerEmails = listOf(),
+        currentBetterId = defaultPlayerDatas[0].id,
+        startingBetterId = defaultPlayerDatas[0].id,
         jassType = JassType.SIDI_BARAHNI,
-        bets = listOf(Bet(defaultPlayerDatas[1].email, Trump.UNGER_UFE, BetHeight.HUNDRED)),
+        bets = listOf(Bet(defaultPlayerDatas[1].id, Trump.UNGER_UFE, BetHeight.HUNDRED)),
         betActions = listOf(Bet.BetAction.BET),
         gameState = GameState(),
     )
@@ -39,13 +38,13 @@ class BettingStateTest {
 
     @Test
     fun nextBettingRoundUpdatesTheWantedElements() {
-        val newBettingState = defaultBettingState.nextBettingRound(defaultPlayerDatas[1].email)
+        val newBettingState = defaultBettingState.nextBettingRound(defaultPlayerDatas[1].id)
 
-        newBettingState.playerEmails.forEach {
-            assertThat(GameStateHolder.players.first { p -> p.email == it }.cards.size, `is`(9))
+        PlayerId.values().forEach {
+            assertThat(GameStateHolder.players.first { p -> p.id == it }.cards.size, `is`(9))
         }
 
-        assertThat(newBettingState.currentBetterEmail, `is`(defaultPlayerDatas[1].email))
+        assertThat(newBettingState.currentBetterId, `is`(defaultPlayerDatas[1].id))
         assertTrue(newBettingState.bets.isEmpty())
     }
 
@@ -53,23 +52,23 @@ class BettingStateTest {
     fun nextPlayerWorksForNullBet() {
         val newBettingState = defaultBettingState.nextPlayer()
 
-        assertThat(newBettingState.currentBetterEmail, `is`(defaultPlayerDatas[1].email))
+        assertThat(newBettingState.currentBetterId, `is`(defaultPlayerDatas[1].id))
         assertThat(newBettingState.bets.size, `is`(defaultBettingState.bets.size))
     }
 
     @Test
     fun nextPlayerWorksForNonNullBet() {
-        val newBet = Bet(defaultPlayerDatas[1].email, Trump.OBE_ABE, BetHeight.HUNDRED_TEN)
+        val newBet = Bet(defaultPlayerDatas[1].id, Trump.OBE_ABE, BetHeight.HUNDRED_TEN)
         val newBettingState = defaultBettingState.nextPlayer(newBet)
 
-        assertThat(newBettingState.currentBetterEmail, `is`(defaultPlayerDatas[1].email))
+        assertThat(newBettingState.currentBetterId, `is`(defaultPlayerDatas[1].id))
         assertThat(newBettingState.bets.size, `is`(defaultBettingState.bets.size + 1))
         assertThat(newBettingState.bets.last(), `is`(newBet))
     }
 
     @Test
     fun availableBetsAreAllHigherThanTheLastBet() {
-        val bettingState = defaultBettingState.copy(bets = listOf(Bet(defaultPlayerDatas[0].email, Trump.UNGER_UFE, BetHeight.SEVENTY)))
+        val bettingState = defaultBettingState.copy(bets = listOf(Bet(defaultPlayerDatas[0].id, Trump.UNGER_UFE, BetHeight.SEVENTY)))
 
         assertThat(bettingState.availableBets(), `is`(BetHeight.values().toList().subList(BetHeight.SEVENTY.ordinal + 1, BetHeight.values().size)))
     }
@@ -83,8 +82,8 @@ class BettingStateTest {
 
     @Test
     fun availableTrumpsContainsAllTrumpsIfLastBetNotByCurrentPlayer() {
-        val emptyBetsBettingState = defaultBettingState.copy(currentBetterEmail = defaultPlayerDatas[0].email, bets = listOf())
-        val nonEmptyBetsBettingState = defaultBettingState.copy(currentBetterEmail = defaultPlayerDatas[0].email, bets = listOf(Bet(defaultPlayerDatas[1].email, Trump.UNGER_UFE, BetHeight.SEVENTY)))
+        val emptyBetsBettingState = defaultBettingState.copy(currentBetterId = defaultPlayerDatas[0].id, bets = listOf())
+        val nonEmptyBetsBettingState = defaultBettingState.copy(currentBetterId = defaultPlayerDatas[0].id, bets = listOf(Bet(defaultPlayerDatas[1].id, Trump.UNGER_UFE, BetHeight.SEVENTY)))
 
         val bettingStates = listOf(emptyBetsBettingState, nonEmptyBetsBettingState)
 
@@ -95,7 +94,7 @@ class BettingStateTest {
 
     @Test
     fun availableTrumpsDoesNotContainTheTrumpOfLastBetIfCurrentBetterPlacedThatBet() {
-        val bettingState = defaultBettingState.copy(currentBetterEmail = defaultPlayerDatas[0].email, bets = listOf(Bet(defaultPlayerDatas[0].email, Trump.UNGER_UFE, BetHeight.SEVENTY)))
+        val bettingState = defaultBettingState.copy(currentBetterId = defaultPlayerDatas[0].id, bets = listOf(Bet(defaultPlayerDatas[0].id, Trump.UNGER_UFE, BetHeight.SEVENTY)))
 
         assertThat(bettingState.availableTrumps(), `is`(Trump.values().toList().filter { it != Trump.UNGER_UFE }))
     }
@@ -111,21 +110,18 @@ class BettingStateTest {
 
     @Test
     fun startGameReturnsGameStateWithNecessaryInformation() {
-        val winningBet = Bet(defaultPlayerDatas[0].email, Trump.UNGER_UFE, BetHeight.SEVENTY)
+        val winningBet = Bet(defaultPlayerDatas[0].id, Trump.UNGER_UFE, BetHeight.SEVENTY)
         val bettingState = defaultBettingState.copy(bets = listOf(winningBet))
 
         val expectedGameState = GameState(
-            currentUserIdx = 0,
-            playerEmails = defaultPlayerDatas.map { it.email },
-            currentPlayerEmail = defaultPlayerDatas[0].email,
-            startingPlayerEmail = defaultPlayerDatas[0].email,
+            currentUserId = PlayerId.PLAYER_1,
+            playerEmails = listOf(),
+            currentPlayerId = defaultPlayerDatas[0].id,
+            startingPlayerId = defaultPlayerDatas[0].id,
             currentRound = 0,
-            currentTrick = Trick(),
-            currentRoundTrickWinners = listOf(),
-            currentTrickNumber = 0,
-            currentTrump = Trump.UNGER_UFE,
+            roundState = RoundState.initial(winningBet.trump, defaultPlayerDatas[0].id),
             winningBet = winningBet,
-            playerCards = defaultPlayerDatas.associate { it.email to it.cards }
+            playerCards = defaultPlayerDatas.associate { it.id to it.cards }
         )
 
         assertThat(bettingState.startGame(), `is`(expectedGameState))
@@ -155,14 +151,14 @@ class BettingStateTest {
 
     @Test
     fun availableBetsReturnsAllBetsHigherThanTheLastOne() {
-        val bettingState = BettingState().copy(bets = listOf(Bet(defaultPlayerDatas[0].email, Trump.UNGER_UFE, BetHeight.SEVENTY)))
+        val bettingState = BettingState().copy(bets = listOf(Bet(defaultPlayerDatas[0].id, Trump.UNGER_UFE, BetHeight.SEVENTY)))
 
         assertThat(bettingState.availableBets(), `is`(BetHeight.values().toList().subList(BetHeight.SEVENTY.ordinal + 1, BetHeight.values().size)))
     }
 
     @Test
     fun availableBetsReturnsEmptyListAfterMatchHasBeenBid() {
-        val bettingState = BettingState().copy(bets = listOf(Bet(defaultPlayerDatas[0].email, Trump.UNGER_UFE, BetHeight.MATCH)))
+        val bettingState = BettingState().copy(bets = listOf(Bet(defaultPlayerDatas[0].id, Trump.UNGER_UFE, BetHeight.MATCH)))
 
         assertThat(bettingState.availableBets(), `is`(listOf()))
     }

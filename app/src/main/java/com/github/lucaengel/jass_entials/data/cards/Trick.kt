@@ -1,39 +1,66 @@
 package com.github.lucaengel.jass_entials.data.cards
 
-import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
+import com.github.lucaengel.jass_entials.data.game_state.PlayerId
 import com.github.lucaengel.jass_entials.data.jass.Trump
 
 /**
  * A trick is a collection of cards played by each player in a round.
  *
- * @param trickCards A list of pairs of cards and the player who played them.
+ * @param cards A list of pairs of cards and the player who played them.
  */
 data class Trick(
-    val trickCards: List<TrickCard>,
+    val cards: List<Card>,
+    val startingPlayerId: PlayerId,
+    val trump: Trump,
 ) {
 
-    /**
-     * A card played by a player.
-     */
-    data class TrickCard(
-        val card: Card,
-        val email: String,
-    )
+    fun withNewCardPlayed(card: Card): Trick {
+        if (isFull())
+            throw IllegalStateException("Cannot add card to trick that is already full.")
+
+        return this.copy(cards = cards + card)
+    }
+
+    fun nextTrick(): Trick {
+        if (!isFull())
+            throw IllegalStateException("Cannot move on to next trick if current trick is not full.")
+
+        return initial(
+            startingPlayerId = winner(),
+            trump = trump
+        )
+    }
 
     /**
-     * Represents the winner of a trick.
+     * Returns the player who played the last card in the current trick.
+     *
+     * @return The player who played the last card.
      */
-    data class TrickWinner(val playerEmail: String, val trick: Trick) {
-        init {
-            if (trick.trickCards.size != GameStateHolder.players.size)
-                throw IllegalArgumentException("A trick must have exactly as many cards as there are players to be completed.")
+    fun lastPlayer(): PlayerId {
+        return startingPlayerId.playerAtPosition(cards.size - 1)
+    }
 
-            if (!trick.trickCards.map { it.email }.contains(playerEmail))
-                throw IllegalArgumentException("The player must be one of the players in the trick.")
+    /**
+     * Returns the player who is next to play a card.
+     *
+     * @return The player who is next to play a card.
+     */
+    fun nextPlayer(): PlayerId {
+        return if (isFull()) {
+            winner()
+        } else {
+            startingPlayerId.playerAtPosition(cards.size)
         }
     }
 
-    constructor() : this(trickCards = listOf())
+    /**
+     * Returns the number of cards in the trick.
+     *
+     * @return The number of cards in the trick.
+     */
+    fun size(): Int {
+        return cards.size
+    }
 
     /**
      * Returns true if the trick is full, i.e. if 4 cards have been played.
@@ -41,32 +68,41 @@ data class Trick(
      * @return True if the trick is full.
      */
     fun isFull(): Boolean {
-        return trickCards.size == 4
+        return cards.size == 4
     }
 
     /**
      * Returns the player who played the highest card in the trick.
      *
-     * @param trump The trump of the round.
      * @return The player who played the highest card.
      */
-    fun winner(trump: Trump): TrickWinner {
-        return trickCards.foldRight(trickCards.first()) { (card, email), prevWinner ->
-            if (prevWinner.card.isHigherThan(card, trump)) {
-                prevWinner
+    fun winner(): PlayerId {
+        if (!isFull())
+            throw IllegalStateException("Cannot determine winner of trick that is not full.")
+
+        val (_, position) = cards.foldRightIndexed(Pair(cards.first(), 0)) { idx, card, (highestCard, position) ->
+            if (highestCard.isHigherThan(card, trump)) {
+                Pair(highestCard, position)
             } else {
-                TrickCard(card, email)
+                Pair(card, idx)
             }
-        }.email.let { TrickWinner(it, this) }
+        }
+
+        return startingPlayerId.playerAtPosition(position)
     }
 
     /**
      * Returns the points of the trick.
      *
-     * @param trump The trump of the round.
      * @return The points of the trick.
      */
-    fun points(trump: Trump): Int {
-        return trickCards.sumOf { it.card.points(trump) }
+    fun points(): Int {
+        return cards.sumOf { it.points(trump) }
+    }
+
+    companion object {
+        fun initial(startingPlayerId: PlayerId, trump: Trump): Trick {
+            return Trick(listOf(), startingPlayerId, trump)
+        }
     }
 }

@@ -1,5 +1,6 @@
 package com.github.lucaengel.jass_entials.data.cards
 
+import com.github.lucaengel.jass_entials.data.game_state.PlayerId
 import com.github.lucaengel.jass_entials.data.jass.Trump
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers
@@ -10,23 +11,22 @@ import java.lang.IllegalStateException
 class PlayerDataTest {
 
     private val defaultPlayerData = PlayerData(
-        email = "",
-        playerIdx = 0,
+        id = PlayerId.PLAYER_1,
         firstName = "",
         lastName = "",
         cards = listOf(
-            Card(Rank.ACE, Suit.HEARTS),
-            Card(Rank.SIX, Suit.HEARTS),
+            Card(Suit.HEARTS, Rank.ACE),
+            Card(Suit.HEARTS, Rank.SIX),
 
-            Card(Rank.ACE, Suit.DIAMONDS),
-            Card(Rank.TEN, Suit.DIAMONDS),
+            Card(Suit.DIAMONDS, Rank.ACE),
+            Card(Suit.DIAMONDS, Rank.TEN),
 
-            Card(Rank.ACE, Suit.CLUBS),
-            Card(Rank.SIX, Suit.CLUBS),
+            Card(Suit.CLUBS, Rank.ACE),
+            Card(Suit.CLUBS, Rank.SIX),
 
-            Card(Rank.ACE, Suit.SPADES),
-            Card(Rank.SEVEN, Suit.SPADES),
-            Card(Rank.SIX, Suit.SPADES),
+            Card(Suit.SPADES, Rank.ACE),
+            Card(Suit.SPADES, Rank.SEVEN),
+            Card(Suit.SPADES, Rank.SIX),
         ),
         teamNb = 0,
         token = "",
@@ -34,7 +34,7 @@ class PlayerDataTest {
 
     @Test
     fun playableCardsShowsAllCardsWithEmptyTrick() {
-        val emptyTrick = Trick(listOf())
+        val emptyTrick = Trick.initial(defaultPlayerData.id, Trump.HEARTS)
 
         val playableCards = defaultPlayerData.playableCards(emptyTrick, Trump.HEARTS)
 
@@ -43,176 +43,170 @@ class PlayerDataTest {
 
     @Test
     fun playableCardsShowsTrumpCardsAndPlayableSuitCardsWhenJustASuitHasBeenPlayed() {
-        val trick = Trick(listOf(Trick.TrickCard(Card(Rank.SEVEN, Suit.HEARTS), "")))
+        val trick = Trick.initial(PlayerId.PLAYER_1, Trump.CLUBS)
+            .withNewCardPlayed(Card(Suit.HEARTS, Rank.SEVEN))
 
         val playableCards = defaultPlayerData.playableCards(trick, Trump.CLUBS)
 
         assertThat(playableCards, Matchers.containsInAnyOrder(
-            Card(Rank.ACE, Suit.HEARTS),
-            Card(Rank.SIX, Suit.HEARTS),
+            Card(Suit.HEARTS, Rank.ACE),
+            Card(Suit.HEARTS, Rank.SIX),
 
-            Card(Rank.ACE, Suit.CLUBS),
-            Card(Rank.SIX, Suit.CLUBS),
+            Card(Suit.CLUBS, Rank.ACE),
+            Card(Suit.CLUBS, Rank.SIX),
         ))
     }
 
     @Test
     fun cannotUndertrump() {
-        val trick = Trick(listOf(
-            Trick.TrickCard(Card(Rank.SEVEN, Suit.DIAMONDS), "email_1"),
-            Trick.TrickCard(Card(Rank.TEN, Suit.HEARTS), "email_2"),
-            )
-        )
+        val trick = Trick.initial(PlayerId.PLAYER_3, Trump.CLUBS)
+            .withNewCardPlayed(Card(Suit.DIAMONDS, Rank.SEVEN))
+            .withNewCardPlayed(Card(Suit.HEARTS, Rank.TEN))
 
         val playableCards = defaultPlayerData.playableCards(trick, Trump.HEARTS)
 
         assertThat(playableCards, Matchers.containsInAnyOrder(
-            Card(Rank.ACE, Suit.DIAMONDS),
-            Card(Rank.TEN, Suit.DIAMONDS),
+            Card(Suit.DIAMONDS, Rank.ACE),
+            Card(Suit.DIAMONDS, Rank.TEN),
 
-            Card(Rank.ACE, Suit.HEARTS),
+            Card(Suit.HEARTS, Rank.ACE),
         )) // no six since that would be undertrumping
     }
 
     @Test
     fun ifAceOfTrumpPlayedAndNoUnderTrumpingNellAndJackStillPlayable() {
         val player = defaultPlayerData.copy(cards = listOf(
-            Card(Rank.TEN, Suit.HEARTS),
-            Card(Rank.SIX, Suit.HEARTS),
-            Card(Rank.NINE, Suit.HEARTS),
-            Card(Rank.JACK, Suit.HEARTS),
+            Card(Suit.HEARTS, Rank.TEN),
+            Card(Suit.HEARTS, Rank.SIX),
+            Card(Suit.HEARTS, Rank.NINE),
+            Card(Suit.HEARTS, Rank.JACK),
 
-            Card(Rank.ACE, Suit.DIAMONDS),
-            Card(Rank.SIX, Suit.DIAMONDS),
+            Card(Suit.DIAMONDS, Rank.ACE),
+            Card(Suit.DIAMONDS, Rank.SIX),
 
-            Card(Rank.ACE, Suit.SPADES),
-            Card(Rank.SEVEN, Suit.SPADES),
-            Card(Rank.SIX, Suit.SPADES),
+            Card(Suit.SPADES, Rank.ACE),
+            Card(Suit.SPADES, Rank.SEVEN),
+            Card(Suit.SPADES, Rank.SIX),
         ))
 
-        val trick = Trick(listOf(
-            Trick.TrickCard(Card(Rank.SEVEN, Suit.DIAMONDS), "email_1"),
-            Trick.TrickCard(Card(Rank.ACE, Suit.HEARTS), "email_2"),
-        ))
+        val trick = Trick.initial(PlayerId.PLAYER_3, Trump.HEARTS)
+            .withNewCardPlayed(Card(Suit.DIAMONDS, Rank.SEVEN))
+            .withNewCardPlayed(Card(Suit.HEARTS, Rank.ACE))
 
         val playableCards = player.playableCards(trick, Trump.HEARTS)
 
         assertThat(playableCards, Matchers.containsInAnyOrder(
-            Card(Rank.ACE, Suit.DIAMONDS),
-            Card(Rank.SIX, Suit.DIAMONDS),
+            Card(Suit.DIAMONDS, Rank.ACE),
+            Card(Suit.DIAMONDS, Rank.SIX),
 
-            Card(Rank.NINE, Suit.HEARTS),
-            Card(Rank.JACK, Suit.HEARTS),
+            Card(Suit.HEARTS, Rank.NINE),
+            Card(Suit.HEARTS, Rank.JACK),
         ))
     }
 
     @Test
     fun ifNellOfTrumpPlayedAndNoUnderTrumpingNellAndJackStillPlayable() {
         val player = defaultPlayerData.copy(cards = listOf(
-            Card(Rank.TEN, Suit.HEARTS),
-            Card(Rank.SIX, Suit.HEARTS),
-            Card(Rank.JACK, Suit.HEARTS),
+            Card(Suit.HEARTS, Rank.TEN),
+            Card(Suit.HEARTS, Rank.SIX),
+            Card(Suit.HEARTS, Rank.JACK),
 
-            Card(Rank.ACE, Suit.DIAMONDS),
-            Card(Rank.SIX, Suit.DIAMONDS),
+            Card(Suit.DIAMONDS, Rank.ACE),
+            Card(Suit.DIAMONDS, Rank.SIX),
 
-            Card(Rank.ACE, Suit.SPADES),
-            Card(Rank.SEVEN, Suit.SPADES),
-            Card(Rank.SIX, Suit.SPADES),
+            Card(Suit.SPADES, Rank.ACE),
+            Card(Suit.SPADES, Rank.SEVEN),
+            Card(Suit.SPADES, Rank.SIX),
         ))
 
-        val trick = Trick(listOf(
-            Trick.TrickCard(Card(Rank.SEVEN, Suit.DIAMONDS), "email_1"),
-            Trick.TrickCard(Card(Rank.NINE, Suit.HEARTS), "email_2"),
-        ))
+        val trick = Trick.initial(PlayerId.PLAYER_3, Trump.HEARTS)
+            .withNewCardPlayed(Card(Suit.DIAMONDS, Rank.SEVEN))
+            .withNewCardPlayed(Card(Suit.HEARTS, Rank.NINE))
 
         val playableCards = player.playableCards(trick, Trump.HEARTS)
 
         assertThat(playableCards, Matchers.containsInAnyOrder(
-            Card(Rank.ACE, Suit.DIAMONDS),
-            Card(Rank.SIX, Suit.DIAMONDS),
+            Card(Suit.DIAMONDS, Rank.ACE),
+            Card(Suit.DIAMONDS, Rank.SIX),
 
-            Card(Rank.JACK, Suit.HEARTS),
+            Card(Suit.HEARTS, Rank.JACK),
         ))
     }
 
     @Test
     fun ifTrumpPlayedFirstAllTrumpsAllowed() {
         val player = defaultPlayerData.copy(cards = listOf(
-            Card(Rank.TEN, Suit.HEARTS),
-            Card(Rank.SIX, Suit.HEARTS),
-            Card(Rank.NINE, Suit.HEARTS),
+            Card(Suit.HEARTS, Rank.TEN),
+            Card(Suit.HEARTS, Rank.SIX),
+            Card(Suit.HEARTS, Rank.NINE),
 
-            Card(Rank.ACE, Suit.DIAMONDS),
-            Card(Rank.SIX, Suit.DIAMONDS),
+            Card(Suit.DIAMONDS, Rank.ACE),
+            Card(Suit.DIAMONDS, Rank.SIX),
 
-            Card(Rank.ACE, Suit.SPADES),
-            Card(Rank.SEVEN, Suit.SPADES),
-            Card(Rank.SIX, Suit.SPADES),
+            Card(Suit.SPADES, Rank.ACE),
+            Card(Suit.SPADES, Rank.SEVEN),
+            Card(Suit.SPADES, Rank.SIX),
         ))
 
-        val trick = Trick(listOf(
-            Trick.TrickCard(Card(Rank.TEN, Suit.HEARTS), "email_1"),
-            Trick.TrickCard(Card(Rank.TEN, Suit.DIAMONDS), "email_2"),
-        ))
+        val trick = Trick.initial(PlayerId.PLAYER_3, Trump.HEARTS)
+            .withNewCardPlayed(Card(Suit.HEARTS, Rank.TEN))
+            .withNewCardPlayed(Card(Suit.DIAMONDS, Rank.TEN))
 
         val playableCards = player.playableCards(trick, Trump.HEARTS)
 
         assertThat(playableCards, Matchers.containsInAnyOrder(
-            Card(Rank.TEN, Suit.HEARTS),
-            Card(Rank.SIX, Suit.HEARTS),
-            Card(Rank.NINE, Suit.HEARTS),
+            Card(Suit.HEARTS, Rank.TEN),
+            Card(Suit.HEARTS, Rank.SIX),
+            Card(Suit.HEARTS, Rank.NINE),
         ))
     }
 
     @Test
     fun playableCardsForUngerUfeAreOnlyCardsWithTheSameSuit() {
         val player = defaultPlayerData.copy(cards = listOf(
-            Card(Rank.TEN, Suit.HEARTS),
-            Card(Rank.SIX, Suit.HEARTS),
-            Card(Rank.NINE, Suit.HEARTS),
+            Card(Suit.HEARTS, Rank.TEN),
+            Card(Suit.HEARTS, Rank.SIX),
+            Card(Suit.HEARTS, Rank.NINE),
 
-            Card(Rank.ACE, Suit.DIAMONDS),
-            Card(Rank.SIX, Suit.DIAMONDS),
+            Card(Suit.DIAMONDS, Rank.ACE),
+            Card(Suit.DIAMONDS, Rank.SIX),
 
-            Card(Rank.ACE, Suit.SPADES),
-            Card(Rank.SEVEN, Suit.SPADES),
-            Card(Rank.SIX, Suit.SPADES),
+            Card(Suit.SPADES, Rank.ACE),
+            Card(Suit.SPADES, Rank.SEVEN),
+            Card(Suit.SPADES, Rank.SIX),
         ))
 
-        val trick = Trick(listOf(
-            Trick.TrickCard(Card(Rank.TEN, Suit.HEARTS), "email_1"),
-            Trick.TrickCard(Card(Rank.TEN, Suit.DIAMONDS), "email_2"),
-        ))
+        val trick = Trick.initial(PlayerId.PLAYER_3, Trump.UNGER_UFE)
+            .withNewCardPlayed(Card(Suit.HEARTS, Rank.TEN))
+            .withNewCardPlayed(Card(Suit.DIAMONDS, Rank.TEN))
 
         val playableCards = player.playableCards(trick, Trump.UNGER_UFE)
 
         assertThat(playableCards, Matchers.containsInAnyOrder(
-            Card(Rank.TEN, Suit.HEARTS),
-            Card(Rank.SIX, Suit.HEARTS),
-            Card(Rank.NINE, Suit.HEARTS),
+            Card(Suit.HEARTS, Rank.TEN),
+            Card(Suit.HEARTS, Rank.SIX),
+            Card(Suit.HEARTS, Rank.NINE),
         ))
     }
 
     @Test
     fun ifUserHasNoTrumpCardsAndTrumpWasPlayedTheUserCanPlayAnyCard() {
         val player = defaultPlayerData.copy(cards = listOf(
-            Card(Rank.TEN, Suit.HEARTS),
-            Card(Rank.SIX, Suit.HEARTS),
-            Card(Rank.NINE, Suit.HEARTS),
+            Card(Suit.HEARTS, Rank.TEN),
+            Card(Suit.HEARTS, Rank.SIX),
+            Card(Suit.HEARTS, Rank.NINE),
 
-            Card(Rank.ACE, Suit.DIAMONDS),
-            Card(Rank.SIX, Suit.DIAMONDS),
+            Card(Suit.DIAMONDS, Rank.ACE),
+            Card(Suit.DIAMONDS, Rank.SIX),
 
-            Card(Rank.ACE, Suit.SPADES),
-            Card(Rank.SEVEN, Suit.SPADES),
-            Card(Rank.SIX, Suit.SPADES),
+            Card(Suit.SPADES, Rank.ACE),
+            Card(Suit.SPADES, Rank.SEVEN),
+            Card(Suit.SPADES, Rank.SIX),
         ))
 
-        val trick = Trick(listOf(
-            Trick.TrickCard(Card(Rank.TEN, Suit.CLUBS), "email_1"),
-            Trick.TrickCard(Card(Rank.TEN, Suit.DIAMONDS), "email_2"),
-        ))
+        val trick = Trick.initial(PlayerId.PLAYER_3, Trump.CLUBS)
+            .withNewCardPlayed(Card(Suit.CLUBS, Rank.TEN))
+            .withNewCardPlayed(Card(Suit.DIAMONDS, Rank.TEN))
 
         val playableCards = player.playableCards(trick, Trump.CLUBS)
 
@@ -224,32 +218,31 @@ class PlayerDataTest {
     @Test
     fun noUnderTrumpingAllowed() {
         val player = defaultPlayerData.copy(cards = listOf(
-            Card(Rank.TEN, Suit.HEARTS),
-            Card(Rank.SIX, Suit.HEARTS),
-            Card(Rank.NINE, Suit.HEARTS),
+            Card(Suit.HEARTS, Rank.TEN),
+            Card(Suit.HEARTS, Rank.SIX),
+            Card(Suit.HEARTS, Rank.NINE),
 
-            Card(Rank.ACE, Suit.DIAMONDS),
-            Card(Rank.SIX, Suit.DIAMONDS),
+            Card(Suit.DIAMONDS, Rank.ACE),
+            Card(Suit.DIAMONDS, Rank.SIX),
 
-            Card(Rank.ACE, Suit.SPADES),
-            Card(Rank.SEVEN, Suit.SPADES),
-            Card(Rank.SIX, Suit.SPADES),
+            Card(Suit.SPADES, Rank.ACE),
+            Card(Suit.SPADES, Rank.SEVEN),
+            Card(Suit.SPADES, Rank.SIX),
         ))
 
-        val trick = Trick(listOf(
-            Trick.TrickCard(Card(Rank.TEN, Suit.HEARTS), "email_1"),
-            Trick.TrickCard(Card(Rank.TEN, Suit.DIAMONDS), "email_2"),
-        ))
+        val trick = Trick.initial(PlayerId.PLAYER_3, Trump.DIAMONDS)
+            .withNewCardPlayed(Card(Suit.HEARTS, Rank.TEN))
+            .withNewCardPlayed(Card(Suit.DIAMONDS, Rank.TEN))
 
         val playableCards = player.playableCards(trick, Trump.DIAMONDS)
 
         assertThat(playableCards, Matchers.containsInAnyOrder(
-            Card(Rank.TEN, Suit.HEARTS),
-            Card(Rank.SIX, Suit.HEARTS),
-            Card(Rank.NINE, Suit.HEARTS),
+            Card(Suit.HEARTS, Rank.TEN),
+            Card(Suit.HEARTS, Rank.SIX),
+            Card(Suit.HEARTS, Rank.NINE),
 
             // not the six of diamonds as this would be under trumping
-            Card(Rank.ACE, Suit.DIAMONDS),
+            Card(Suit.DIAMONDS, Rank.ACE),
         ))
     }
 
@@ -257,19 +250,18 @@ class PlayerDataTest {
     fun ifNoCardCanBePlayedAllCardsCanBePlayed() {
 
         val player = defaultPlayerData.copy(cards = listOf(
-            Card(Rank.TEN, Suit.HEARTS),
-            Card(Rank.SIX, Suit.HEARTS),
-            Card(Rank.NINE, Suit.HEARTS),
+            Card(Suit.HEARTS, Rank.TEN),
+            Card(Suit.HEARTS, Rank.SIX),
+            Card(Suit.HEARTS, Rank.NINE),
 
-            Card(Rank.ACE, Suit.SPADES),
-            Card(Rank.SEVEN, Suit.SPADES),
-            Card(Rank.SIX, Suit.SPADES),
+            Card(Suit.SPADES, Rank.ACE),
+            Card(Suit.SPADES, Rank.SEVEN),
+            Card(Suit.SPADES, Rank.SIX),
         ))
 
-        val trick = Trick(listOf(
-            Trick.TrickCard(Card(Rank.TEN, Suit.DIAMONDS), "email_1"),
-            Trick.TrickCard(Card(Rank.TEN, Suit.CLUBS), "email_2"),
-        ))
+        val trick = Trick.initial(PlayerId.PLAYER_3, Trump.CLUBS)
+            .withNewCardPlayed(Card(Suit.DIAMONDS, Rank.TEN))
+            .withNewCardPlayed(Card(Suit.CLUBS, Rank.TEN))
 
         val playableCards = player.playableCards(trick, Trump.CLUBS)
 
@@ -281,21 +273,20 @@ class PlayerDataTest {
     @Test
     fun trumpJackDoesNotHaveToBePlayedWhenTrumpIsOutAndJackIsTheOnlyTrumpCard() {
         val player = defaultPlayerData.copy(cards = listOf(
-            Card(Rank.TEN, Suit.HEARTS),
-            Card(Rank.SIX, Suit.HEARTS),
-            Card(Rank.NINE, Suit.HEARTS),
+            Card(Suit.HEARTS, Rank.TEN),
+            Card(Suit.HEARTS, Rank.SIX),
+            Card(Suit.HEARTS, Rank.NINE),
 
-            Card(Rank.ACE, Suit.SPADES),
-            Card(Rank.SEVEN, Suit.SPADES),
-            Card(Rank.SIX, Suit.SPADES),
+            Card(Suit.SPADES, Rank.ACE),
+            Card(Suit.SPADES, Rank.SEVEN),
+            Card(Suit.SPADES, Rank.SIX),
 
-            Card(Rank.JACK, Suit.CLUBS),
+            Card(Suit.CLUBS, Rank.JACK),
         ))
 
-        val trick = Trick(listOf(
-            Trick.TrickCard(Card(Rank.TEN, Suit.CLUBS), "email_1"),
-            Trick.TrickCard(Card(Rank.TEN, Suit.DIAMONDS), "email_2"),
-        ))
+        val trick = Trick.initial(PlayerId.PLAYER_3, Trump.CLUBS)
+            .withNewCardPlayed(Card(Suit.CLUBS, Rank.TEN))
+            .withNewCardPlayed(Card(Suit.DIAMONDS, Rank.TEN))
 
         val playableCards = player.playableCards(trick, Trump.CLUBS)
 
@@ -309,101 +300,108 @@ class PlayerDataTest {
     @Test
     fun playerMustPlayTheJackIfItIsTheOnlyCardToHoldSuitWithAndItIsNotTrump() {
         val player = defaultPlayerData.copy(cards = listOf(
-            Card(Rank.TEN, Suit.HEARTS),
-            Card(Rank.SIX, Suit.HEARTS),
-            Card(Rank.NINE, Suit.HEARTS),
+            Card(Suit.HEARTS, Rank.TEN),
+            Card(Suit.HEARTS, Rank.SIX),
+            Card(Suit.HEARTS, Rank.NINE),
 
-            Card(Rank.ACE, Suit.SPADES),
-            Card(Rank.SEVEN, Suit.SPADES),
-            Card(Rank.SIX, Suit.SPADES),
+            Card(Suit.SPADES, Rank.ACE),
+            Card(Suit.SPADES, Rank.SEVEN),
+            Card(Suit.SPADES, Rank.SIX),
 
-            Card(Rank.JACK, Suit.CLUBS),
+            Card(Suit.CLUBS, Rank.JACK),
         ))
 
-        val trick = Trick(listOf(
-            Trick.TrickCard(Card(Rank.TEN, Suit.CLUBS), "email_1"),
-            Trick.TrickCard(Card(Rank.TEN, Suit.DIAMONDS), "email_2"),
-        ))
+        val trick = Trick.initial(PlayerId.PLAYER_3, Trump.HEARTS)
+            .withNewCardPlayed(Card(Suit.CLUBS, Rank.TEN))
+            .withNewCardPlayed(Card(Suit.DIAMONDS, Rank.TEN))
 
         val playableCards = player.playableCards(trick, Trump.UNGER_UFE)
 
         // All cards should be able to be played since the current player only has the trump jack
         // of the trump suit that is out
         assertThat(playableCards, Matchers.containsInAnyOrder(
-            Card(Rank.JACK, Suit.CLUBS)
+            Card(Suit.CLUBS, Rank.JACK)
         ))
     }
 
     @Test
     fun playerMustHoldSuitIfTheyCanAndTheyHaveNoTrumpCards() {
         val player = defaultPlayerData.copy(cards = listOf(
-            Card(Rank.TEN, Suit.HEARTS),
-            Card(Rank.SIX, Suit.HEARTS),
-            Card(Rank.NINE, Suit.HEARTS),
+            Card(Suit.HEARTS, Rank.TEN),
+            Card(Suit.HEARTS, Rank.SIX),
+            Card(Suit.HEARTS, Rank.NINE),
 
-            Card(Rank.ACE, Suit.SPADES),
-            Card(Rank.SEVEN, Suit.SPADES),
-            Card(Rank.SIX, Suit.SPADES),
+            Card(Suit.SPADES, Rank.ACE),
+            Card(Suit.SPADES, Rank.SEVEN),
+            Card(Suit.SPADES, Rank.SIX),
 
-            Card(Rank.TEN, Suit.CLUBS),
+            Card(Suit.CLUBS, Rank.TEN),
         ))
 
-        val trick = Trick(listOf(
-            Trick.TrickCard(Card(Rank.TEN, Suit.CLUBS), "email_1"),
-            Trick.TrickCard(Card(Rank.TEN, Suit.DIAMONDS), "email_2"),
-        ))
+        val trick = Trick.initial(PlayerId.PLAYER_3, Trump.HEARTS)
+            .withNewCardPlayed(Card(Suit.CLUBS, Rank.TEN))
+            .withNewCardPlayed(Card(Suit.DIAMONDS, Rank.TEN))
 
         val playableCards = player.playableCards(trick, Trump.CLUBS)
 
         // All cards should be able to be played since the current player only has the trump jack
         // of the trump suit that is out
         assertThat(playableCards, Matchers.containsInAnyOrder(
-            Card(Rank.TEN, Suit.CLUBS)
+            Card(Suit.CLUBS, Rank.TEN)
         ))
     }
 
     @Test
-    fun allCardsArePlayableIfASuitIsOutThatThePlayerDoesNotHaveAndThePlayerHasTrumpAndNonTrumpCards() {
+    fun allCardsArePlayableIfASuitIsOutThatThePlayerDoesNotHaveAndThePlayerHasTrumpAndNonTrumpCardsExceptUnderTrumping() {
         val player = defaultPlayerData.copy(cards = listOf(
-            Card(Rank.TEN, Suit.HEARTS),
-            Card(Rank.SIX, Suit.HEARTS),
-            Card(Rank.NINE, Suit.HEARTS),
+            Card(Suit.HEARTS, Rank.TEN),
+            Card(Suit.HEARTS, Rank.SIX),
+            Card(Suit.HEARTS, Rank.NINE),
 
-            Card(Rank.ACE, Suit.SPADES),
-            Card(Rank.SEVEN, Suit.SPADES),
-            Card(Rank.SIX, Suit.SPADES),
+            Card(Suit.SPADES, Rank.ACE),
+            Card(Suit.SPADES, Rank.SEVEN),
+            Card(Suit.SPADES, Rank.SIX),
 
-            Card(Rank.JACK, Suit.CLUBS),
-            Card(Rank.TEN, Suit.CLUBS),
+            Card(Suit.CLUBS, Rank.JACK),
+            Card(Suit.CLUBS, Rank.TEN),
+            Card(Suit.CLUBS, Rank.SEVEN),
         ))
 
-        val trick = Trick(listOf(
-            Trick.TrickCard(Card(Rank.TEN, Suit.DIAMONDS), "email_2"),
-            Trick.TrickCard(Card(Rank.TEN, Suit.CLUBS), "email_1"),
-        ))
+        val trick = Trick.initial(PlayerId.PLAYER_3, Trump.CLUBS)
+            .withNewCardPlayed(Card(Suit.DIAMONDS, Rank.TEN))
+            .withNewCardPlayed(Card(Suit.CLUBS, Rank.EIGHT))
 
         val playableCards = player.playableCards(trick, Trump.CLUBS)
 
         // All cards should be able to be played since the current player does not have any diamonds
         assertThat(playableCards, Matchers.containsInAnyOrder(
-            *player.cards.toTypedArray()
+            Card(Suit.HEARTS, Rank.TEN),
+            Card(Suit.HEARTS, Rank.SIX),
+            Card(Suit.HEARTS, Rank.NINE),
+
+            Card(Suit.SPADES, Rank.ACE),
+            Card(Suit.SPADES, Rank.SEVEN),
+            Card(Suit.SPADES, Rank.SIX),
+
+            Card(Suit.CLUBS, Rank.JACK),
+            Card(Suit.CLUBS, Rank.TEN),
         ))
     }
     @Test
     fun withCaredPlayedReturnsPlayerWithoutTheGivenCard() {
         val expectedCards = listOf(
-            Card(Rank.TEN, Suit.HEARTS),
-            Card(Rank.SIX, Suit.HEARTS),
-            Card(Rank.NINE, Suit.HEARTS),
+            Card(Suit.HEARTS, Rank.TEN),
+            Card(Suit.HEARTS, Rank.SIX),
+            Card(Suit.HEARTS, Rank.NINE),
 
-            Card(Rank.ACE, Suit.SPADES),
-            Card(Rank.SEVEN, Suit.SPADES),
-            Card(Rank.SIX, Suit.SPADES),
+            Card(Suit.SPADES, Rank.ACE),
+            Card(Suit.SPADES, Rank.SEVEN),
+            Card(Suit.SPADES, Rank.SIX),
 
-            Card(Rank.JACK, Suit.CLUBS),
-            Card(Rank.TEN, Suit.CLUBS),
+            Card(Suit.CLUBS, Rank.JACK),
+            Card(Suit.CLUBS, Rank.TEN),
             )
-        val cardToPlay = Card(Rank.TEN, Suit.DIAMONDS)
+        val cardToPlay = Card(Suit.DIAMONDS, Rank.TEN)
 
         val player = defaultPlayerData.copy(cards = listOf(
             *expectedCards.toTypedArray(),
@@ -419,16 +417,123 @@ class PlayerDataTest {
     @Test
     fun withCardPlayedThrowsIfTheCardIsNotInThePlayersHand() {
 
-        val inExistentCard = Card(Rank.TEN, Suit.DIAMONDS)
+        val inExistentCard = Card(Suit.DIAMONDS, Rank.TEN)
 
         val player = defaultPlayerData.copy(cards = listOf(
-            Card(Rank.TEN, Suit.HEARTS),
-            Card(Rank.SIX, Suit.HEARTS),
-            Card(Rank.NINE, Suit.HEARTS),
+            Card(Suit.HEARTS, Rank.TEN),
+            Card(Suit.HEARTS, Rank.SIX),
+            Card(Suit.HEARTS, Rank.NINE),
         ))
 
         assertThrows(IllegalStateException::class.java) {
             player.withCardPlayed(inExistentCard)
         }
+    }
+
+    @Test
+    fun noUndertrumping() {
+        val player = defaultPlayerData.copy(cards = listOf(
+            Card(Suit.SPADES, Rank.NINE),
+            Card(Suit.SPADES, Rank.TEN),
+
+            Card(Suit.HEARTS, Rank.SEVEN),
+            Card(Suit.HEARTS, Rank.EIGHT),
+            Card(Suit.HEARTS, Rank.NINE),
+            Card(Suit.HEARTS, Rank.TEN),
+            Card(Suit.HEARTS, Rank.JACK),
+        ))
+
+        val trick = Trick.initial(PlayerId.PLAYER_2, Trump.SPADES)
+            .withNewCardPlayed(Card(Suit.CLUBS, Rank.NINE))
+            .withNewCardPlayed(Card(Suit.SPADES, Rank.ACE))
+            .withNewCardPlayed(Card(Suit.CLUBS, Rank.KING))
+
+        val playableCards = player.playableCards(trick, Trump.SPADES)
+
+        // All cards should be able to be played since the current player does not have any diamonds
+        assertThat(playableCards, Matchers.containsInAnyOrder(
+            Card(Suit.SPADES, Rank.NINE),
+            // no ten of spades, as this would be undertrumping
+
+            Card(Suit.HEARTS, Rank.SEVEN),
+            Card(Suit.HEARTS, Rank.EIGHT),
+            Card(Suit.HEARTS, Rank.NINE),
+            Card(Suit.HEARTS, Rank.TEN),
+            Card(Suit.HEARTS, Rank.JACK),
+        ))
+    }
+
+    @Test
+    fun youCanUnderTrumpIfYouOnlyStillHaveTrumpLeft() {
+        val player = defaultPlayerData.copy(cards = listOf(
+            Card(Suit.HEARTS, Rank.SEVEN),
+            Card(Suit.HEARTS, Rank.EIGHT),
+
+            Card(Suit.HEARTS, Rank.TEN),
+            Card(Suit.HEARTS, Rank.JACK),
+        ))
+
+        // no under trumping the nel possible but the current player only has trump left
+        // so it is ok to under trump
+        val trick = Trick.initial(PlayerId.PLAYER_2, Trump.HEARTS)
+            .withNewCardPlayed(Card(Suit.SPADES, Rank.ACE))
+            .withNewCardPlayed(Card(Suit.HEARTS, Rank.NINE))
+            .withNewCardPlayed(Card(Suit.CLUBS, Rank.KING))
+
+        val playableCards = player.playableCards(trick, Trump.HEARTS)
+
+        // All cards should be able to be played since the current player only has trump left
+        assertThat(playableCards, Matchers.containsInAnyOrder(
+            *player.cards.toTypedArray()
+        ))
+    }
+
+    @Test
+    fun allCardsPlayableWhenNoCardOfFirstPlayedSuitAndTrickHasNoTrump() {
+        val player = defaultPlayerData.copy(cards = listOf(
+            Card(Suit.SPADES, Rank.NINE),
+            Card(Suit.SPADES, Rank.TEN),
+
+            Card(Suit.HEARTS, Rank.SIX),
+            Card(Suit.HEARTS, Rank.SEVEN),
+            Card(Suit.HEARTS, Rank.EIGHT),
+            Card(Suit.HEARTS, Rank.NINE),
+            Card(Suit.HEARTS, Rank.TEN),
+            Card(Suit.HEARTS, Rank.JACK),
+        ))
+
+        val trick = Trick.initial(PlayerId.PLAYER_2, Trump.SPADES)
+            .withNewCardPlayed(Card(Suit.CLUBS, Rank.QUEEN))
+
+        val playableCards = player.playableCards(trick, Trump.SPADES)
+
+        // All cards should be able to be played since the current player does not have any diamonds
+        assertThat(playableCards, Matchers.containsInAnyOrder(
+            *player.cards.toTypedArray()
+        ))
+    }
+
+    @Test
+    fun jackOfTrumpCanBeKeptBackWhenTrumpIsOut() {
+        val player = defaultPlayerData.copy(cards = listOf(
+            Card(Suit.SPADES, Rank.JACK),
+
+            Card(Suit.HEARTS, Rank.SIX),
+            Card(Suit.HEARTS, Rank.SEVEN),
+            Card(Suit.HEARTS, Rank.EIGHT),
+            Card(Suit.HEARTS, Rank.NINE),
+            Card(Suit.HEARTS, Rank.TEN),
+            Card(Suit.HEARTS, Rank.JACK),
+        ))
+
+        val trick = Trick.initial(PlayerId.PLAYER_2, Trump.SPADES)
+            .withNewCardPlayed(Card(Suit.SPADES, Rank.QUEEN))
+
+        val playableCards = player.playableCards(trick, Trump.SPADES)
+
+        // All cards should be able to be played since the current player does not have any diamonds
+        assertThat(playableCards, Matchers.containsInAnyOrder(
+            *player.cards.toTypedArray()
+        ))
     }
 }

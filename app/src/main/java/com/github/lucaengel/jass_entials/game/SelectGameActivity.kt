@@ -33,6 +33,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
+import com.github.lucaengel.jass_entials.data.game_state.PlayerId
 import com.github.lucaengel.jass_entials.data.jass.JassType
 import com.github.lucaengel.jass_entials.game.SelectGameActivity.TestTags.Buttons.Companion.BACK
 import com.github.lucaengel.jass_entials.game.pregame.CoiffeurPregameActivity
@@ -113,7 +114,7 @@ fun SelectGameView(finishActivity: () -> Unit = {}) {
             JassType.SCHIEBER -> {
                 GameStateHolder.bettingState = GameStateHolder.bettingState
                     .nextBettingRound(
-                        GameStateHolder.bettingState.playerEmails.random(),
+                        PlayerId.values().random(),
                         JassType.SCHIEBER/*GameStateHolder.bettingState.currentBetterEmail*/)
 
                 Intent(context, PreRoundBettingActivity::class.java).also {
@@ -124,7 +125,7 @@ fun SelectGameView(finishActivity: () -> Unit = {}) {
             JassType.COIFFEUR -> {
                 GameStateHolder.bettingState = GameStateHolder.bettingState
                     .nextBettingRound(
-                        GameStateHolder.bettingState.playerEmails.random(),
+                        PlayerId.values().random(),
                         JassType.COIFFEUR/*GameStateHolder.bettingState.currentBetterEmail*/)
 
                 Intent(context, CoiffeurPregameActivity::class.java).also {
@@ -137,7 +138,7 @@ fun SelectGameView(finishActivity: () -> Unit = {}) {
                 // have a random player start the game
                 GameStateHolder.bettingState = GameStateHolder.bettingState
                     .nextBettingRound(
-                        GameStateHolder.bettingState.playerEmails.random(),
+                        PlayerId.values().random(),
                         JassType.SIDI_BARAHNI/*GameStateHolder.bettingState.currentBetterEmail*/)
 
                 Intent(context, PreRoundBettingActivity::class.java).also {

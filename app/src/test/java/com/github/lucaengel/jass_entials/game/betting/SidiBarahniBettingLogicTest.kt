@@ -6,6 +6,7 @@ import com.github.lucaengel.jass_entials.data.game_state.Bet
 import com.github.lucaengel.jass_entials.data.game_state.BetHeight
 import com.github.lucaengel.jass_entials.data.game_state.BettingState
 import com.github.lucaengel.jass_entials.data.game_state.GameState
+import com.github.lucaengel.jass_entials.data.game_state.PlayerId
 import com.github.lucaengel.jass_entials.data.jass.JassType
 import com.github.lucaengel.jass_entials.data.jass.Trump
 import org.hamcrest.CoreMatchers
@@ -18,30 +19,30 @@ class SidiBarahniBettingLogicTest {
 
     private val defaultPlayerDatas = listOf(
         PlayerData().copy(
-            email = "email1",
+            id = PlayerId.PLAYER_1,
             firstName = "player1",
             cards = Deck.STANDARD_DECK.cards.subList(0, 9)),
         PlayerData().copy(
-            email = "email2",
+            id = PlayerId.PLAYER_2,
             firstName = "player2",
             cards = Deck.STANDARD_DECK.cards.subList(9, 18)),
         PlayerData().copy(
-            email = "email3",
+            id = PlayerId.PLAYER_3,
             firstName = "player3",
             cards = Deck.STANDARD_DECK.cards.subList(18, 27)),
         PlayerData().copy(
-            email = "email4",
+            id = PlayerId.PLAYER_4,
             firstName = "player4",
             cards = Deck.STANDARD_DECK.cards.subList(27, 36)),
     )
 
     private val defaultBettingState = BettingState(
-        currentUserIdx = 0,
-        playerEmails = defaultPlayerDatas.map { it.email },
-        currentBetterEmail = defaultPlayerDatas[0].email,
-        startingBetterEmail = defaultPlayerDatas[0].email,
+        currentUserId = PlayerId.PLAYER_1,
+        playerEmails = listOf(),
+        currentBetterId = defaultPlayerDatas[0].id,
+        startingBetterId = defaultPlayerDatas[0].id,
         jassType = JassType.SIDI_BARAHNI,
-        bets = listOf(Bet(defaultPlayerDatas[1].email, Trump.UNGER_UFE, BetHeight.HUNDRED)),
+        bets = listOf(Bet(defaultPlayerDatas[1].id, Trump.UNGER_UFE, BetHeight.HUNDRED)),
         betActions = listOf(Bet.BetAction.BET),
         gameState = GameState(),
     )
@@ -56,16 +57,16 @@ class SidiBarahniBettingLogicTest {
     @Test
     fun ifCurrentPlayerWasLastToBetAndSignalsWantingToStartWithNullBetCurrentPlayerIsReturned() {
         val bettingState = defaultBettingState.copy(
-            bets = listOf(Bet(defaultPlayerDatas[1].email, Trump.UNGER_UFE, BetHeight.HUNDRED)),
+            bets = listOf(Bet(defaultPlayerDatas[1].id, Trump.UNGER_UFE, BetHeight.HUNDRED)),
             betActions = listOf(Bet.BetAction.BET, Bet.BetAction.PASS, Bet.BetAction.PASS, Bet.BetAction.PASS),
         )
 
         val result = bettingLogic.nextPlayer(
-            currentBetterEmail = defaultPlayerDatas[1].email,
+            currentBetter = defaultPlayerDatas[1].id,
             currentPlayerBet = null,
             bettingState = bettingState,
         )
-        assertThat(result, CoreMatchers.`is`(defaultPlayerDatas[1].email))
+        assertThat(result, CoreMatchers.`is`(defaultPlayerDatas[1].id))
     }
 
     @Test
@@ -76,11 +77,11 @@ class SidiBarahniBettingLogicTest {
         )
 
         val result = bettingLogic.nextPlayer(
-            currentBetterEmail = defaultPlayerDatas[1].email,
+            currentBetter = defaultPlayerDatas[1].id,
             currentPlayerBet = null,
             bettingState = bettingState,
         )
-        assertThat(result, CoreMatchers.`is`(defaultPlayerDatas[2].email))
+        assertThat(result, CoreMatchers.`is`(defaultPlayerDatas[2].id))
     }
 
     @Test
@@ -91,27 +92,27 @@ class SidiBarahniBettingLogicTest {
         )
 
         val result = bettingLogic.nextPlayer(
-            currentBetterEmail = defaultPlayerDatas[3].email,
-            currentPlayerBet = Bet(defaultPlayerDatas[3].email, Trump.UNGER_UFE, BetHeight.HUNDRED),
+            currentBetter = defaultPlayerDatas[3].id,
+            currentPlayerBet = Bet(defaultPlayerDatas[3].id, Trump.UNGER_UFE, BetHeight.HUNDRED),
             bettingState = bettingState,
         )
-        assertThat(result, CoreMatchers.`is`(defaultPlayerDatas[0].email))
+        assertThat(result, CoreMatchers.`is`(defaultPlayerDatas[0].id))
     }
 
     @Test
     fun whenCurrentPlayerBidsOverTheirLastBetThePlayerToTheirRightIsNext() {
         val bettingLogic = SidiBarahniBettingLogic()
         val bettingState = defaultBettingState.copy(
-            bets = listOf(Bet(defaultPlayerDatas[2].email, Trump.UNGER_UFE, BetHeight.HUNDRED)),
+            bets = listOf(Bet(defaultPlayerDatas[2].id, Trump.UNGER_UFE, BetHeight.HUNDRED)),
             betActions = listOf(Bet.BetAction.PASS),
         )
 
         val result = bettingLogic.nextPlayer(
-            currentBetterEmail = defaultPlayerDatas[2].email,
-            currentPlayerBet = Bet(defaultPlayerDatas[2].email, Trump.SPADES, BetHeight.HUNDRED_FIFTY),
+            currentBetter = defaultPlayerDatas[2].id,
+            currentPlayerBet = Bet(defaultPlayerDatas[2].id, Trump.SPADES, BetHeight.HUNDRED_FIFTY),
             bettingState = bettingState,
         )
-        assertThat(result, CoreMatchers.`is`(defaultPlayerDatas[3].email))
+        assertThat(result, CoreMatchers.`is`(defaultPlayerDatas[3].id))
     }
 
     @Test
@@ -123,7 +124,7 @@ class SidiBarahniBettingLogicTest {
         )
 
         val result = bettingLogic.availableActions(
-            currentBetterEmail = defaultPlayerDatas[2].email,
+            currentBetter = defaultPlayerDatas[2].id,
             bettingState = bettingState,
         )
         assertThat(result, Matchers.containsInAnyOrder(
@@ -136,12 +137,12 @@ class SidiBarahniBettingLogicTest {
     fun ifCurrentBetterIsLastBetterAndHadBidAMatchInTheLastRoundCurrentBetterCanOnlyStartTheGame() {
         val bettingLogic = SidiBarahniBettingLogic()
         val bettingState = defaultBettingState.copy(
-            bets = listOf(Bet(defaultPlayerDatas[0].email, Trump.UNGER_UFE, BetHeight.MATCH)),
+            bets = listOf(Bet(defaultPlayerDatas[0].id, Trump.UNGER_UFE, BetHeight.MATCH)),
             betActions = listOf(Bet.BetAction.BET),
         )
 
         val result = bettingLogic.availableActions(
-            currentBetterEmail = defaultPlayerDatas[0].email,
+            currentBetter = defaultPlayerDatas[0].id,
             bettingState = bettingState,
         )
         assertThat(result, Matchers.containsInAnyOrder(
@@ -153,12 +154,12 @@ class SidiBarahniBettingLogicTest {
     fun ifCurrentBetterIsLastBetterButDidNotBitAMatchTheyCanStartOrBid() {
         val bettingLogic = SidiBarahniBettingLogic()
         val bettingState = defaultBettingState.copy(
-            bets = listOf(Bet(defaultPlayerDatas[0].email, Trump.UNGER_UFE, BetHeight.HUNDRED)),
+            bets = listOf(Bet(defaultPlayerDatas[0].id, Trump.UNGER_UFE, BetHeight.HUNDRED)),
             betActions = listOf(Bet.BetAction.BET),
         )
 
         val result = bettingLogic.availableActions(
-            currentBetterEmail = defaultPlayerDatas[0].email,
+            currentBetter = defaultPlayerDatas[0].id,
             bettingState = bettingState,
         )
         assertThat(result, Matchers.containsInAnyOrder(
@@ -171,12 +172,12 @@ class SidiBarahniBettingLogicTest {
     fun playerCanBetPassOrDoubleIfOpposingTeamMemberBidLast() {
         val bettingLogic = SidiBarahniBettingLogic()
         val bettingState = defaultBettingState.copy(
-            bets = listOf(Bet(defaultPlayerDatas[0].email, Trump.UNGER_UFE, BetHeight.HUNDRED)),
+            bets = listOf(Bet(defaultPlayerDatas[0].id, Trump.UNGER_UFE, BetHeight.HUNDRED)),
             betActions = listOf(Bet.BetAction.BET),
         )
 
         val result = bettingLogic.availableActions(
-            currentBetterEmail = defaultPlayerDatas[1].email,
+            currentBetter = defaultPlayerDatas[1].id,
             bettingState = bettingState,
         )
         assertThat(result, Matchers.containsInAnyOrder(
@@ -190,12 +191,12 @@ class SidiBarahniBettingLogicTest {
     fun currentPlayerCanBetOrPassIfTeamMemberWasLastToBidNotMatch() {
         val bettingLogic = SidiBarahniBettingLogic()
         val bettingState = defaultBettingState.copy(
-            bets = listOf(Bet(defaultPlayerDatas[0].email, Trump.UNGER_UFE, BetHeight.HUNDRED)),
+            bets = listOf(Bet(defaultPlayerDatas[0].id, Trump.UNGER_UFE, BetHeight.HUNDRED)),
             betActions = listOf(Bet.BetAction.BET),
         )
 
         val result = bettingLogic.availableActions(
-            currentBetterEmail = defaultPlayerDatas[2].email,
+            currentBetter = defaultPlayerDatas[2].id,
             bettingState = bettingState,
         )
         assertThat(result, Matchers.containsInAnyOrder(

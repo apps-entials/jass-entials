@@ -19,35 +19,32 @@ class GameStateTest {
 
     private val defaultPlayerDatas = listOf(
         PlayerData().copy(
-            email = "email1",
+            id = PlayerId.PLAYER_1,
             firstName = "player1",
             cards = Deck.STANDARD_DECK.cards.subList(0, 9)),
         PlayerData().copy(
-            email = "email2",
+            id = PlayerId.PLAYER_2,
             firstName = "player2",
             cards = Deck.STANDARD_DECK.cards.subList(9, 18)),
         PlayerData().copy(
-            email = "email3",
+            id = PlayerId.PLAYER_3,
             firstName = "player3",
             cards = Deck.STANDARD_DECK.cards.subList(18, 27)),
         PlayerData().copy(
-            email = "email4",
+            id = PlayerId.PLAYER_4,
             firstName = "player4",
             cards = Deck.STANDARD_DECK.cards.subList(27, 36)),
     )
 
     private val defaultGameState = GameState(
-        currentUserIdx = 0,
-        playerEmails = defaultPlayerDatas.map { it.email },
-        currentPlayerEmail = defaultPlayerDatas[0].email,
-        startingPlayerEmail = defaultPlayerDatas[0].email,
+        currentUserId = PlayerId.PLAYER_1,
+        playerEmails = listOf(),
+        currentPlayerId = defaultPlayerDatas[0].id,
+        startingPlayerId = defaultPlayerDatas[0].id,
         currentRound = 0,
-        currentTrick = Trick(),
-        currentRoundTrickWinners = listOf(),
-        currentTrickNumber = 0,
-        currentTrump = Trump.CLUBS,
+        roundState = RoundState.initial(Trump.SPADES, defaultPlayerDatas[0].id),
         winningBet = Bet(),
-        playerCards = defaultPlayerDatas.associate { it.email to it.cards },
+        playerCards = defaultPlayerDatas.associate { it.id to it.cards },
     )
 
     @Before
@@ -57,16 +54,22 @@ class GameStateTest {
     }
 
     @Test
-    fun isLastTrickReturnsTrueOnlyWhenCurrentTrickNumberIsNine() {
-        for (i in 0..9) {
-            val gameState = GameState().copy(currentTrickNumber = i)
-            assertThat(gameState.isLastTrick(), `is`(i == 9))
+    fun isLastTrickReturnsTrueOnlyWhenCurrentTrickNumberIsPastNine() {
+        for (i in 1..10) {
+            val gameState = GameState().copy(roundState = RoundState.initial(
+                Trump.HEARTS,
+                PlayerId.PLAYER_1
+            ).copy(trickNumber = i))
+            assertThat(gameState.isLastTrick(), `is`(i == 10))
         }
     }
 
     @Test
     fun nextTrickThrowsIfCurrentTrickIsNotFull() {
-        val gameState = defaultGameState.copy(currentTrick = Trick())
+        val gameState = defaultGameState.copy(roundState = RoundState.initial(
+            Trump.HEARTS,
+            PlayerId.PLAYER_1
+        ).copy(trick = Trick.initial(PlayerId.PLAYER_1, Trump.HEARTS)))
 
         assertThrows(IllegalStateException::class.java) {
             gameState.nextTrick()
@@ -74,84 +77,46 @@ class GameStateTest {
     }
 
     @Test
-    fun nextTrick() {
+    fun nextTrickContainsNoCardsAndCorrectStartingPlayer() {
         val gameState = GameState().copy(
-            currentTrick = Trick(
-                listOf(
-                    Trick.TrickCard(Card(Rank.NINE, Suit.CLUBS), defaultPlayerDatas[0].email),
-                    Trick.TrickCard(Card(Rank.EIGHT, Suit.CLUBS), defaultPlayerDatas[1].email),
-                    Trick.TrickCard(Card(Rank.ACE, Suit.CLUBS), defaultPlayerDatas[2].email),
-                    Trick.TrickCard(Card(Rank.SIX, Suit.CLUBS), defaultPlayerDatas[3].email),
-                )
-            ),
-            currentTrump = Trump.CLUBS,
-        )
+            roundState = RoundState.initial(Trump.HEARTS, PlayerId.PLAYER_1).copy(trick = Trick.initial(defaultPlayerDatas[0].id, Trump.OBE_ABE)
+                    .withNewCardPlayed(Card(Suit.CLUBS, Rank.NINE))
+                    .withNewCardPlayed(Card(Suit.CLUBS, Rank.EIGHT))
+                    .withNewCardPlayed(Card(Suit.CLUBS, Rank.ACE))
+                    .withNewCardPlayed(Card(Suit.CLUBS, Rank.SIX))
+            ))
 
         val newGameState = gameState.nextTrick()
-        assertThat(newGameState.currentTrick, `is`(Trick()))
-        assertThat(newGameState.currentTrickNumber, `is`(1))
-        assertThat(newGameState.currentRoundTrickWinners, `is`(listOf(Trick.TrickWinner(defaultPlayerDatas[0].email, gameState.currentTrick))))
+        assertThat(newGameState.roundState.trick().cards, `is`(listOf()))
+        assertThat(newGameState.roundState.trick().startingPlayerId, `is`(PlayerId.PLAYER_3))
     }
 
     @Test
     fun pointsAreCalculatedCorrectly() {
         val gameState = GameState().copy(
-            currentTrick = Trick(
-                listOf(
-                    Trick.TrickCard(Card(Rank.NINE, Suit.CLUBS), defaultPlayerDatas[0].email),
-                    Trick.TrickCard(Card(Rank.EIGHT, Suit.CLUBS), defaultPlayerDatas[1].email),
-                    Trick.TrickCard(Card(Rank.ACE, Suit.CLUBS), defaultPlayerDatas[2].email),
-                    Trick.TrickCard(Card(Rank.SIX, Suit.CLUBS), defaultPlayerDatas[3].email),
-                )
+            roundState = RoundState.initial(Trump.HEARTS, PlayerId.PLAYER_1).copy(trick = Trick.initial(defaultPlayerDatas[0].id, Trump.CLUBS)
+                    .withNewCardPlayed(Card(Suit.CLUBS, Rank.NINE))
+                    .withNewCardPlayed(Card(Suit.CLUBS, Rank.EIGHT))
+                    .withNewCardPlayed(Card(Suit.CLUBS, Rank.ACE))
+                    .withNewCardPlayed(Card(Suit.CLUBS, Rank.SIX))
             ),
-            currentTrump = Trump.CLUBS,
         )
 
-        assertThat(gameState.nextTrick().points(defaultPlayerDatas[0].email), `is`(25))
-        assertThat(gameState.nextTrick().points(defaultPlayerDatas[2].email), `is`(0))
-        assertThat(gameState.nextTrick().points(defaultPlayerDatas[1].email), `is`(0))
-        assertThat(gameState.nextTrick().points(defaultPlayerDatas[3].email), `is`(0))
+        val score = gameState.nextTrick().roundState.score()
+
+        assertThat(score.roundPoints(TeamId.TEAM_1), `is`(25))
+        assertThat(score.roundPoints(TeamId.TEAM_2), `is`(0))
     }
 
-    @Test
-    fun pointsAreCalculatedCorrectlyAfterAllCardsArePlayed() {
-        val trick = Trick(
-            listOf(
-                Trick.TrickCard(Card(Rank.NINE, Suit.CLUBS), defaultPlayerDatas[0].email),
-                Trick.TrickCard(Card(Rank.EIGHT, Suit.CLUBS), defaultPlayerDatas[1].email),
-                Trick.TrickCard(Card(Rank.ACE, Suit.CLUBS), defaultPlayerDatas[2].email),
-                Trick.TrickCard(Card(Rank.SIX, Suit.CLUBS), defaultPlayerDatas[3].email),
-            )
-        )
-
-        val gameState = GameState().copy(
-            currentTrick = trick,
-            currentTrump = Trump.CLUBS,
-            currentTrickNumber = 8,
-            currentRoundTrickWinners = (1 .. 8).map { Trick.TrickWinner(defaultPlayerDatas[0].email, trick) }
-        )
-
-        assertThat(gameState.nextTrick().points(defaultPlayerDatas[0].email), `is`(9*25 + 5)) // +5 for last trick
-        assertThat(gameState.nextTrick().points(defaultPlayerDatas[2].email), `is`(0))
-        assertThat(gameState.nextTrick().points(defaultPlayerDatas[1].email), `is`(0))
-        assertThat(gameState.nextTrick().points(defaultPlayerDatas[3].email), `is`(0))
-    }
 
     @Test
     fun playCardReturnsNewGameStateWithCardPlayed() {
-        val newGameState = defaultGameState.playCard(defaultPlayerDatas[0].email, defaultPlayerDatas[0].cards[0], 0)
+        val newGameState = defaultGameState.playCard(defaultPlayerDatas[0].id, defaultPlayerDatas[0].cards[0], PlayerId.PLAYER_1)
 
-        assertTrue(newGameState.currentTrick.trickCards
-            .contains(Trick.TrickCard(defaultPlayerDatas[0].cards[0], defaultPlayerDatas[0].email))
+        assertTrue(newGameState.roundState.trick().cards
+            .contains(defaultPlayerDatas[0].cards[0])
         )
 
-        assertFalse(newGameState.playerCards[newGameState.playerEmails[0]]!!.contains(defaultPlayerDatas[0].cards[0]))
-    }
-
-    @Test
-    fun playCardThrowsOnNonExistingPlayer() {
-        assertThrows(IllegalArgumentException::class.java) {
-            defaultGameState.playCard("nonExistingPlayer", defaultPlayerDatas[0].cards[0], 0)
-        }
+        assertFalse(newGameState.playerCards[PlayerId.PLAYER_1]!!.contains(defaultPlayerDatas[0].cards[0]))
     }
 }

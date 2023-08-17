@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
+import com.github.lucaengel.jass_entials.data.game_state.PlayerId
 import com.github.lucaengel.jass_entials.game.pregame.PreRoundBettingActivity
 import com.github.lucaengel.jass_entials.ui.theme.JassentialsTheme
 
@@ -49,16 +50,16 @@ fun ScoreSheet() {
         // center children
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        gameState.playerEmails
+        PlayerId.values()
             .map {
-                val player = players.first { p -> p.email == it }
-                Text(text = "${player.firstName} ${player.lastName}: ${gameState.points(it)}")
+                val player = players.first { p -> p.id == it }
+                Text(text = "${player.firstName} ${player.lastName}: ${gameState.roundState.score().roundPoints(it.team())}")
             }
 
         Button(
             onClick = {
                 // have player to the right of the starting better of the last round start the next round
-                GameStateHolder.goToNextBettingStateRound(gameState.playerEmails[(gameState.playerEmails.indexOf(bettingState.startingBetterEmail) + 1) % 4])
+                GameStateHolder.goToNextBettingStateRound(bettingState.startingBetterId.nextPlayer())
 
                 val intent = Intent(context, PreRoundBettingActivity::class.java)
                 context.startActivity(intent)
