@@ -51,7 +51,7 @@ data class PlayerData(
 
             // get trump cards (null if trump was unger ufe or obe abe)
             val trumpCards: List<Card> = if (trumpSuit != null) {
-                cardsOfSuit(trumpSuit, cards)
+                Card.cardsOfSuit(trumpSuit, cards)
             } else {
                 listOf()
             }
@@ -60,14 +60,14 @@ data class PlayerData(
             if (trumpCards.size == cards.size) return cards
 
             // cards of the suit of the first card played
-            val firstCardSuitCards = cardsOfSuit(firstCard.suit, cards)
+            val firstCardSuitCards = Card.cardsOfSuit(firstCard.suit, cards)
 
             // if the player does not have any cards of the suit of the first card played, they can play any card
             // as long as they do not under trump (ungertrumpfe)
             if (firstCardSuitCards.isEmpty()) {
                 if (trumpSuit == null) return cards
 
-                val trickTrumpCards = cardsOfSuit(trumpSuit, trick.cards)
+                val trickTrumpCards = Card.cardsOfSuit(trumpSuit, trick.cards)
 
                 // if no trump lying, no under trumping (ungertrumpfe) possible
                 if (trickTrumpCards.isEmpty()) return cards
@@ -130,16 +130,6 @@ data class PlayerData(
                     playableTrumpCards
                 }
             }
-        }
-
-        /**
-         * Returns the cards of the given [suit].
-         *
-         * @param suit the suit
-         * @return the cards of the given [suit]
-         */
-        private fun cardsOfSuit(suit: Suit, cards: List<Card>): List<Card> {
-            return cards.filter { it.suit == suit }
         }
     }
 }

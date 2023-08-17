@@ -13,8 +13,8 @@ import java.io.Serializable
 enum class Suit(private val toString: String, val symbol: Char) : Serializable  {
     CLUBS("Clubs", '\u2663'),
     SPADES("Spades", '\u2660'),
-    HEARTS("Hearts", '\u2665'),
-    DIAMONDS("Diamonds", '\u2666'),
+    HEARTS("Hearts", '\u2661'),
+    DIAMONDS("Diamonds", '\u2662'),
 }
 
 /**
@@ -162,6 +162,16 @@ data class Card(
          */
         fun getCardImage(card: Card): Int {
             return cardImageMap[card]!!
+        }
+
+        /**
+         * Returns the cards of the given [suit].
+         *
+         * @param suit the suit
+         * @return the cards of the given [suit]
+         */
+        fun cardsOfSuit(suit: Suit, cards: List<Card>): List<Card> {
+            return cards.filter { it.suit == suit }
         }
     }
 }

@@ -137,7 +137,7 @@ fun BettingRound() {
 
         // TODO: consider refactoring since context switches cannot be tested well when in futures and LaunchedEffects
         val oldBettingState = bettingState
-        val betFuture = player.bet(bettingState)
+        val betFuture = player.bet(bettingState, GameStateHolder.players[currentBetterId.ordinal].cards)
             .thenApply {
                 setToNormalName(currentBetterId)
                 bettingState = it
