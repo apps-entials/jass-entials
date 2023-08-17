@@ -1,5 +1,6 @@
 package com.github.lucaengel.jass_entials.data.game_state
 
+import com.github.lucaengel.jass_entials.data.cards.CardType
 import com.github.lucaengel.jass_entials.data.cards.Deck
 import com.github.lucaengel.jass_entials.data.cards.PlayerData
 import com.github.lucaengel.jass_entials.data.jass.JassType
@@ -44,6 +45,11 @@ class GameStateHolder {
             0,
             "123"
         )
+
+        /**
+         * The current card type.
+         */
+        var cardType = CardType.FRENCH
 
         /**
          * The current player datas.

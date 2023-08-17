@@ -30,8 +30,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.github.lucaengel.jass_entials.data.cards.Card
+import com.github.lucaengel.jass_entials.data.cards.CardType
 import com.github.lucaengel.jass_entials.data.cards.PlayerData
 import com.github.lucaengel.jass_entials.data.game_state.GameState
+import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
 import com.github.lucaengel.jass_entials.data.game_state.PlayerId
 import kotlin.math.absoluteValue
 
@@ -231,7 +233,7 @@ class JassComposables {
          */
         @Composable
         fun CardBox(card: Card?, onClick: () -> Unit = {}, cardWidth: Dp, zRotation: Float = 0f) {
-            val cardHeight = cardWidth * 1.5f
+            val cardHeight = cardWidth * if (GameStateHolder.cardType == CardType.FRENCH) 1.5f else 1.532f
             val cornerShape = cardWidth / 12
 
             if (card != null) {

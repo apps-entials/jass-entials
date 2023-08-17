@@ -7,6 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -14,6 +15,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -168,6 +170,18 @@ fun SelectGameView(finishActivity: () -> Unit = {}) {
                         modifier = Modifier.testTag(BACK)
                     ) {
                         Icon(Icons.Filled.ArrowBack, "Back")
+                    }
+                },
+                actions = {
+                    Row {
+                        IconButton(
+                            onClick = {
+                                val intent = Intent(context, SettingsActivity::class.java)
+                                context.startActivity(intent)
+                            }
+                        ) {
+                            Icon(Icons.Filled.Settings, "Settings")
+                        }
                     }
                 },
                 colors = smallTopAppBarColors(
