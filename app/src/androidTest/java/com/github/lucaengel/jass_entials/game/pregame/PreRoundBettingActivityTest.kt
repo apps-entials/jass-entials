@@ -66,6 +66,7 @@ class PreRoundBettingActivityTest {
 
     @Before
     fun setup() {
+        GameStateHolder.runCpuAsynchronously = false
         GameStateHolder.players = defaultPlayerDatas
         GameStateHolder.bettingState = defaultBettingState
     }

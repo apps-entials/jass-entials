@@ -106,6 +106,7 @@ class JassRoundActivityTest {
 
     @Before
     fun setup() {
+        GameStateHolder.runCpuAsynchronously = false
         GameStateHolder.gameState = gameState
         GameStateHolder.bettingState = bettingState
         GameStateHolder.players = players

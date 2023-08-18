@@ -83,6 +83,7 @@ class SidiBarahniPostRoundActivityTest {
 
     @Before
     fun setup() {
+        GameStateHolder.runCpuAsynchronously = false
         GameStateHolder.gameState = gameState
     }
 

@@ -15,6 +15,7 @@ import com.github.lucaengel.jass_entials.data.cards.CardType
 import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.`is`
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -26,6 +27,11 @@ class SettingsActivityTest {
     val composeTestRule = createEmptyComposeRule()
 
     private val settingsActivityDefaultIntent = Intent(ApplicationProvider.getApplicationContext(), SettingsActivity::class.java)
+
+    @Before
+    fun setup() {
+        GameStateHolder.runCpuAsynchronously = false
+    }
 
     @Test
     fun settingsActivityAllowsCardTypeSwitching() {

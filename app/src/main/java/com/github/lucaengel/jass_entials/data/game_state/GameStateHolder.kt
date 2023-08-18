@@ -46,6 +46,8 @@ class GameStateHolder {
             "123"
         )
 
+        var runCpuAsynchronously = true
+
         /**
          * The current card type.
          */
