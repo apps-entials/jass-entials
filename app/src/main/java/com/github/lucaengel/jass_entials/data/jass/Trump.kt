@@ -1,21 +1,52 @@
 package com.github.lucaengel.jass_entials.data.jass
 
+import com.github.lucaengel.jass_entials.R
 import com.github.lucaengel.jass_entials.data.cards.Card
+import com.github.lucaengel.jass_entials.data.cards.CardType
 import com.github.lucaengel.jass_entials.data.cards.Suit
+import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
 
 /**
  * Enum representing the trump suit in a Jass game.
  */
-enum class Trump(private val asString: String) {
-    DIAMONDS(asString = Suit.DIAMONDS.symbol.toString()),
-    HEARTS(asString = Suit.HEARTS.symbol.toString()),
-    SPADES(asString = Suit.SPADES.symbol.toString()),
-    CLUBS(asString = Suit.CLUBS.symbol.toString()),
-    UNGER_UFE(asString = "\u2191"),
-    OBE_ABE(asString = "\u2193");
+enum class Trump {
+    DIAMONDS,
+    HEARTS,
+    SPADES,
+    CLUBS,
+    UNGER_UFE,
+    OBE_ABE;
+
+    fun asPicture(): Int {
+        return when (GameStateHolder.cardType) {
+            CardType.FRENCH -> when (this) {
+                CLUBS -> R.drawable.clubs
+                SPADES -> R.drawable.spades
+                HEARTS -> R.drawable.hearts
+                DIAMONDS -> R.drawable.diamonds
+                UNGER_UFE -> R.drawable.unger_ufe
+                OBE_ABE -> R.drawable.ope_abe
+            }
+            CardType.GERMAN -> when (this) {
+                CLUBS -> R.drawable.eicheln
+                SPADES -> R.drawable.schilten
+                HEARTS -> R.drawable.rosen
+                DIAMONDS -> R.drawable.schellen
+                UNGER_UFE -> R.drawable.unger_ufe
+                OBE_ABE -> R.drawable.ope_abe
+            }
+        }
+    }
 
     override fun toString(): String {
-        return asString
+        return when (this) {
+            DIAMONDS -> Suit.DIAMONDS.symbol()
+            HEARTS -> Suit.HEARTS.symbol()
+            SPADES -> Suit.SPADES.symbol()
+            CLUBS -> Suit.CLUBS.symbol()
+            UNGER_UFE -> "\u2191"
+            OBE_ABE -> "\u2193"
+        }
     }
 
     companion object {

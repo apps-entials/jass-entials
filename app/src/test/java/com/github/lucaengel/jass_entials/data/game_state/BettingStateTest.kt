@@ -119,6 +119,7 @@ class BettingStateTest {
             currentPlayerId = defaultPlayerDatas[0].id,
             startingPlayerId = defaultPlayerDatas[0].id,
             currentRound = 0,
+            jassType = JassType.SIDI_BARAHNI,
             roundState = RoundState.initial(winningBet.trump, defaultPlayerDatas[0].id),
             winningBet = winningBet,
             playerCards = defaultPlayerDatas.associate { it.id to it.cards }

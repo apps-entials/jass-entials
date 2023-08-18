@@ -2,6 +2,7 @@ package com.github.lucaengel.jass_entials.game.player
 
 import com.github.lucaengel.jass_entials.data.cards.Card
 import com.github.lucaengel.jass_entials.data.game_state.BettingState
+import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
 import com.github.lucaengel.jass_entials.data.game_state.PlayerId
 import com.github.lucaengel.jass_entials.data.game_state.RoundState
 import java.util.concurrent.CompletableFuture
@@ -25,9 +26,16 @@ class DelayedCpuPlayer(
     ): CompletableFuture<Card> {
         val future = CompletableFuture<Card>()
 
-        CompletableFuture.runAsync {
-            Thread.sleep(threadSleepTime)
+        // TODO: This is a temporary solution for testing to not have the cpu wait
+        //  consider refactoring this to a more elegant solution
+        if (GameStateHolder.runCpuAsynchronously) {
+            CompletableFuture.runAsync {
+                Thread.sleep(threadSleepTime)
 
+                future.complete(cpuPlayer.cardToPlay(roundState, handCards).join())
+            }
+        } else {
+            // this is where tests run
             future.complete(cpuPlayer.cardToPlay(roundState, handCards).join())
         }
 
@@ -36,11 +44,20 @@ class DelayedCpuPlayer(
 
     override fun bet(bettingState: BettingState): CompletableFuture<BettingState> {
         val betFuture = CompletableFuture<BettingState>()
-        CompletableFuture.runAsync {
-            Thread.sleep(3 * threadSleepTime)
 
+        // TODO: This is a temporary solution for testing to not have the cpu wait
+        //  consider refactoring this to a more elegant solution
+        if (GameStateHolder.runCpuAsynchronously) {
+            CompletableFuture.runAsync {
+                Thread.sleep(3 * threadSleepTime)
+
+                betFuture.complete(cpuPlayer.bet(bettingState).join())
+            }
+        } else {
+            // this is where tests run
             betFuture.complete(cpuPlayer.bet(bettingState).join())
         }
+
         return betFuture
     }
 }

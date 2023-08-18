@@ -1,20 +1,31 @@
 package com.github.lucaengel.jass_entials.data.cards
 
 import com.github.lucaengel.jass_entials.R
+import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
 import com.github.lucaengel.jass_entials.data.jass.Trump
 import java.io.Serializable
 
 /**
  * The suits of a card.
  *
- * @property toString The name of the suit.
- * @property symbol The symbol of the suit.
+ * @property toStringFrench The name of the suit.
+ * @property frenchSymbol The symbol of the suit.
  */
-enum class Suit(private val toString: String, val symbol: Char) : Serializable  {
-    CLUBS("Clubs", '\u2663'),
-    SPADES("Spades", '\u2660'),
-    HEARTS("Hearts", '\u2665'),
-    DIAMONDS("Diamonds", '\u2666'),
+enum class Suit(private val toStringFrench: String, private val toStringGerman: String, private val frenchSymbol: Char, private val germanSymbol: String) : Serializable  {
+    CLUBS("Clubs", "Eichel", '\u2663', "\uD83C\uDF30"),
+    SPADES("Spades", "Schilte", '\u2660', "🛡"),
+    HEARTS("Hearts", "Rosen", '\u2665', "\uD83C\uDFF5"),
+    DIAMONDS("Diamonds", "Schellen", '\u2666', "\uD83D\uDD14");
+
+    fun symbol(): String {
+        return if (GameStateHolder.cardType == CardType.FRENCH) frenchSymbol.toString()
+        else germanSymbol
+    }
+
+    override fun toString(): String {
+        return if (GameStateHolder.cardType == CardType.FRENCH) toStringFrench
+        else toStringGerman
+    }
 }
 
 /**
@@ -37,6 +48,14 @@ enum class Rank(private val rank: String, private val normalHeight: Int, val tru
 
     override fun toString(): String {
         return rank
+    }
+}
+
+enum class CardType(val string: String) {
+    FRENCH("French"), GERMAN("German");
+
+    override fun toString(): String {
+        return string
     }
 }
 
@@ -110,12 +129,12 @@ data class Card(
     }
 
     override fun toString(): String {
-        return "${suit.symbol}$rank"
+        return "${suit.symbol()}$rank"
     }
 
     companion object {
 
-        private val cardImageMap = mapOf(
+        private val frenchCardImageMap = mapOf(
             Card(Suit.CLUBS, Rank.SIX) to R.drawable.clubs_6,
             Card(Suit.CLUBS, Rank.SEVEN) to R.drawable.clubs_7,
             Card(Suit.CLUBS, Rank.EIGHT) to R.drawable.clubs_8,
@@ -157,11 +176,56 @@ data class Card(
             Card(Suit.SPADES, Rank.ACE) to R.drawable.spades_ace,
         )
 
+        private val germanCardImageMap = mapOf(
+            Card(Suit.CLUBS, Rank.SIX) to R.drawable.eichel_6,
+            Card(Suit.CLUBS, Rank.SEVEN) to R.drawable.eichel_7,
+            Card(Suit.CLUBS, Rank.EIGHT) to R.drawable.eichel_8,
+            Card(Suit.CLUBS, Rank.NINE) to R.drawable.eichel_9,
+            Card(Suit.CLUBS, Rank.TEN) to R.drawable.eichel_10,
+            Card(Suit.CLUBS, Rank.JACK) to R.drawable.eichel_under,
+            Card(Suit.CLUBS, Rank.QUEEN) to R.drawable.eichel_ober,
+            Card(Suit.CLUBS, Rank.KING) to R.drawable.eichel_king,
+            Card(Suit.CLUBS, Rank.ACE) to R.drawable.eichel_ace,
+
+            Card(Suit.DIAMONDS, Rank.SIX) to R.drawable.schellen_6,
+            Card(Suit.DIAMONDS, Rank.SEVEN) to R.drawable.schellen_7,
+            Card(Suit.DIAMONDS, Rank.EIGHT) to R.drawable.schellen_8,
+            Card(Suit.DIAMONDS, Rank.NINE) to R.drawable.schellen_9,
+            Card(Suit.DIAMONDS, Rank.TEN) to R.drawable.schellen_10,
+            Card(Suit.DIAMONDS, Rank.JACK) to R.drawable.schellen_under,
+            Card(Suit.DIAMONDS, Rank.QUEEN) to R.drawable.schellen_ober,
+            Card(Suit.DIAMONDS, Rank.KING) to R.drawable.schellen_king,
+            Card(Suit.DIAMONDS, Rank.ACE) to R.drawable.schellen_ace,
+
+            Card(Suit.HEARTS, Rank.SIX) to R.drawable.rosen_6,
+            Card(Suit.HEARTS, Rank.SEVEN) to R.drawable.rosen_7,
+            Card(Suit.HEARTS, Rank.EIGHT) to R.drawable.rosen_8,
+            Card(Suit.HEARTS, Rank.NINE) to R.drawable.rosen_9,
+            Card(Suit.HEARTS, Rank.TEN) to R.drawable.rosen_10,
+            Card(Suit.HEARTS, Rank.JACK) to R.drawable.rosen_under,
+            Card(Suit.HEARTS, Rank.QUEEN) to R.drawable.rosen_ober,
+            Card(Suit.HEARTS, Rank.KING) to R.drawable.rosen_king,
+            Card(Suit.HEARTS, Rank.ACE) to R.drawable.rosen_ace,
+
+            Card(Suit.SPADES, Rank.SIX) to R.drawable.schilten_6,
+            Card(Suit.SPADES, Rank.SEVEN) to R.drawable.schilten_7,
+            Card(Suit.SPADES, Rank.EIGHT) to R.drawable.schilten_8,
+            Card(Suit.SPADES, Rank.NINE) to R.drawable.schilten_9,
+            Card(Suit.SPADES, Rank.TEN) to R.drawable.schilten_10,
+            Card(Suit.SPADES, Rank.JACK) to R.drawable.schilten_under,
+            Card(Suit.SPADES, Rank.QUEEN) to R.drawable.schilten_ober,
+            Card(Suit.SPADES, Rank.KING) to R.drawable.schilten_king,
+            Card(Suit.SPADES, Rank.ACE) to R.drawable.schilten_ace,
+        )
+
         /**
          * Returns the image id of the given card.
          */
         fun getCardImage(card: Card): Int {
-            return cardImageMap[card]!!
+            return if (GameStateHolder.cardType == CardType.FRENCH)
+                 frenchCardImageMap[card]!!
+            else
+                germanCardImageMap[card]!!
         }
     }
 }

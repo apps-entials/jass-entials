@@ -6,6 +6,7 @@ import com.github.lucaengel.jass_entials.data.cards.PlayerData
 import com.github.lucaengel.jass_entials.data.cards.Rank
 import com.github.lucaengel.jass_entials.data.cards.Suit
 import com.github.lucaengel.jass_entials.data.cards.Trick
+import com.github.lucaengel.jass_entials.data.jass.JassType
 import com.github.lucaengel.jass_entials.data.jass.Trump
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
@@ -42,6 +43,7 @@ class GameStateTest {
         currentPlayerId = defaultPlayerDatas[0].id,
         startingPlayerId = defaultPlayerDatas[0].id,
         currentRound = 0,
+        jassType = JassType.SIDI_BARAHNI,
         roundState = RoundState.initial(Trump.SPADES, defaultPlayerDatas[0].id),
         winningBet = Bet(),
         playerCards = defaultPlayerDatas.associate { it.id to it.cards },
@@ -111,7 +113,10 @@ class GameStateTest {
 
     @Test
     fun playCardReturnsNewGameStateWithCardPlayed() {
-        val newGameState = defaultGameState.playCard(defaultPlayerDatas[0].id, defaultPlayerDatas[0].cards[0], PlayerId.PLAYER_1)
+        val newGameState = defaultGameState.playCard(
+            defaultPlayerDatas[0].id,
+            defaultPlayerDatas[0].cards[0]
+        )
 
         assertTrue(newGameState.roundState.trick().cards
             .contains(defaultPlayerDatas[0].cards[0])

@@ -30,9 +30,13 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.github.lucaengel.jass_entials.data.cards.Card
+import com.github.lucaengel.jass_entials.data.cards.CardType
 import com.github.lucaengel.jass_entials.data.cards.PlayerData
+import com.github.lucaengel.jass_entials.data.game_state.Bet
 import com.github.lucaengel.jass_entials.data.game_state.GameState
+import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
 import com.github.lucaengel.jass_entials.data.game_state.PlayerId
+import com.github.lucaengel.jass_entials.data.jass.JassType
 import kotlin.math.absoluteValue
 
 /**
@@ -132,12 +136,11 @@ class JassComposables {
          * Displays the 0-4 cards that are currently in the middle of the table.
          *
          * @param gameState The current game state.
-         * @param players The list of playerData's.
          * @param currentUserId The id of the current user.
          * @param onClick The callback to be called when a card is clicked.
          **/
         @Composable
-        fun CurrentTrick(gameState: GameState, players: List<PlayerData>, currentUserId: PlayerId, onClick: () -> Unit) {
+        fun CurrentTrick(gameState: GameState, currentUserId: PlayerId, onClick: () -> Unit) {
 
             val currentTrick = gameState.roundState.trick()
             gameState.startingPlayerId.ordinal
@@ -150,12 +153,6 @@ class JassComposables {
                 startingPlayerId.nextPlayer().nextPlayer() to Pair(currentTrick.cards.getOrNull(2), 2),
                 startingPlayerId.nextPlayer().nextPlayer().nextPlayer() to Pair(currentTrick.cards.getOrNull(3), 3),
             )
-
-            // 0 is bottom, 1 is right, 2 is top, 3 is left
-//            val idxToCards = (0..3)
-//                // Triple: (location of card (i.e. 0 is bottom, ...), index of player in [players], z-index)
-//                .map { idx -> Triple(idx, (currentUserId.ordinal + idx) % 4, Math.floorMod(idx - startingPlayerIdx, 4)) }
-//                .associate { (i, playerIdx, zIndex) -> i to Pair(currentTrick.cards.firstOrNull { it.playerId == players[playerIdx].id }?.card, zIndex) }
 
             val screenWidth = LocalConfiguration.current.screenWidthDp.dp
             val cardWidth = screenWidth.value / 10
@@ -231,7 +228,7 @@ class JassComposables {
          */
         @Composable
         fun CardBox(card: Card?, onClick: () -> Unit = {}, cardWidth: Dp, zRotation: Float = 0f) {
-            val cardHeight = cardWidth * 1.5f
+            val cardHeight = cardWidth * if (GameStateHolder.cardType == CardType.FRENCH) 1.5f else 1.532f
             val cornerShape = cardWidth / 12
 
             if (card != null) {
@@ -250,6 +247,52 @@ class JassComposables {
                         ).clip(RoundedCornerShape(cornerShape))
                         .clickable(onClick = onClick),
                 )
+            }
+        }
+
+        @Composable
+        fun LastBetComposable(
+            lastBet: Bet,
+            jassType: JassType,
+            currentUserId: PlayerId,
+            lastBetter: PlayerData,
+            onTheSameRow: Boolean = false
+        ) {
+            val lastBetterName =
+                if (lastBetter.id == currentUserId) "you"
+                else "${lastBetter.firstName} ${lastBetter.lastName}"
+
+            val oneLineBettingString = if (jassType == JassType.SIDI_BARAHNI) "${lastBet.bet} by $lastBetterName" else " by $lastBetterName"
+            val twoLineBettingStringTop = if (jassType == JassType.SIDI_BARAHNI) "${lastBet.bet} by" else " by"
+
+            Column {
+                Row (
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                ) {
+                    Image(
+                        painter = painterResource(id = lastBet.trump.asPicture()),
+                        contentDescription = lastBet.trump.toString(),
+                        modifier = Modifier
+                            .height(20.dp)
+                            .align(Alignment.CenterVertically),
+                        alignment = Alignment.Center,
+                    )
+
+                    Spacer(modifier = Modifier.width(5.dp))
+
+                    Text(
+                        text = if (onTheSameRow) oneLineBettingString else twoLineBettingStringTop,
+                        modifier = Modifier
+                            .align(Alignment.CenterVertically),
+                    )
+                }
+
+                if (!onTheSameRow) {
+                    Text(
+                        text = lastBetterName,
+                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                    )
+                }
             }
         }
     }

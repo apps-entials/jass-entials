@@ -12,7 +12,7 @@ import com.github.lucaengel.jass_entials.game.betting.SidiBarahniBettingLogic
  *
  * @param currentUserId the index of the current user in the [playerEmails] list
  * @param playerEmails the list of all players in the game (in order)
- * @param currentBetter the player who is currently betting
+ * @param currentBetterId the player who is currently betting
  * @param jassType the type of the jass game
  * @param bets the list of all bets that have been placed
  * @param betActions the list of all actions that have been performed (bet or pass)
@@ -131,6 +131,7 @@ data class BettingState(
             currentPlayerId = if (jassType == JassType.SCHIEBER) startingBetterId else bets.last().playerId,
             startingPlayerId = if (jassType == JassType.SCHIEBER) startingBetterId else bets.last().playerId,
             currentRound = 0,
+            jassType = jassType,
             roundState = RoundState.initial(
                 trump = bets.last().trump,
                 startingPlayerId = if (jassType == JassType.SCHIEBER) startingBetterId else bets.last().playerId,
