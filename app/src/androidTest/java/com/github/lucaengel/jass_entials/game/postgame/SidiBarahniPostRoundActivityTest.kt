@@ -16,6 +16,7 @@ import com.github.lucaengel.jass_entials.data.game_state.GameState
 import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
 import com.github.lucaengel.jass_entials.data.game_state.PlayerId
 import com.github.lucaengel.jass_entials.data.game_state.RoundState
+import com.github.lucaengel.jass_entials.data.jass.JassType
 import com.github.lucaengel.jass_entials.data.jass.Trump
 import com.github.lucaengel.jass_entials.game.pregame.PreRoundBettingActivity
 import org.junit.Before
@@ -74,6 +75,7 @@ class SidiBarahniPostRoundActivityTest {
         currentPlayerId= playerData1.id,
         startingPlayerId= playerData1.id,
         currentRound = 1,
+        jassType = JassType.SIDI_BARAHNI,
         roundState = RoundState.initial(trump = Trump.CLUBS, startingPlayerId = playerData1.id),
         winningBet = Bet(),
         playerCards = Deck.STANDARD_DECK.dealCards(),
@@ -81,6 +83,7 @@ class SidiBarahniPostRoundActivityTest {
 
     @Before
     fun setup() {
+        GameStateHolder.runCpuAsynchronously = false
         GameStateHolder.gameState = gameState
     }
 

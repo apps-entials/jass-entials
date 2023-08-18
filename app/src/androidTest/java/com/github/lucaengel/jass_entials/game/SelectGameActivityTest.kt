@@ -12,8 +12,10 @@ import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.lucaengel.jass_entials.SignInActivity
+import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
 import com.github.lucaengel.jass_entials.game.pregame.CoiffeurPregameActivity
 import com.github.lucaengel.jass_entials.game.pregame.PreRoundBettingActivity
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -26,6 +28,11 @@ class SelectGameActivityTest {
     val composeTestRule = createEmptyComposeRule()
 
     private val selectGameDefaultIntent = Intent(ApplicationProvider.getApplicationContext(), SelectGameActivity::class.java)
+
+    @Before
+    fun setup() {
+        GameStateHolder.runCpuAsynchronously = false
+    }
 
     @Test
     fun sidiBarahniClickOpensTheSidiBarahniPregameActivity() {

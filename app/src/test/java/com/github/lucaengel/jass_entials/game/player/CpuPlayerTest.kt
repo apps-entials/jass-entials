@@ -44,6 +44,7 @@ class CpuPlayerTest {
         currentPlayerId = defaultPlayerDatas[0].id,
         startingPlayerId = defaultPlayerDatas[0].id,
         currentRound = 0,
+        jassType = JassType.SIDI_BARAHNI,
         roundState = RoundState.initial(Trump.CLUBS, defaultPlayerDatas[0].id),
         winningBet = Bet(),
         playerCards = defaultPlayerDatas.associate { it.id to it.cards },

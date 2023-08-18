@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -146,7 +145,7 @@ fun JassRound() {
             .thenAccept {
                 setToNormalName(currentPlayerId)
 
-                gameState = gameState.playCard(currentPlayerId, it, currentUserId)
+                gameState = gameState.playCard(currentPlayerId, it)
                 updatePlayer(currentPlayerId, it)
             }
     }
@@ -158,13 +157,21 @@ fun JassRound() {
     ) {
 
         val topPlayerId = currentUserId.nextPlayer().nextPlayer()
-        Row {
+        Row (verticalAlignment = Alignment.CenterVertically) {
             JassComposables.PlayerBox(playerData = players.first { it.id == topPlayerId }, playerSpot = 2)
 
-            Text(text = "Trump: ${gameState.winningBet}")
+            JassComposables.LastBetComposable(
+                lastBet = gameState.winningBet,
+                jassType = gameState.jassType,
+                currentUserId = gameState.currentUserId,
+                lastBetter = players[gameState.winningBet.playerId.ordinal],
+                onTheSameRow = true,
+            )
+
         }
 
         Spacer(modifier = Modifier.weight(1f))
+
         JassMiddleRowInfo(
             gameState = gameState,
             players = players,
@@ -206,7 +213,7 @@ fun JassRound() {
                 return@CurrentPlayerBox
             }
 
-            gameState = gameState.playCard(currentUserId, card, currentUserId)
+            gameState = gameState.playCard(currentUserId, card)
 
             updatePlayer(currentUserId, card)
             GameStateHolder.gameState = gameState
@@ -220,7 +227,7 @@ fun JassRound() {
  */
 @Composable
 private fun JassMiddleRowInfo(gameState: GameState, players: List<PlayerData>, currentUserId: PlayerId, onClick: () -> Unit) {
-    Row() {
+    Row {
         val leftPlayer = currentUserId
             .nextPlayer()
             .nextPlayer()
@@ -237,9 +244,9 @@ private fun JassMiddleRowInfo(gameState: GameState, players: List<PlayerData>, c
         Spacer(modifier = Modifier.weight(0.1f))
         CurrentTrick(
             gameState = gameState,
-            players = players,
             currentUserId = currentUserId,
-            onClick = onClick)
+            onClick = onClick
+        )
         Spacer(modifier = Modifier.weight(0.1f))
 
         val rightPlayer = currentUserId.nextPlayer()

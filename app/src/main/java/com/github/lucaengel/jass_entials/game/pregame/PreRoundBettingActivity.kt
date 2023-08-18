@@ -4,9 +4,9 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,27 +14,30 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices.AUTOMOTIVE_1024p
 import androidx.compose.ui.tooling.preview.Preview
@@ -275,11 +278,12 @@ private fun MiddleRowInfo(bettingState: BettingState, players: List<PlayerData>,
             } else {
                 val lastBet = bettingState.bets.last()
                 val lastBetter = players.first { it.id == lastBet.playerId }
-                Text(
-                    text = "${lastBet.bet} ${lastBet.trump} by\n" +
-                        "${lastBetter.firstName} ${lastBetter.lastName}",
-                    textAlign = TextAlign.Center,
-                    maxLines = 3,
+
+                JassComposables.LastBetComposable(
+                    lastBet = lastBet,
+                    jassType = bettingState.jassType,
+                    currentUserId = bettingState.currentUserId,
+                    lastBetter = lastBetter
                 )
             }
         }
@@ -301,7 +305,6 @@ private fun MiddleRowInfo(bettingState: BettingState, players: List<PlayerData>,
 /**
  * Betting row composable
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BettingRow(
     bettingState: BettingState,
@@ -330,87 +333,111 @@ fun BettingRow(
         if (bettingState.bets.isEmpty()) {
             Text(
                 text = "No bets yet",
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                modifier = Modifier.align(Alignment.CenterVertically)
             )
         } else {
             val lastBet = bettingState.bets.last()
             val lastBetter = players.first { it.id == lastBet.playerId }
 
-            Text(
-                text = "${lastBet.bet} ${lastBet.trump} by\n" +
-                        "${lastBetter.firstName} ${lastBetter.lastName}",
-                textAlign = TextAlign.Center,
-                maxLines = 3,
-                )
+            JassComposables.LastBetComposable(
+                lastBet = lastBet,
+                jassType = bettingState.jassType,
+                currentUserId = bettingState.currentUserId,
+                lastBetter = lastBetter
+            )
         }
 
         Spacer(modifier = Modifier.weight(1f))
-        Column(
-            verticalArrangement = Arrangement.Center,
-        ) {
 
-            TextField(
-                modifier = Modifier.wrapContentWidth(),
-                value = if (
-                    (selectedBet == BetHeight.NONE
-                                    && bettingState.jassType == JassType.SIDI_BARAHNI)
-                    || selectedTrump == null) ""
-                else if (bettingState.jassType == JassType.SIDI_BARAHNI) "$selectedBet ${selectedTrump!!}"
-                else "${selectedTrump!!}",
-                onValueChange = { selectedBet = BetHeight.fromString(it) },
-                readOnly = true,
-                placeholder = { Text("Select bet") },
-                trailingIcon = {
-                    Icon(icon, contentDescription = "Bet placing dropdown icon",
-                        Modifier.clickable {
-                            if (isBetDropdownExpanded || isTrumpDropdownExpanded) {
-                                isBetDropdownExpanded = false
-                                isTrumpDropdownExpanded = false
-                            } else {
-                                isBetDropdownExpanded = true
-                                isTrumpDropdownExpanded = true
-                            }
-                        }
-                    )
-                }
+        if (selectedTrump != null) {
+            Image(
+                painter = painterResource(id = selectedTrump!!.asPicture()),
+                contentDescription = selectedTrump!!.toString(),
+                modifier = Modifier
+                    .height(30.dp)
+                    .align(Alignment.CenterVertically),
+                alignment = Alignment.Center,
             )
+        }
 
-            Row {
+        if (bettingState.availableTrumps().isNotEmpty()
+            && (bettingState.jassType != JassType.SIDI_BARAHNI || bettingState.availableBets().isNotEmpty())) {
+            if (bettingState.jassType == JassType.SIDI_BARAHNI || selectedTrump == null) {
+                Text(
+                    text = if (bettingState.jassType == JassType.SIDI_BARAHNI && selectedBet == BetHeight.NONE || selectedTrump == null) {
+                        "Select a bet: "
+                    } else {
+                        selectedBet.toString()
+                    },
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically)
+                        .padding(5.dp),
+                )
+            }
 
-                if (bettingState.jassType == JassType.SIDI_BARAHNI) {
-                    DropdownMenu(
-                        expanded = isBetDropdownExpanded,
-                        onDismissRequest = { isBetDropdownExpanded = false },
-                        modifier = Modifier.testTag("betDropdown")
-                    ) {
-                        bettingState.availableBets().forEach { bet ->
-                            DropdownMenuItem(
-                                text = { Text(text = bet.toString()) },
-                                onClick = {
-                                    selectedBet = bet
-                                    isBetDropdownExpanded = false
-                                })
+            Icon(icon, contentDescription = "Bet placing dropdown icon",
+                modifier = Modifier
+                    .clickable {
+                        if (isBetDropdownExpanded || isTrumpDropdownExpanded) {
+                            isBetDropdownExpanded = false
+                            isTrumpDropdownExpanded = false
+                        } else {
+                            if (bettingState.jassType == JassType.SIDI_BARAHNI) isBetDropdownExpanded =
+                                true
+                            isTrumpDropdownExpanded = true
                         }
                     }
+                    .align(Alignment.CenterVertically)
+                    .padding(5.dp)
+            )
+        }
 
-                    Spacer(modifier = Modifier.width(5.dp))
+        if (bettingState.jassType == JassType.SIDI_BARAHNI) {
+            DropdownMenu(
+                expanded = isBetDropdownExpanded,
+                onDismissRequest = { isBetDropdownExpanded = false },
+                modifier = Modifier.testTag("betDropdown")
+            ) {
+                bettingState.availableBets().forEach { bet ->
+                    Text(
+                        text = bet.toString(),
+                        modifier = Modifier
+                            .clickable {
+                                selectedBet = bet
+                                isBetDropdownExpanded = false
+                            }
+                            .padding(vertical = 4.dp, horizontal = 8.dp)
+                            .align(Alignment.CenterHorizontally)
+                    )
                 }
+            }
 
-                DropdownMenu(
-                    expanded = isTrumpDropdownExpanded,
-                    onDismissRequest = { isTrumpDropdownExpanded = false },
-                    modifier = Modifier.testTag("trumpDropdown")
-                ) {
-                    bettingState.availableTrumps().forEach { trump ->
-                        DropdownMenuItem(
-                            modifier = Modifier.testTag(trump.toString()),
-                            text = { Text(text = trump.toString()) },
+            Spacer(modifier = Modifier.width(5.dp))
+        }
+
+        DropdownMenu(
+            expanded = isTrumpDropdownExpanded,
+            onDismissRequest = { isTrumpDropdownExpanded = false },
+            modifier = Modifier.testTag("trumpDropdown")
+        ) {
+            bettingState.availableTrumps().forEach { trump ->
+
+                Image(
+                    painter = painterResource(id = trump.asPicture()),
+                    contentDescription = trump.toString(),
+                    modifier = Modifier
+                        .height(50.dp)
+                        .clickable(
                             onClick = {
                                 selectedTrump = trump
                                 isTrumpDropdownExpanded = false
-                            })
-                    }
-                }
+                            }
+                        )
+                        .align(Alignment.CenterHorizontally)
+                        .padding(vertical = 8.dp, horizontal = 10.dp),
+                    alignment = Alignment.Center,
+                )
             }
         }
 
@@ -475,8 +502,9 @@ fun BettingRow(
                     Text(text = "Pass")
             }
 
-            Spacer(modifier = Modifier.weight(1f))
         }
+
+        Spacer(modifier = Modifier.weight(1f))
     }
 }
 

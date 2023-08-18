@@ -1,6 +1,7 @@
 package com.github.lucaengel.jass_entials.data.game_state
 
 import com.github.lucaengel.jass_entials.data.cards.Card
+import com.github.lucaengel.jass_entials.data.jass.JassType
 import com.github.lucaengel.jass_entials.data.jass.Trump
 import java.io.Serializable
 
@@ -20,6 +21,7 @@ data class GameState(
     val currentPlayerId: PlayerId, // player that has to play the next card
     val startingPlayerId: PlayerId, // player that started the current trick
     val currentRound: Int,
+    val jassType: JassType,
     val roundState: RoundState,
     val winningBet: Bet,
     val playerCards: Map<PlayerId, List<Card>>,
@@ -31,6 +33,7 @@ data class GameState(
         currentPlayerId = PlayerId.PLAYER_1,
         startingPlayerId = PlayerId.PLAYER_1,
         currentRound = 0,
+        jassType = JassType.SIDI_BARAHNI,
         roundState = RoundState.initial(Trump.CLUBS, PlayerId.PLAYER_1),
         winningBet = Bet(PlayerId.PLAYER_1, Trump.CLUBS, BetHeight.NONE),
         playerCards = mapOf(),
@@ -66,7 +69,7 @@ data class GameState(
      * @param card the card that was played
      * @return the updated game state
      */
-    fun playCard(playerId: PlayerId, card: Card, currentUserId: PlayerId): GameState {
+    fun playCard(playerId: PlayerId, card: Card): GameState {
         // TODO: maybe update playerData as well
         val newPlayer = GameStateHolder.players[currentPlayerId.ordinal].withCardPlayed(card)
 

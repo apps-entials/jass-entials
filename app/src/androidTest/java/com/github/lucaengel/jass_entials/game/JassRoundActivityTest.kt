@@ -80,6 +80,7 @@ class JassRoundActivityTest {
         currentPlayerId = playerData1.id,
         startingPlayerId = playerData1.id,
         currentRound = 1,
+        jassType = JassType.SIDI_BARAHNI,
         roundState = RoundState.initial(trump = Trump.UNGER_UFE, startingPlayerId = playerData1.id)
             .withCardPlayed(Deck.STANDARD_DECK.cards[0])
             .withCardPlayed(Deck.STANDARD_DECK.cards[1])
@@ -105,6 +106,7 @@ class JassRoundActivityTest {
 
     @Before
     fun setup() {
+        GameStateHolder.runCpuAsynchronously = false
         GameStateHolder.gameState = gameState
         GameStateHolder.bettingState = bettingState
         GameStateHolder.players = players

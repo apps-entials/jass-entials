@@ -1,5 +1,6 @@
 package com.github.lucaengel.jass_entials.data.game_state
 
+import com.github.lucaengel.jass_entials.data.cards.CardType
 import com.github.lucaengel.jass_entials.data.cards.Deck
 import com.github.lucaengel.jass_entials.data.cards.PlayerData
 import com.github.lucaengel.jass_entials.data.jass.JassType
@@ -45,6 +46,13 @@ class GameStateHolder {
             "123"
         )
 
+        var runCpuAsynchronously = true
+
+        /**
+         * The current card type.
+         */
+        var cardType = CardType.FRENCH
+
         /**
          * The current player datas.
          */
@@ -59,6 +67,7 @@ class GameStateHolder {
             currentPlayerId = playerData1.id,
             startingPlayerId = playerData1.id,
             currentRound = 1,
+            jassType = JassType.SIDI_BARAHNI,
             roundState = RoundState.initial(trump = Trump.CLUBS, startingPlayerId = playerData2.id)
                 .withCardPlayed(Deck.STANDARD_DECK.cards[0])
                 .withCardPlayed(Deck.STANDARD_DECK.cards[1])
@@ -76,10 +85,10 @@ class GameStateHolder {
                 currentUserId = playerData1.id,
                 playerEmails = listOf(),
                 currentBetterId = playerData1.id,
-                startingBetterId = playerData1.id,
+                startingBetterId = playerData4.id,
                 jassType = JassType.SCHIEBER,
-                bets = listOf(),
-                betActions = listOf(),
+                bets = listOf(Bet(playerData4.id, Trump.CLUBS, BetHeight.FORTY)),
+                betActions = listOf(Bet.BetAction.BET),
                 gameState = GameState(),
             )
 
