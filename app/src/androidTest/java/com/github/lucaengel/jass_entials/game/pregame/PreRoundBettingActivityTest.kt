@@ -25,7 +25,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.lang.Thread.sleep
 
 @RunWith(AndroidJUnit4::class)
 class PreRoundBettingActivityTest {
@@ -147,14 +146,9 @@ class PreRoundBettingActivityTest {
         ActivityScenario.launch<PreRoundBettingActivity>(preRoundDefaultIntent).use {
             Intents.init()
 
-            sleep(10000)
-
             composeTestRule.onNodeWithContentDescription("Bet placing dropdown icon")
                 .assertExists("trump dropdown not found")
                 .performClick()
-
-//            val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-
 
             composeTestRule.onNodeWithContentDescription(label = Trump.HEARTS.toString(), useUnmergedTree = true)
                 .assertExists("trump dropdown item not found")
@@ -167,8 +161,6 @@ class PreRoundBettingActivityTest {
             Intents.intended(IntentMatchers.hasComponent(
                 JassRoundActivity::class.java.name,
             ))
-
-            sleep(10000)
 
             Intents.release()
         }
