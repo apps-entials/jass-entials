@@ -278,12 +278,7 @@ private fun MiddleRowInfo(bettingState: BettingState, players: List<PlayerData>,
             } else {
                 val lastBet = bettingState.bets.last()
                 val lastBetter = players.first { it.id == lastBet.playerId }
-//                Text(
-//                    text = "${lastBet.bet} ${lastBet.trump} by\n" +
-//                        "${lastBetter.firstName} ${lastBetter.lastName}",
-//                    textAlign = TextAlign.Center,
-//                    maxLines = 3,
-//                )
+
                 JassComposables.LastBetComposable(
                     lastBet = lastBet,
                     jassType = bettingState.jassType,
