@@ -9,7 +9,7 @@ import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
 /**
  * Enum representing the trump suit in a Jass game.
  */
-enum class Trump() {
+enum class Trump {
     DIAMONDS,
     HEARTS,
     SPADES,
@@ -24,16 +24,16 @@ enum class Trump() {
                 SPADES -> R.drawable.spades
                 HEARTS -> R.drawable.hearts
                 DIAMONDS -> R.drawable.diamonds
-                UNGER_UFE -> android.R.drawable.arrow_up_float
-                OBE_ABE -> android.R.drawable.arrow_down_float
+                UNGER_UFE -> R.drawable.unger_ufe
+                OBE_ABE -> R.drawable.ope_abe
             }
             CardType.GERMAN -> when (this) {
                 CLUBS -> R.drawable.eicheln
                 SPADES -> R.drawable.schilten
                 HEARTS -> R.drawable.rosen
                 DIAMONDS -> R.drawable.schellen
-                UNGER_UFE -> android.R.drawable.arrow_up_float
-                OBE_ABE -> android.R.drawable.arrow_down_float
+                UNGER_UFE -> R.drawable.unger_ufe
+                OBE_ABE -> R.drawable.ope_abe
             }
         }
     }

@@ -3,7 +3,6 @@ package com.github.lucaengel.jass_entials.game.pregame
 import android.content.Intent
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ActivityScenario
@@ -151,7 +150,7 @@ class PreRoundBettingActivityTest {
                 .assertExists("trump dropdown not found")
                 .performClick()
 
-            composeTestRule.onNodeWithTag(Trump.HEARTS.toString(), useUnmergedTree = true)
+            composeTestRule.onNodeWithContentDescription(label = Trump.HEARTS.toString(), useUnmergedTree = true)
                 .assertExists("trump dropdown item not found")
                 .performClick()
 
