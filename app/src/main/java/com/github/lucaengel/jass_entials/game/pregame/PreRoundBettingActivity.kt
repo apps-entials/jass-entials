@@ -355,17 +355,19 @@ fun BettingRow(
 
         Spacer(modifier = Modifier.weight(1f))
 
-            if (selectedTrump != null) {
-                Image(
-                    painter = painterResource(id = selectedTrump!!.asPicture()),
-                    contentDescription = selectedTrump!!.toString(),
-                    modifier = Modifier
-                        .height(30.dp)
-                        .align(Alignment.CenterVertically),
-                    alignment = Alignment.Center,
-                )
-            }
+        if (selectedTrump != null) {
+            Image(
+                painter = painterResource(id = selectedTrump!!.asPicture()),
+                contentDescription = selectedTrump!!.toString(),
+                modifier = Modifier
+                    .height(30.dp)
+                    .align(Alignment.CenterVertically),
+                alignment = Alignment.Center,
+            )
+        }
 
+        if (bettingState.availableTrumps().isNotEmpty()
+            && (bettingState.jassType != JassType.SIDI_BARAHNI || bettingState.availableBets().isNotEmpty())) {
             if (bettingState.jassType == JassType.SIDI_BARAHNI || selectedTrump == null) {
                 Text(
                     text = if (bettingState.jassType == JassType.SIDI_BARAHNI && selectedBet == BetHeight.NONE || selectedTrump == null) {
@@ -392,56 +394,57 @@ fun BettingRow(
                         }
                     }
                     .align(Alignment.CenterVertically)
-                    .padding(5.dp),
-                )
+                    .padding(5.dp)
+            )
+        }
 
-            if (bettingState.jassType == JassType.SIDI_BARAHNI) {
-                DropdownMenu(
-                    expanded = isBetDropdownExpanded,
-                    onDismissRequest = { isBetDropdownExpanded = false },
-                    modifier = Modifier.testTag("betDropdown")
-                ) {
-                    bettingState.availableBets().forEach { bet ->
-                        Text(
-                            text = bet.toString(),
-                            modifier = Modifier
-                                .clickable {
-                                    selectedBet = bet
-                                    isBetDropdownExpanded = false
-                                }
-                                .padding(vertical = 4.dp, horizontal = 8.dp)
-                                .align(Alignment.CenterHorizontally)
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.width(5.dp))
-            }
-
+        if (bettingState.jassType == JassType.SIDI_BARAHNI) {
             DropdownMenu(
-                expanded = isTrumpDropdownExpanded,
-                onDismissRequest = { isTrumpDropdownExpanded = false },
-                modifier = Modifier.testTag("trumpDropdown")
+                expanded = isBetDropdownExpanded,
+                onDismissRequest = { isBetDropdownExpanded = false },
+                modifier = Modifier.testTag("betDropdown")
             ) {
-                bettingState.availableTrumps().forEach { trump ->
-
-                    Image(
-                        painter = painterResource(id = trump.asPicture()),
-                        contentDescription = trump.toString(),
+                bettingState.availableBets().forEach { bet ->
+                    Text(
+                        text = bet.toString(),
                         modifier = Modifier
-                            .height(50.dp)
-                            .clickable(
-                                onClick = {
-                                    selectedTrump = trump
-                                    isTrumpDropdownExpanded = false
-                                }
-                            )
+                            .clickable {
+                                selectedBet = bet
+                                isBetDropdownExpanded = false
+                            }
+                            .padding(vertical = 4.dp, horizontal = 8.dp)
                             .align(Alignment.CenterHorizontally)
-                            .padding(vertical = 8.dp, horizontal = 10.dp),
-                        alignment = Alignment.Center,
                     )
                 }
             }
+
+            Spacer(modifier = Modifier.width(5.dp))
+        }
+
+        DropdownMenu(
+            expanded = isTrumpDropdownExpanded,
+            onDismissRequest = { isTrumpDropdownExpanded = false },
+            modifier = Modifier.testTag("trumpDropdown")
+        ) {
+            bettingState.availableTrumps().forEach { trump ->
+
+                Image(
+                    painter = painterResource(id = trump.asPicture()),
+                    contentDescription = trump.toString(),
+                    modifier = Modifier
+                        .height(50.dp)
+                        .clickable(
+                            onClick = {
+                                selectedTrump = trump
+                                isTrumpDropdownExpanded = false
+                            }
+                        )
+                        .align(Alignment.CenterHorizontally)
+                        .padding(vertical = 8.dp, horizontal = 10.dp),
+                    alignment = Alignment.Center,
+                )
+            }
+        }
 
         Spacer(modifier = Modifier.weight(1f))
 
