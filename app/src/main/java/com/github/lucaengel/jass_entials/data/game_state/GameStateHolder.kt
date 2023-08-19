@@ -75,6 +75,7 @@ class GameStateHolder {
                 .withCardPlayed(Deck.STANDARD_DECK.cards[3]),
             winningBet = Bet(playerData2.id, Trump.CLUBS, BetHeight.FORTY),
             playerCards = Deck.STANDARD_DECK.dealCards(),
+            score = Score.INITIAL,
         )
 
         /**
@@ -90,6 +91,7 @@ class GameStateHolder {
                 bets = listOf(Bet(playerData4.id, Trump.CLUBS, BetHeight.FORTY)),
                 betActions = listOf(Bet.BetAction.BET),
                 gameState = GameState(),
+                score = Score.INITIAL,
             )
 
         /**
@@ -117,7 +119,11 @@ class GameStateHolder {
          * @param startingBetter The player that starts the next betting round.
          */
         fun goToNextBettingStateRound(startingBetter: PlayerId) {
-            bettingState = bettingState.nextBettingRound(startingBetter)
+            bettingState = bettingState.nextBettingRound(
+                startingBetter = startingBetter,
+                jassType = jassType,
+                score = Score.INITIAL
+            )
         }
     }
 }

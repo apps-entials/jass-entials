@@ -7,6 +7,7 @@ import com.github.lucaengel.jass_entials.data.game_state.BetHeight
 import com.github.lucaengel.jass_entials.data.game_state.BettingState
 import com.github.lucaengel.jass_entials.data.game_state.GameState
 import com.github.lucaengel.jass_entials.data.game_state.PlayerId
+import com.github.lucaengel.jass_entials.data.game_state.Score
 import com.github.lucaengel.jass_entials.data.jass.JassType
 import com.github.lucaengel.jass_entials.data.jass.Trump
 import org.hamcrest.CoreMatchers.`is`
@@ -44,6 +45,7 @@ class SchieberBettingLogicTest {
         bets = listOf(Bet(defaultPlayerDatas[1].id, Trump.UNGER_UFE, BetHeight.HUNDRED)),
         betActions = listOf(Bet.BetAction.BET),
         gameState = GameState(),
+        score = Score.INITIAL,
     )
 
     @Test

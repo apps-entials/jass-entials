@@ -16,6 +16,7 @@ import com.github.lucaengel.jass_entials.data.game_state.GameState
 import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
 import com.github.lucaengel.jass_entials.data.game_state.PlayerId
 import com.github.lucaengel.jass_entials.data.game_state.RoundState
+import com.github.lucaengel.jass_entials.data.game_state.Score
 import com.github.lucaengel.jass_entials.data.jass.JassType
 import com.github.lucaengel.jass_entials.data.jass.Trump
 import com.github.lucaengel.jass_entials.game.pregame.PreRoundBettingActivity
@@ -25,12 +26,12 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class SidiBarahniPostRoundActivityTest {
+class PostRoundActivityTest {
 
     @get:Rule
     val composeTestRule = createEmptyComposeRule()
 
-    private val postRoundDefaultIntent = Intent(ApplicationProvider.getApplicationContext(), SidiBarahniPostRoundActivity::class.java)
+    private val postRoundDefaultIntent = Intent(ApplicationProvider.getApplicationContext(), PostRoundActivity::class.java)
 
     private val shuffledDeck = Deck.STANDARD_DECK.shuffled()
     // every player gets 8 cards, 4 are already in the current trick
@@ -79,6 +80,7 @@ class SidiBarahniPostRoundActivityTest {
         roundState = RoundState.initial(trump = Trump.CLUBS, startingPlayerId = playerData1.id),
         winningBet = Bet(),
         playerCards = Deck.STANDARD_DECK.dealCards(),
+        score = Score.INITIAL,
     )
 
     @Before
@@ -89,7 +91,7 @@ class SidiBarahniPostRoundActivityTest {
 
     @Test
     fun correctInitialScreenContent() {
-        ActivityScenario.launch<SidiBarahniPostRoundActivity>(postRoundDefaultIntent).use {
+        ActivityScenario.launch<PostRoundActivity>(postRoundDefaultIntent).use {
             players.forEach {
                 composeTestRule.onNodeWithText("${it.firstName} ${it.lastName}", substring = true).assertExists()
             }
@@ -98,7 +100,7 @@ class SidiBarahniPostRoundActivityTest {
 
     @Test
     fun correctPointsAttributedToEachPerson() {
-        ActivityScenario.launch<SidiBarahniPostRoundActivity>(postRoundDefaultIntent).use {
+        ActivityScenario.launch<PostRoundActivity>(postRoundDefaultIntent).use {
 
             composeTestRule.onNodeWithText("${playerData1.firstName} ${playerData1.lastName}: 0").assertExists()
             composeTestRule.onNodeWithText("${playerData2.firstName} ${playerData2.lastName}: 0").assertExists()
@@ -109,7 +111,7 @@ class SidiBarahniPostRoundActivityTest {
 
     @Test
     fun startNextRoundButtonOpensNextSidiBarahniBiddingActivity() {
-        ActivityScenario.launch<SidiBarahniPostRoundActivity>(postRoundDefaultIntent).use {
+        ActivityScenario.launch<PostRoundActivity>(postRoundDefaultIntent).use {
             Intents.init()
 
             composeTestRule.onNodeWithText("Start next round")

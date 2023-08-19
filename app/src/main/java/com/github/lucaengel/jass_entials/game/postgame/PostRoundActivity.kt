@@ -20,7 +20,7 @@ import com.github.lucaengel.jass_entials.ui.theme.JassentialsTheme
 /**
  * Activity for the Sidi Barahni post round screen.
  */
-class SidiBarahniPostRoundActivity : ComponentActivity() {
+class PostRoundActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

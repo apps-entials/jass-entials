@@ -27,6 +27,7 @@ data class BettingState(
     val bets: List<Bet>,
     val betActions: List<Bet.BetAction>,
     val gameState: GameState,
+    val score: Score,
 ){
 
     private val bettingLogic: BettingLogic = when (jassType) {
@@ -48,6 +49,7 @@ data class BettingState(
         bets = listOf(),
         betActions = listOf(),
         gameState = GameState(),
+        score = Score.INITIAL,
     )
 
     /**
@@ -56,7 +58,7 @@ data class BettingState(
      * @param startingBetter the player who starts the next betting round
      * @return the new betting state
      */
-    fun nextBettingRound(startingBetter: PlayerId, jassType: JassType = this.jassType): BettingState {
+    fun nextBettingRound(startingBetter: PlayerId, jassType: JassType = this.jassType, score: Score): BettingState {
         val dealtCards = Deck.STANDARD_DECK.shuffled().dealCards()
         GameStateHolder.players = GameStateHolder.players.map { it.copy(cards = dealtCards[it.id]!!) }
 
@@ -67,7 +69,8 @@ data class BettingState(
             startingBetterId = startingBetter,
             jassType = jassType,
             bets = listOf(),
-        )
+            score = score,
+            )
     }
 
     /**
@@ -138,6 +141,7 @@ data class BettingState(
             ),
             winningBet = bets.last(),
             playerCards = GameStateHolder.players.associate { it.id to it.cards },
+            score = score,
         )
     }
 }

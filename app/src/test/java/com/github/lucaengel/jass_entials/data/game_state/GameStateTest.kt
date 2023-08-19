@@ -47,6 +47,7 @@ class GameStateTest {
         roundState = RoundState.initial(Trump.SPADES, defaultPlayerDatas[0].id),
         winningBet = Bet(),
         playerCards = defaultPlayerDatas.associate { it.id to it.cards },
+        score = Score.INITIAL,
     )
 
     @Before
