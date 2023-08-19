@@ -42,7 +42,7 @@ class DelayedCpuPlayer(
         return future
     }
 
-    override fun bet(bettingState: BettingState): CompletableFuture<BettingState> {
+    override fun bet(bettingState: BettingState, handCards: List<Card>): CompletableFuture<BettingState> {
         val betFuture = CompletableFuture<BettingState>()
 
         // TODO: This is a temporary solution for testing to not have the cpu wait
@@ -51,11 +51,11 @@ class DelayedCpuPlayer(
             CompletableFuture.runAsync {
                 Thread.sleep(3 * threadSleepTime)
 
-                betFuture.complete(cpuPlayer.bet(bettingState).join())
+                betFuture.complete(cpuPlayer.bet(bettingState, handCards).join())
             }
         } else {
             // this is where tests run
-            betFuture.complete(cpuPlayer.bet(bettingState).join())
+            betFuture.complete(cpuPlayer.bet(bettingState, handCards).join())
         }
 
         return betFuture

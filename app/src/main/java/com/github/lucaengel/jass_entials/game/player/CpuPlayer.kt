@@ -5,6 +5,7 @@ import com.github.lucaengel.jass_entials.data.game_state.Bet
 import com.github.lucaengel.jass_entials.data.game_state.BettingState
 import com.github.lucaengel.jass_entials.data.game_state.PlayerId
 import com.github.lucaengel.jass_entials.data.game_state.RoundState
+import com.github.lucaengel.jass_entials.data.jass.JassType
 import java.util.concurrent.CompletableFuture
 import kotlin.random.Random
 
@@ -20,9 +21,23 @@ class CpuPlayer(
 ) : Player {
 
     private val monteCarloCpu = MonteCarloCardPlayer(playerId, seed, nbSimulations)
+    private val schieberBiddingCpu = SchieberBiddingCpu(playerId)
 
-    override fun bet(bettingState: BettingState): CompletableFuture<BettingState> {
+    override fun bet(bettingState: BettingState, handCards: List<Card>): CompletableFuture<BettingState> {
+        if (bettingState.jassType == JassType.SCHIEBER) {
+            println("\n\n--------- new bet: ------------")
+            val bet = schieberBiddingCpu.bet(bettingState, handCards)
+            println("CpuPlayer.bet: bet = $bet")
+            println("-----------------------------\n\n")
 
+            return CompletableFuture.completedFuture(
+                bettingState.nextPlayer(
+                    placedBet = bet
+                )
+            )
+        }
+
+        // When not schieber:
         if ((bettingState.availableActions().contains(Bet.BetAction.PASS))
             && (Random.nextFloat() > 0.2 || bettingState.availableBets().isEmpty())) {
 

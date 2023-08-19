@@ -83,11 +83,14 @@ class CpuPlayerTest {
     fun cpuPlayerOnceInAWhileSelectsABet() {
         val player = CpuPlayer(defaultPlayerDatas[0].id)
         val bettingState = defaultBettingState.copy(
-            bets = listOf(Bet(defaultPlayerDatas[1].id, Trump.UNGER_UFE, BetHeight.FIFTY)),
+            bets = listOf(Bet(defaultPlayerDatas[3].id, Trump.UNGER_UFE, BetHeight.FIFTY)),
         )
 
         for (i in 0..100) {
-            val newBettingState = player.bet(bettingState).join()
+            val newBettingState = player.bet(
+                bettingState = bettingState,
+                handCards = defaultPlayerDatas[0].cards
+            ).join()
 
             assertThat(newBettingState.currentBetterId,
                 `is`(bettingState.currentBetterId.nextPlayer()))
@@ -99,10 +102,13 @@ class CpuPlayerTest {
         val player = CpuPlayer(defaultPlayerDatas[0].id, 0)
 
         // since last bet was match by player 0, player 0 can only start
-        val newBettingState = player.bet(defaultBettingState.copy(
-            bets = listOf(Bet(defaultPlayerDatas[0].id, Trump.UNGER_UFE, BetHeight.MATCH)),
-            betActions = listOf(Bet.BetAction.BET, Bet.BetAction.PASS, Bet.BetAction.PASS, Bet.BetAction.PASS),
-        )).join()
+        val newBettingState = player.bet(
+            bettingState = defaultBettingState.copy(
+                bets = listOf(Bet(defaultPlayerDatas[0].id, Trump.UNGER_UFE, BetHeight.MATCH)),
+                betActions = listOf(Bet.BetAction.BET, Bet.BetAction.PASS, Bet.BetAction.PASS, Bet.BetAction.PASS),
+            ),
+            handCards = defaultPlayerDatas[0].cards
+        ).join()
 
         assertThat(newBettingState.currentBetterId,
             `is`(defaultBettingState.currentBetterId))

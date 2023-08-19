@@ -24,5 +24,5 @@ interface Player {
      * @param bettingState the current betting state
      * @return the new betting state
      */
-    fun bet(bettingState: BettingState): CompletableFuture<BettingState>
+    fun bet(bettingState: BettingState, handCards: List<Card>): CompletableFuture<BettingState>
 }

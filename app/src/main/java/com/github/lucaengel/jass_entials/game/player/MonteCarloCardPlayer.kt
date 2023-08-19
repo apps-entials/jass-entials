@@ -10,6 +10,14 @@ import kotlin.math.ln
 import kotlin.math.sqrt
 import kotlin.random.Random
 
+
+/**
+ * Plays a card from the player's hand for the given game state based on the Monte Carlo Tree Search algorithm.
+ *
+ * @param playerId The id of the player for which the card is to be determined.
+ * @param seed The seed for the random number generator.
+ * @param nbSimulations The number of simulations to be performed.
+ */
 class MonteCarloCardPlayer(
     val playerId: PlayerId,
     seed: Long = Random.nextLong(),
@@ -27,6 +35,10 @@ class MonteCarloCardPlayer(
             throw IllegalArgumentException("Number of simulations must be at least 9")
         }
     }
+
+    // TODO: make sure that when only teammates have trump, no trump card is played as the first card
+    //  (except if the player has only trump cards)
+    //  i.e., fill out the trump cards for the team mate based on the already played cards and the hand cards
 
     /**
      * Class representing a CPU player using the Monte Carlo Tree Search algorithm
