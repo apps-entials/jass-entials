@@ -75,7 +75,6 @@ class GameStateHolder {
                 .withCardPlayed(Deck.STANDARD_DECK.cards[3]),
             winningBet = Bet(playerData2.id, Trump.CLUBS, BetHeight.FORTY),
             playerCards = Deck.STANDARD_DECK.dealCards(),
-            score = Score.INITIAL,
         )
 
         /**
@@ -94,10 +93,10 @@ class GameStateHolder {
                 score = Score.INITIAL,
             )
 
-        /**
-         * The current jass type.
-         */
-        var jassType: JassType = JassType.SIDI_BARAHNI
+//        /**
+//         * The current jass type.
+//         */
+//        var jassType: JassType = JassType.SIDI_BARAHNI
 
         // TODO: call this when a new game starts
         /*fun startNewGameBettingState(playerDatas: List<PlayerData>, currentPlayerData: PlayerData) {
@@ -121,8 +120,8 @@ class GameStateHolder {
         fun goToNextBettingStateRound(startingBetter: PlayerId) {
             bettingState = bettingState.nextBettingRound(
                 startingBetter = startingBetter,
-                jassType = jassType,
-                score = Score.INITIAL
+//                jassType = jassType,
+                score = gameState.roundState.score().nextRound(),
             )
         }
     }

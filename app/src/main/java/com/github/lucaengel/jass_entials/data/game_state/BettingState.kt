@@ -69,8 +69,8 @@ data class BettingState(
             startingBetterId = startingBetter,
             jassType = jassType,
             bets = listOf(),
-            score = score,
-            )
+            score = score
+        )
     }
 
     /**
@@ -138,10 +138,10 @@ data class BettingState(
             roundState = RoundState.initial(
                 trump = bets.last().trump,
                 startingPlayerId = if (jassType == JassType.SCHIEBER) startingBetterId else bets.last().playerId,
+                score = score,
             ),
             winningBet = bets.last(),
             playerCards = GameStateHolder.players.associate { it.id to it.cards },
-            score = score,
         )
     }
 }

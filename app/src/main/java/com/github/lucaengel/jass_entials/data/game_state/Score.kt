@@ -49,25 +49,43 @@ data class Score(
      */
     fun withPointsAdded(teamId: TeamId, points: Int): Score {
         return if (teamId == TeamId.TEAM_1) {
-            this.copy(team1 = this.team1 + points)
+            this.copy(
+                team1 = this.team1 + points,
+                gamePointsTeam1 = this.gamePointsTeam1 + points
+            )
         } else{
-            this.copy(team2 = this.team2 + points)
+            this.copy(
+                team2 = this.team2 + points,
+                gamePointsTeam2 = this.gamePointsTeam2 + points
+            )
         }
     }
 
     /**
-     * Returns the Score of the next round with the current points added to the game points.
+     * Returns the Score of the next round.
      *
      * @return The Score of the next round.
      */
     fun nextRound(): Score {
         return this.copy(
             team1 = 0,
-            team2 = 0,
-            gamePointsTeam1 = this.gamePointsTeam1 + this.team1,
-            gamePointsTeam2 = this.gamePointsTeam2 + this.team2
+            team2 = 0
         )
     }
+
+//    /**
+//     * Returns the Score of the next round with the current points added to the game points.
+//     *
+//     * @return The Score of the next round.
+//     */
+//    fun nextRound(): Score {
+//        return this.copy(
+//            team1 = 0,
+//            team2 = 0,
+//            gamePointsTeam1 = this.gamePointsTeam1 + this.team1,
+//            gamePointsTeam2 = this.gamePointsTeam2 + this.team2
+//        )
+//    }
 
     companion object {
 

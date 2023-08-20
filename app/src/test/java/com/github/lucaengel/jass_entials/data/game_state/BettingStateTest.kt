@@ -124,7 +124,6 @@ class BettingStateTest {
             roundState = RoundState.initial(winningBet.trump, defaultPlayerDatas[0].id),
             winningBet = winningBet,
             playerCards = defaultPlayerDatas.associate { it.id to it.cards },
-            score = Score.INITIAL,
         )
 
         assertThat(bettingState.startGame(), `is`(expectedGameState))

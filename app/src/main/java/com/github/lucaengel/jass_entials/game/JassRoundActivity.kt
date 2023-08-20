@@ -86,6 +86,7 @@ fun JassRound() {
         gameState = gameState.nextTrick()
 
         if (gameState.isLastTrick()) {
+
             // Store current game state
             GameStateHolder.gameState = gameState
             GameStateHolder.players = players

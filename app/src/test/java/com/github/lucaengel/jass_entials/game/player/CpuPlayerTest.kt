@@ -49,7 +49,6 @@ class CpuPlayerTest {
         roundState = RoundState.initial(Trump.CLUBS, defaultPlayerDatas[0].id),
         winningBet = Bet(),
         playerCards = defaultPlayerDatas.associate { it.id to it.cards },
-        score = Score.INITIAL,
     )
 
     private val defaultBettingState = BettingState(

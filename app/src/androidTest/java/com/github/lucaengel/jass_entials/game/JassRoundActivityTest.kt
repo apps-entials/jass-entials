@@ -89,7 +89,6 @@ class JassRoundActivityTest {
             .withCardPlayed(Deck.STANDARD_DECK.cards[3]),
         winningBet = Bet(playerData1.id, Trump.UNGER_UFE, BetHeight.SIXTY),
         playerCards = Deck.STANDARD_DECK.dealCards(),
-        score = Score.INITIAL,
     )
 
     private var bettingState: BettingState =

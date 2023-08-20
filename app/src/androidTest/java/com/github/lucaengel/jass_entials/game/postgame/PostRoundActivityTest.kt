@@ -17,6 +17,7 @@ import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
 import com.github.lucaengel.jass_entials.data.game_state.PlayerId
 import com.github.lucaengel.jass_entials.data.game_state.RoundState
 import com.github.lucaengel.jass_entials.data.game_state.Score
+import com.github.lucaengel.jass_entials.data.game_state.TeamId
 import com.github.lucaengel.jass_entials.data.jass.JassType
 import com.github.lucaengel.jass_entials.data.jass.Trump
 import com.github.lucaengel.jass_entials.game.pregame.PreRoundBettingActivity
@@ -80,7 +81,6 @@ class PostRoundActivityTest {
         roundState = RoundState.initial(trump = Trump.CLUBS, startingPlayerId = playerData1.id),
         winningBet = Bet(),
         playerCards = Deck.STANDARD_DECK.dealCards(),
-        score = Score.INITIAL,
     )
 
     @Before
@@ -92,20 +92,28 @@ class PostRoundActivityTest {
     @Test
     fun correctInitialScreenContent() {
         ActivityScenario.launch<PostRoundActivity>(postRoundDefaultIntent).use {
-            players.forEach {
-                composeTestRule.onNodeWithText("${it.firstName} ${it.lastName}", substring = true).assertExists()
-            }
+            composeTestRule.onNodeWithText("This round", substring = true).assertExists()
+            composeTestRule.onNodeWithText("Total points", substring = true).assertExists()
         }
     }
 
     @Test
-    fun correctPointsAttributedToEachPerson() {
+    fun correctPointsAttributedToEachTeam() {
+        GameStateHolder.gameState = gameState.copy(
+            roundState = gameState.roundState.copy(
+                score = Score.INITIAL
+                    .withPointsAdded(TeamId.TEAM_1, 100)
+                    .withPointsAdded(TeamId.TEAM_2, 200)
+                    .nextRound()
+            )
+        )
+
         ActivityScenario.launch<PostRoundActivity>(postRoundDefaultIntent).use {
 
-            composeTestRule.onNodeWithText("${playerData1.firstName} ${playerData1.lastName}: 0").assertExists()
-            composeTestRule.onNodeWithText("${playerData2.firstName} ${playerData2.lastName}: 0").assertExists()
-            composeTestRule.onNodeWithText("${playerData3.firstName} ${playerData3.lastName}: 0").assertExists()
-            composeTestRule.onNodeWithText("${playerData4.firstName} ${playerData4.lastName}: 0").assertExists()
+            composeTestRule.onNodeWithText("Your Team: 0").assertExists()
+            composeTestRule.onNodeWithText("Other Team: 0").assertExists()
+            composeTestRule.onNodeWithText("Your Team: 100").assertExists()
+            composeTestRule.onNodeWithText("Other Team: 200").assertExists()
         }
     }
 

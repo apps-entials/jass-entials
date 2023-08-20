@@ -25,7 +25,6 @@ data class GameState(
     val roundState: RoundState,
     val winningBet: Bet,
     val playerCards: Map<PlayerId, List<Card>>,
-    val score: Score,
 ) : Serializable {
 
     constructor() : this(
@@ -38,7 +37,6 @@ data class GameState(
         roundState = RoundState.initial(Trump.CLUBS, PlayerId.PLAYER_1),
         winningBet = Bet(PlayerId.PLAYER_1, Trump.CLUBS, BetHeight.NONE),
         playerCards = mapOf(),
-        score = Score.INITIAL,
     )
 
     /**
