@@ -8,10 +8,10 @@ class PlayerIdTest {
 
     @Test
     fun teamReturnsCorrectTeam() {
-        assertThat(PlayerId.PLAYER_1.team(), `is`(TeamId.TEAM_1))
-        assertThat(PlayerId.PLAYER_2.team(), `is`(TeamId.TEAM_2))
-        assertThat(PlayerId.PLAYER_3.team(), `is`(TeamId.TEAM_1))
-        assertThat(PlayerId.PLAYER_4.team(), `is`(TeamId.TEAM_2))
+        assertThat(PlayerId.PLAYER_1.teamId(), `is`(TeamId.TEAM_1))
+        assertThat(PlayerId.PLAYER_2.teamId(), `is`(TeamId.TEAM_2))
+        assertThat(PlayerId.PLAYER_3.teamId(), `is`(TeamId.TEAM_1))
+        assertThat(PlayerId.PLAYER_4.teamId(), `is`(TeamId.TEAM_2))
     }
 
     @Test

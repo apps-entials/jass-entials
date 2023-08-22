@@ -64,7 +64,7 @@ class SidiBarahniBettingLogicTest {
         )
 
         val result = bettingLogic.nextPlayer(
-            currentBetter = defaultPlayerDatas[1].id,
+            currentBetterId = defaultPlayerDatas[1].id,
             currentPlayerBet = null,
             bettingState = bettingState,
         )
@@ -79,7 +79,7 @@ class SidiBarahniBettingLogicTest {
         )
 
         val result = bettingLogic.nextPlayer(
-            currentBetter = defaultPlayerDatas[1].id,
+            currentBetterId = defaultPlayerDatas[1].id,
             currentPlayerBet = null,
             bettingState = bettingState,
         )
@@ -94,7 +94,7 @@ class SidiBarahniBettingLogicTest {
         )
 
         val result = bettingLogic.nextPlayer(
-            currentBetter = defaultPlayerDatas[3].id,
+            currentBetterId = defaultPlayerDatas[3].id,
             currentPlayerBet = Bet(defaultPlayerDatas[3].id, Trump.UNGER_UFE, BetHeight.HUNDRED),
             bettingState = bettingState,
         )
@@ -110,7 +110,7 @@ class SidiBarahniBettingLogicTest {
         )
 
         val result = bettingLogic.nextPlayer(
-            currentBetter = defaultPlayerDatas[2].id,
+            currentBetterId = defaultPlayerDatas[2].id,
             currentPlayerBet = Bet(defaultPlayerDatas[2].id, Trump.SPADES, BetHeight.HUNDRED_FIFTY),
             bettingState = bettingState,
         )
@@ -126,7 +126,7 @@ class SidiBarahniBettingLogicTest {
         )
 
         val result = bettingLogic.availableActions(
-            currentBetter = defaultPlayerDatas[2].id,
+            currentBetterId = defaultPlayerDatas[2].id,
             bettingState = bettingState,
         )
         assertThat(result, Matchers.containsInAnyOrder(
@@ -144,7 +144,7 @@ class SidiBarahniBettingLogicTest {
         )
 
         val result = bettingLogic.availableActions(
-            currentBetter = defaultPlayerDatas[0].id,
+            currentBetterId = defaultPlayerDatas[0].id,
             bettingState = bettingState,
         )
         assertThat(result, Matchers.containsInAnyOrder(
@@ -161,7 +161,7 @@ class SidiBarahniBettingLogicTest {
         )
 
         val result = bettingLogic.availableActions(
-            currentBetter = defaultPlayerDatas[0].id,
+            currentBetterId = defaultPlayerDatas[0].id,
             bettingState = bettingState,
         )
         assertThat(result, Matchers.containsInAnyOrder(
@@ -179,7 +179,7 @@ class SidiBarahniBettingLogicTest {
         )
 
         val result = bettingLogic.availableActions(
-            currentBetter = defaultPlayerDatas[1].id,
+            currentBetterId = defaultPlayerDatas[1].id,
             bettingState = bettingState,
         )
         assertThat(result, Matchers.containsInAnyOrder(
@@ -198,7 +198,7 @@ class SidiBarahniBettingLogicTest {
         )
 
         val result = bettingLogic.availableActions(
-            currentBetter = defaultPlayerDatas[2].id,
+            currentBetterId = defaultPlayerDatas[2].id,
             bettingState = bettingState,
         )
         assertThat(result, Matchers.containsInAnyOrder(

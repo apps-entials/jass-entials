@@ -64,10 +64,10 @@ class RoundStateTest {
             .withCardPlayed(Card(Suit.CLUBS, Rank.JACK)) // winner
             .withTrickCollected()
 
-        assertThat(roundState.score().roundPoints(PlayerId.PLAYER_1.team()), `is`(0))
-        assertThat(roundState.score().roundPoints(PlayerId.PLAYER_2.team()), `is`(38))
-        assertThat(roundState.score().roundPoints(PlayerId.PLAYER_3.team()), `is`(0))
-        assertThat(roundState.score().roundPoints(PlayerId.PLAYER_4.team()), `is`(38))
+        assertThat(roundState.score().roundPoints(PlayerId.PLAYER_1.teamId()), `is`(0))
+        assertThat(roundState.score().roundPoints(PlayerId.PLAYER_2.teamId()), `is`(38))
+        assertThat(roundState.score().roundPoints(PlayerId.PLAYER_3.teamId()), `is`(0))
+        assertThat(roundState.score().roundPoints(PlayerId.PLAYER_4.teamId()), `is`(38))
 
         assertThat(roundState.unplayedCards(),
             `is`(Deck.STANDARD_DECK.cards

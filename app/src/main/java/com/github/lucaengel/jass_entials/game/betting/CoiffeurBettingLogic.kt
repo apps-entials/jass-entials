@@ -2,10 +2,11 @@ package com.github.lucaengel.jass_entials.game.betting
 
 import com.github.lucaengel.jass_entials.data.game_state.Bet
 import com.github.lucaengel.jass_entials.data.game_state.BettingState
+import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
 import com.github.lucaengel.jass_entials.data.game_state.PlayerId
 import com.github.lucaengel.jass_entials.data.jass.Trump
 
-class SchieberBettingLogic : BettingLogic {
+class CoiffeurBettingLogic : BettingLogic {
 
     override fun nextPlayer(
         currentBetterId: PlayerId,
@@ -14,21 +15,32 @@ class SchieberBettingLogic : BettingLogic {
     ): PlayerId {
         if (currentPlayerBet != null) return currentBetterId
 
-        return currentBetterId.teamMate()
+        return currentBetterId.nextPlayer()
     }
 
     override fun availableActions(
         currentBetterId: PlayerId,
         bettingState: BettingState
     ): List<Bet.BetAction> {
-        if (bettingState.betActions.size >= 2) // both players passed
+        if (Trump.values().size ==
+            (GameStateHolder.prevTrumpsByTeam[currentBetterId.teamId()]?.size
+                ?: 0)
+        ) // already made all trumps --> other team has to make the rest of their trumps
+            return listOf(Bet.BetAction.PASS)
+
+        // everyone passed once --> cstarting better must make trump
+        if (bettingState.betActions.size >= 4)
             return listOf(Bet.BetAction.BET)
 
         return listOf(Bet.BetAction.BET, Bet.BetAction.PASS)
     }
 
     override fun availableTrumps(currentBetterId: PlayerId, prevBets: List<Bet>): List<Trump> {
-        return Trump.values().toList()
+        val prevTrumps = GameStateHolder.prevTrumpsByTeam[currentBetterId.teamId()]
+            ?: emptySet()
+        return Trump.values().toList().filter {
+            !prevTrumps.contains(it)
+        }
     }
 
     override fun gameStartingPlayerId(startingBetterId: PlayerId, winningBet: Bet): PlayerId {

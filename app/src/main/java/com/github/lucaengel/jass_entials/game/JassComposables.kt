@@ -262,7 +262,11 @@ class JassComposables {
                 if (lastBetter.id == currentUserId) "you"
                 else "${lastBetter.firstName} ${lastBetter.lastName}"
 
-            val oneLineBettingString = if (jassType == JassType.SIDI_BARAHNI) "${lastBet.bet} by $lastBetterName" else " by $lastBetterName"
+            val oneLineBettingString = when (jassType) {
+                JassType.SIDI_BARAHNI -> "${lastBet.bet} by $lastBetterName"
+                JassType.COIFFEUR -> "x ${lastBet.trump.ordinal + 1} by $lastBetterName"
+                else -> " by $lastBetterName"
+            }
             val twoLineBettingStringTop = if (jassType == JassType.SIDI_BARAHNI) "${lastBet.bet} by" else " by"
 
             Column {

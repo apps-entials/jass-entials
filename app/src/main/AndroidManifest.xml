@@ -36,12 +36,6 @@
             android:theme="@style/Theme.Jassentials" >
         </activity>
         <activity
-            android:name=".game.pregame.CoiffeurPregameActivity"
-            android:exported="true"
-            android:label="Coiffeur Pregame Activity"
-            android:theme="@style/Theme.Jassentials" >
-        </activity>
-        <activity
             android:name=".game.pregame.PreRoundBettingActivity"
             android:screenOrientation="landscape"
             android:exported="true"

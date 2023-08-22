@@ -13,7 +13,6 @@ import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.lucaengel.jass_entials.SignInActivity
 import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
-import com.github.lucaengel.jass_entials.game.pregame.CoiffeurPregameActivity
 import com.github.lucaengel.jass_entials.game.pregame.PreRoundBettingActivity
 import org.junit.Before
 import org.junit.Rule
@@ -69,7 +68,7 @@ class SelectGameActivityTest {
     }
 
     @Test
-    fun coiffeurClickOpensTheCoiffeurPregameActivity() {
+    fun coiffeurClickOpensThePreGameActivity() {
         ActivityScenario.launch<SelectGameActivity>(selectGameDefaultIntent).use {
             Intents.init()
 
@@ -78,7 +77,7 @@ class SelectGameActivityTest {
                 .performClick()
 
             Intents.intended(
-                hasComponent(CoiffeurPregameActivity::class.java.name)
+                hasComponent(PreRoundBettingActivity::class.java.name)
             )
 
             Intents.release()

@@ -93,6 +93,8 @@ class GameStateHolder {
                 score = Score.INITIAL,
             )
 
+        var prevTrumpsByTeam = mapOf<TeamId, Set<Trump>>()
+
 //        /**
 //         * The current jass type.
 //         */

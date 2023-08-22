@@ -168,4 +168,41 @@ class PreRoundBettingActivityTest {
             Intents.release()
         }
     }
+
+    @Test
+    fun heartsBettingSimulationCoiffeur() {
+        GameStateHolder.bettingState = defaultBettingState.copy(
+            currentBetterId = defaultPlayerDatas[0].id,
+            jassType = JassType.COIFFEUR,
+            bets = listOf(),
+            betActions = listOf(
+                Bet.BetAction.PASS,
+                Bet.BetAction.PASS,
+                Bet.BetAction.PASS,
+                Bet.BetAction.PASS
+            ),
+        )
+
+        ActivityScenario.launch<PreRoundBettingActivity>(preRoundDefaultIntent).use {
+            Intents.init()
+
+            composeTestRule.onNodeWithContentDescription("Bet placing dropdown icon")
+                .assertExists("trump dropdown not found")
+                .performClick()
+
+            composeTestRule.onNodeWithContentDescription(label = Trump.HEARTS.toString(), useUnmergedTree = true)
+                .assertExists("trump dropdown item not found")
+                .performClick()
+
+            composeTestRule.onNodeWithText("Start Game")
+                .assertExists()
+                .performClick()
+
+            Intents.intended(IntentMatchers.hasComponent(
+                JassRoundActivity::class.java.name,
+            ))
+
+            Intents.release()
+        }
+    }
 }

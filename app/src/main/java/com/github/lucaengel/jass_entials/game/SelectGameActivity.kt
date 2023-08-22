@@ -39,7 +39,6 @@ import com.github.lucaengel.jass_entials.data.game_state.PlayerId
 import com.github.lucaengel.jass_entials.data.game_state.Score
 import com.github.lucaengel.jass_entials.data.jass.JassType
 import com.github.lucaengel.jass_entials.game.SelectGameActivity.TestTags.Buttons.Companion.BACK
-import com.github.lucaengel.jass_entials.game.pregame.CoiffeurPregameActivity
 import com.github.lucaengel.jass_entials.game.pregame.PreRoundBettingActivity
 import com.github.lucaengel.jass_entials.ui.theme.JassentialsTheme
 
@@ -113,6 +112,9 @@ fun SelectGameView(finishActivity: () -> Unit = {}) {
     val context = LocalContext.current
 
     fun onGameTypeClicked(gameType: JassType) {
+        // reset the previous trumps
+        GameStateHolder.prevTrumpsByTeam = mapOf()
+
         when (gameType) {
             JassType.SCHIEBER -> {
                 GameStateHolder.bettingState = GameStateHolder.bettingState
@@ -135,7 +137,7 @@ fun SelectGameView(finishActivity: () -> Unit = {}) {
                         Score.INITIAL
                     )
 
-                Intent(context, CoiffeurPregameActivity::class.java).also {
+                Intent(context, PreRoundBettingActivity::class.java).also {
                     context.startActivity(it)
                 }
             }

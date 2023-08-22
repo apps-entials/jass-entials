@@ -69,7 +69,7 @@ class MonteCarloCardPlayer(
                 // update the total points of the node with the points that the team scored
                 val nodeTrick = node.roundState.trick()
 
-                node.totalPoints += score.roundPoints(nodeTrick.lastPlayer().team())
+                node.totalPoints += score.roundPoints(nodeTrick.lastPlayer().teamId())
             }
         }
 
