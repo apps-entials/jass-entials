@@ -68,7 +68,7 @@ class SelectGameActivityTest {
     }
 
     @Test
-    fun coiffeurClickOpensTheCoiffeurPregameActivity() {
+    fun coiffeurClickOpensThePreGameActivity() {
         ActivityScenario.launch<SelectGameActivity>(selectGameDefaultIntent).use {
             Intents.init()
 
