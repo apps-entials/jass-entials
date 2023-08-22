@@ -37,6 +37,7 @@ import com.github.lucaengel.jass_entials.data.game_state.GameState
 import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
 import com.github.lucaengel.jass_entials.data.game_state.PlayerId
 import com.github.lucaengel.jass_entials.data.jass.JassType
+import com.github.lucaengel.jass_entials.game.betting.CoiffeurBettingLogic
 import kotlin.math.absoluteValue
 
 /**
@@ -264,7 +265,7 @@ class JassComposables {
 
             val oneLineBettingString = when (jassType) {
                 JassType.SIDI_BARAHNI -> "${lastBet.bet} by $lastBetterName"
-                JassType.COIFFEUR -> "x ${lastBet.trump.ordinal + 1} by $lastBetterName"
+                JassType.COIFFEUR -> "x ${CoiffeurBettingLogic.factorForTrump(lastBet.trump)} by $lastBetterName"
                 else -> " by $lastBetterName"
             }
             val twoLineBettingStringTop = if (jassType == JassType.SIDI_BARAHNI) "${lastBet.bet} by" else " by"

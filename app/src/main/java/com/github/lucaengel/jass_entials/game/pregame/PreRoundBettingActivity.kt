@@ -52,6 +52,7 @@ import com.github.lucaengel.jass_entials.data.jass.JassType
 import com.github.lucaengel.jass_entials.data.jass.Trump
 import com.github.lucaengel.jass_entials.game.JassComposables
 import com.github.lucaengel.jass_entials.game.JassRoundActivity
+import com.github.lucaengel.jass_entials.game.betting.CoiffeurBettingLogic
 import com.github.lucaengel.jass_entials.game.player.DelayedCpuPlayer
 import com.github.lucaengel.jass_entials.ui.theme.JassentialsTheme
 
@@ -362,7 +363,7 @@ fun BettingRow(
 
             if (bettingState.jassType == JassType.COIFFEUR) {
                 Text(
-                    text = " x ${selectedTrump!!.ordinal + 1}",
+                    text = " x ${CoiffeurBettingLogic.factorForTrump(selectedTrump!!)}",
                     modifier = Modifier
                         .align(Alignment.CenterVertically)
                         .padding(5.dp, 0.dp, 10.dp, 0.dp),
@@ -454,7 +455,7 @@ fun BettingRow(
 
                     if (bettingState.jassType == JassType.COIFFEUR) {
                         Text(
-                            text = " x ${trump.ordinal + 1}",
+                            text = " x ${CoiffeurBettingLogic.factorForTrump(trump)}",
                             modifier = Modifier
                                 .align(Alignment.CenterVertically)
                                 .padding(5.dp, 0.dp, 10.dp, 0.dp),
