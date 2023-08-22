@@ -50,6 +50,13 @@ data class RoundState(
         return trick.nextPlayer()
     }
 
+    // TODO: consider refactoring this since the roundstate kind
+    //  of implicitly keeps track of the round and not the game
+    /**
+     * Returns the winning team in the current game or null if it is a draw
+     *
+     * @return The winning team in the current game or null if it is a draw
+     */
     fun winningTeam(): TeamId? {
         return score.winningTeam()
     }
