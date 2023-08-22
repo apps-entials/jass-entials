@@ -44,31 +44,30 @@ class PostRoundActivityTest {
         0,
         "123"
     )
-    private val playerData2 = PlayerData(
-        PlayerId.PLAYER_2,
-        "first_2",
-        "second_2",
-        Deck.sortPlayerCards(shuffledDeck.cards.subList(12, 20)),
-        0,
-        "123"
-    )
-    private val playerData3 = PlayerData(
-        PlayerId.PLAYER_3,
-        "first_3",
-        "second_3",
-        Deck.sortPlayerCards(shuffledDeck.cards.subList(20, 28)),
-        0,
-        "123"
-    )
-    private val playerData4 = PlayerData(
-        PlayerId.PLAYER_4,
-        "first_4",
-        "second_4",
-        Deck.sortPlayerCards(shuffledDeck.cards.subList(28, 36)),
-        0,
-        "123"
-    )
-    private val players = listOf(playerData1, playerData2, playerData3, playerData4)
+//    private val playerData2 = PlayerData(
+//        PlayerId.PLAYER_2,
+//        "first_2",
+//        "second_2",
+//        Deck.sortPlayerCards(shuffledDeck.cards.subList(12, 20)),
+//        0,
+//        "123"
+//    )
+//    private val playerData3 = PlayerData(
+//        PlayerId.PLAYER_3,
+//        "first_3",
+//        "second_3",
+//        Deck.sortPlayerCards(shuffledDeck.cards.subList(20, 28)),
+//        0,
+//        "123"
+//    )
+//    private val playerData4 = PlayerData(
+//        PlayerId.PLAYER_4,
+//        "first_4",
+//        "second_4",
+//        Deck.sortPlayerCards(shuffledDeck.cards.subList(28, 36)),
+//        0,
+//        "123"
+//    )
 
 
     private var gameState: GameState = GameState(
