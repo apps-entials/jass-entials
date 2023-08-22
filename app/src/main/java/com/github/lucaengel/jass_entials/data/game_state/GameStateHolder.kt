@@ -67,7 +67,7 @@ class GameStateHolder {
             currentPlayerId = playerData1.id,
             startingPlayerId = playerData1.id,
             currentRound = 1,
-            jassType = JassType.SIDI_BARAHNI,
+            jassType = JassType.SIDI_BARRANI,
             roundState = RoundState.initial(trump = Trump.CLUBS, startingPlayerId = playerData2.id)
                 .withCardPlayed(Deck.STANDARD_DECK.cards[0])
                 .withCardPlayed(Deck.STANDARD_DECK.cards[1])
@@ -76,6 +76,12 @@ class GameStateHolder {
             winningBet = Bet(playerData2.id, Trump.CLUBS, BetHeight.FORTY),
             playerCards = Deck.STANDARD_DECK.dealCards(),
         )
+
+        /**
+         * The current point limits for the different jass types.
+         * The default value is 1000.
+         */
+        var pointLimits = mapOf<JassType, Int>().withDefault { 1000 }
 
         /**
          * The current betting state.
@@ -98,7 +104,7 @@ class GameStateHolder {
 //        /**
 //         * The current jass type.
 //         */
-//        var jassType: JassType = JassType.SIDI_BARAHNI
+//        var jassType: JassType = JassType.SIDI_BARRANI
 
         // TODO: call this when a new game starts
         /*fun startNewGameBettingState(playerDatas: List<PlayerData>, currentPlayerData: PlayerData) {
@@ -108,7 +114,7 @@ class GameStateHolder {
                 0,
                 listOf(playerData1, playerData2, playerData3, playerData4),
                 playerData1,
-                JassType.SIDI_BARAHNI,
+                JassType.SIDI_BARRANI,
                 listOf(),
                 GameState()
             )

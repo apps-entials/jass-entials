@@ -24,7 +24,7 @@ import com.github.lucaengel.jass_entials.game.pregame.PreRoundBettingActivity
 import com.github.lucaengel.jass_entials.ui.theme.JassentialsTheme
 
 /**
- * Activity for the Sidi Barahni post round screen.
+ * Activity for the Sidi Barrani post round screen.
  */
 class PostRoundActivity : ComponentActivity() {
 

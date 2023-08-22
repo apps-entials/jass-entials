@@ -264,11 +264,11 @@ class JassComposables {
                 else "${lastBetter.firstName} ${lastBetter.lastName}"
 
             val oneLineBettingString = when (jassType) {
-                JassType.SIDI_BARAHNI -> "${lastBet.bet} by $lastBetterName"
+                JassType.SIDI_BARRANI -> "${lastBet.bet} by $lastBetterName"
                 JassType.COIFFEUR -> "x ${CoiffeurBettingLogic.factorForTrump(lastBet.trump)} by $lastBetterName"
                 else -> " by $lastBetterName"
             }
-            val twoLineBettingStringTop = if (jassType == JassType.SIDI_BARAHNI) "${lastBet.bet} by" else " by"
+            val twoLineBettingStringTop = if (jassType == JassType.SIDI_BARRANI) "${lastBet.bet} by" else " by"
 
             Column {
                 Row (

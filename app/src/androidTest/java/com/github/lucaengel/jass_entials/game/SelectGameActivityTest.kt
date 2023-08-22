@@ -34,11 +34,11 @@ class SelectGameActivityTest {
     }
 
     @Test
-    fun sidiBarahniClickOpensTheSidiBarahniPregameActivity() {
+    fun sidiBarraniClickOpensTheSidiBarraniPregameActivity() {
         ActivityScenario.launch<SelectGameActivity>(selectGameDefaultIntent).use {
             Intents.init()
 
-            composeTestRule.onNodeWithText("Sidi Barahni")
+            composeTestRule.onNodeWithText("Sidi Barrani")
                 .assertIsDisplayed()
                 .performClick()
 

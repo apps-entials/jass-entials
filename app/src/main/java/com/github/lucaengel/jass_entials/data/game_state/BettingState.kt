@@ -6,7 +6,7 @@ import com.github.lucaengel.jass_entials.data.jass.Trump
 import com.github.lucaengel.jass_entials.game.betting.BettingLogic
 import com.github.lucaengel.jass_entials.game.betting.CoiffeurBettingLogic
 import com.github.lucaengel.jass_entials.game.betting.SchieberBettingLogic
-import com.github.lucaengel.jass_entials.game.betting.SidiBarahniBettingLogic
+import com.github.lucaengel.jass_entials.game.betting.SidiBarraniBettingLogic
 
 /**
  * Represents the state of the betting phase of a game.
@@ -40,8 +40,8 @@ data class BettingState(
             CoiffeurBettingLogic()
         }
 
-        JassType.SIDI_BARAHNI -> {
-            SidiBarahniBettingLogic()
+        JassType.SIDI_BARRANI -> {
+            SidiBarraniBettingLogic()
         }
     }
 

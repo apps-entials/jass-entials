@@ -6,7 +6,7 @@ import com.github.lucaengel.jass_entials.data.game_state.BettingState
 import com.github.lucaengel.jass_entials.data.game_state.PlayerId
 import com.github.lucaengel.jass_entials.data.jass.Trump
 
-class SidiBarahniBettingLogic : BettingLogic {
+class SidiBarraniBettingLogic : BettingLogic {
 
     override fun nextPlayer(
         currentBetterId: PlayerId,

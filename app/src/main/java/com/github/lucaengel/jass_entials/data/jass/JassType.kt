@@ -6,5 +6,9 @@ package com.github.lucaengel.jass_entials.data.jass
 enum class JassType(val jassName: String) {
     SCHIEBER("Schieber"),
     COIFFEUR("Coiffeur"),
-    SIDI_BARAHNI("Sidi Barahni"),
+    SIDI_BARRANI("Sidi Barrani");
+
+    override fun toString(): String {
+        return jassName
+    }
 }

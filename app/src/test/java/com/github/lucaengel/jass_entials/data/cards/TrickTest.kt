@@ -39,7 +39,7 @@ class TrickTest {
         currentPlayerId = defaultPlayerDatas[0].id,
         startingPlayerId = defaultPlayerDatas[0].id,
         currentRound = 0,
-        jassType = JassType.SIDI_BARAHNI,
+        jassType = JassType.SIDI_BARRANI,
         roundState = RoundState.initial(Trump.SPADES, defaultPlayerDatas[0].id),
         winningBet = Bet(),
         playerCards = defaultPlayerDatas.associate { it.id to it.cards },

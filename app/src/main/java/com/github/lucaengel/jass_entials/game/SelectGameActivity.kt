@@ -142,13 +142,13 @@ fun SelectGameView(finishActivity: () -> Unit = {}) {
                 }
             }
 
-            JassType.SIDI_BARAHNI -> {
+            JassType.SIDI_BARRANI -> {
                 // TODO: adapt the following when the user has an email etc.
                 // have a random player start the game
                 GameStateHolder.bettingState = GameStateHolder.bettingState
                     .nextBettingRound(
                         PlayerId.values().random(),
-                        JassType.SIDI_BARAHNI/*GameStateHolder.bettingState.currentBetterEmail*/,
+                        JassType.SIDI_BARRANI/*GameStateHolder.bettingState.currentBetterEmail*/,
                         Score.INITIAL
                     )
 

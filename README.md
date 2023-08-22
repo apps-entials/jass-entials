@@ -10,7 +10,7 @@
   </a>
 </p>
 
-jass-entials is an android app that will provide the user with multiple Jass variations: Schieber, Coiffeur, Sidi Barahni.
+jass-entials is an android app that will provide the user with multiple Jass variations: Schieber, Coiffeur, Sidi Barrani.
 
 It is currently in development...
 

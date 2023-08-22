@@ -81,7 +81,7 @@ class JassRoundActivityTest {
         currentPlayerId = playerData1.id,
         startingPlayerId = playerData1.id,
         currentRound = 1,
-        jassType = JassType.SIDI_BARAHNI,
+        jassType = JassType.SIDI_BARRANI,
         roundState = RoundState.initial(trump = Trump.UNGER_UFE, startingPlayerId = playerData1.id)
             .withCardPlayed(Deck.STANDARD_DECK.cards[0])
             .withCardPlayed(Deck.STANDARD_DECK.cards[1])
@@ -97,7 +97,7 @@ class JassRoundActivityTest {
             listOf(),
             playerData1.id,
             playerData1.id,
-            JassType.SIDI_BARAHNI,
+            JassType.SIDI_BARRANI,
             listOf(
                 Bet(playerData2.id, Trump.CLUBS, BetHeight.FORTY)
             ),

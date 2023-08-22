@@ -11,7 +11,7 @@ interface BettingLogic {
      * Returns the next player to bet.
      *
      * @param currentBetterId the player who is currently betting
-     * @param currentPlayerBet the bet of the current player, possibly null (when passed or, in Sidi Barahni, when the player selected start game)
+     * @param currentPlayerBet the bet of the current player, possibly null (when passed or, in Sidi Barrani, when the player selected start game)
      * @param bettingState the current betting state (before adding the current player's bet)
      * @return the next player to bet
      */

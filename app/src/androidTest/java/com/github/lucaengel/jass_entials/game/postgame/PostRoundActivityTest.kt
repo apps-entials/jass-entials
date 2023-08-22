@@ -76,7 +76,7 @@ class PostRoundActivityTest {
         currentPlayerId= playerData1.id,
         startingPlayerId= playerData1.id,
         currentRound = 1,
-        jassType = JassType.SIDI_BARAHNI,
+        jassType = JassType.SIDI_BARRANI,
         roundState = RoundState.initial(trump = Trump.CLUBS, startingPlayerId = playerData1.id),
         winningBet = Bet(),
         playerCards = Deck.STANDARD_DECK.dealCards(),
@@ -129,7 +129,7 @@ class PostRoundActivityTest {
     }
 
     @Test
-    fun startNextRoundButtonOpensNextSidiBarahniBiddingActivity() {
+    fun startNextRoundButtonOpensNextSidiBarraniBiddingActivity() {
         ActivityScenario.launch<PostRoundActivity>(postRoundDefaultIntent).use {
             Intents.init()
 

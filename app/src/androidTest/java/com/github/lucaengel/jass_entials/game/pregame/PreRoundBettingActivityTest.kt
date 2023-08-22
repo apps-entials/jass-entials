@@ -59,7 +59,7 @@ class PreRoundBettingActivityTest {
         playerEmails = listOf(),
         currentBetterId = defaultPlayerDatas[0].id,
         startingBetterId = defaultPlayerDatas[0].id,
-        jassType = JassType.SIDI_BARAHNI,
+        jassType = JassType.SIDI_BARRANI,
         bets = listOf(Bet(defaultPlayerDatas[1].id, Trump.UNGER_UFE, BetHeight.HUNDRED)),
         betActions = listOf(Bet.BetAction.BET),
         gameState = GameState(),
@@ -74,7 +74,7 @@ class PreRoundBettingActivityTest {
     }
 
     @Test
-    fun inSidiBarahniPlaceBetAndStartGameButtonIsPresentIfCurrentPlayerPlacedLastBetAndItWasNotAMatch() {
+    fun inSidiBarraniPlaceBetAndStartGameButtonIsPresentIfCurrentPlayerPlacedLastBetAndItWasNotAMatch() {
         GameStateHolder.bettingState = defaultBettingState.copy(
             currentBetterId = defaultPlayerDatas[0].id,
             bets = listOf(Bet(defaultPlayerDatas[0].id, Trump.UNGER_UFE, BetHeight.HUNDRED)),
@@ -103,7 +103,7 @@ class PreRoundBettingActivityTest {
     }
 
     @Test
-    fun inSidiBarahniOnlyStartGameButtonIsPresentIfTheyAreTheLastBetterAndBidMatch() {
+    fun inSidiBarraniOnlyStartGameButtonIsPresentIfTheyAreTheLastBetterAndBidMatch() {
         GameStateHolder.bettingState = defaultBettingState.copy(
             currentBetterId = defaultPlayerDatas[0].id,
             bets = listOf(Bet(defaultPlayerDatas[0].id, Trump.UNGER_UFE, BetHeight.MATCH)),
