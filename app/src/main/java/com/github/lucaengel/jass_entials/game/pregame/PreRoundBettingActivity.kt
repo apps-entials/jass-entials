@@ -359,6 +359,15 @@ fun BettingRow(
                     .align(Alignment.CenterVertically),
                 alignment = Alignment.Center,
             )
+
+            if (bettingState.jassType == JassType.COIFFEUR) {
+                Text(
+                    text = " x ${selectedTrump!!.ordinal + 1}",
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically)
+                        .padding(5.dp, 0.dp, 10.dp, 0.dp),
+                )
+            }
         }
 
         if (bettingState.availableTrumps().isNotEmpty()
@@ -423,21 +432,35 @@ fun BettingRow(
         ) {
             bettingState.availableTrumps().forEach { trump ->
 
-                Image(
-                    painter = painterResource(id = trump.asPicture()),
-                    contentDescription = trump.toString(),
+                Row (
                     modifier = Modifier
-                        .height(50.dp)
+                        .align(Alignment.CenterHorizontally)
                         .clickable(
                             onClick = {
                                 selectedTrump = trump
                                 isTrumpDropdownExpanded = false
                             }
                         )
-                        .align(Alignment.CenterHorizontally)
-                        .padding(vertical = 8.dp, horizontal = 10.dp),
-                    alignment = Alignment.Center,
-                )
+                ) {
+                    Image(
+                        painter = painterResource(id = trump.asPicture()),
+                        contentDescription = trump.toString(),
+                        modifier = Modifier
+                            .height(50.dp)
+                            .align(Alignment.CenterVertically)
+                            .padding(10.dp, 8.dp, if (bettingState.jassType == JassType.COIFFEUR) 0.dp else 10.dp, 8.dp),
+                        alignment = Alignment.Center,
+                    )
+
+                    if (bettingState.jassType == JassType.COIFFEUR) {
+                        Text(
+                            text = " x ${trump.ordinal + 1}",
+                            modifier = Modifier
+                                .align(Alignment.CenterVertically)
+                                .padding(5.dp, 0.dp, 10.dp, 0.dp),
+                        )
+                    }
+                }
             }
         }
 

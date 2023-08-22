@@ -12,7 +12,7 @@ enum class TeamId {
     }
 
     override fun toString(): String {
-        return if (this == GameStateHolder.gameState.currentUserId.team()) {
+        return if (this == GameStateHolder.gameState.currentUserId.teamId()) {
             "Your Team"
         } else {
             "Other Team"

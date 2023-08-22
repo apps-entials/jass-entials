@@ -8,7 +8,7 @@ enum class PlayerId {
      *
      * @return The team id of the current player.
      */
-    fun team(): TeamId {
+    fun teamId(): TeamId {
         return when (this) {
             PLAYER_1, PLAYER_3 -> TeamId.TEAM_1
             PLAYER_2, PLAYER_4 -> TeamId.TEAM_2

@@ -90,7 +90,7 @@ data class RoundState(
 
         val points = trick.points() + if (trickNumber == JassConstants.TRICKS_PER_ROUND) 5 else 0
         return RoundState(
-            score = score.withPointsAdded(trick.winner().team(), points),
+            score = score.withPointsAdded(trick.winner().teamId(), points),
             unplayedCards = unplayedCards,
             trick = trick.nextTrick(),
             trickNumber = trickNumber + 1,

@@ -4,6 +4,7 @@ import com.github.lucaengel.jass_entials.data.cards.Deck
 import com.github.lucaengel.jass_entials.data.jass.JassType
 import com.github.lucaengel.jass_entials.data.jass.Trump
 import com.github.lucaengel.jass_entials.game.betting.BettingLogic
+import com.github.lucaengel.jass_entials.game.betting.CoiffeurBettingLogic
 import com.github.lucaengel.jass_entials.game.betting.SchieberBettingLogic
 import com.github.lucaengel.jass_entials.game.betting.SidiBarahniBettingLogic
 
@@ -35,7 +36,11 @@ data class BettingState(
             SchieberBettingLogic()
         }
 
-        else -> {
+        JassType.COIFFEUR -> {
+            CoiffeurBettingLogic()
+        }
+
+        JassType.SIDI_BARAHNI -> {
             SidiBarahniBettingLogic()
         }
     }
@@ -111,11 +116,7 @@ data class BettingState(
      * @return the available trumps
      */
     fun availableTrumps(): List<Trump> {
-        if (bets.lastOrNull()?.playerId == currentBetterId) {
-            return Trump.values().filter { it != bets.last().trump }
-        }
-
-        return Trump.values().toList()
+        return bettingLogic.availableTrumps(currentBetterId, bets)
     }
 
     /**
@@ -128,19 +129,27 @@ data class BettingState(
         if (bets.isEmpty()) // TODO: handle this case better! (restart betting phase)
             throw IllegalStateException("Cannot start game without bets")
 
+        val winningBet = bets.last()
+        val winningTeam = winningBet.playerId.teamId()
+        val startingPlayer = bettingLogic.gameStartingPlayerId(startingBetterId, winningBet)
+
+        GameStateHolder.prevTrumpsByTeam += winningTeam to (GameStateHolder.prevTrumpsByTeam[winningBet.playerId.teamId()]?.plus(
+            winningBet.trump
+        ) ?: setOf(winningBet.trump))
+
         return GameState(
             currentUserId = currentUserId,
             playerEmails = playerEmails,
-            currentPlayerId = if (jassType == JassType.SCHIEBER) startingBetterId else bets.last().playerId,
-            startingPlayerId = if (jassType == JassType.SCHIEBER) startingBetterId else bets.last().playerId,
+            currentPlayerId = startingPlayer,
+            startingPlayerId = startingPlayer,
             currentRound = 0,
             jassType = jassType,
             roundState = RoundState.initial(
-                trump = bets.last().trump,
-                startingPlayerId = if (jassType == JassType.SCHIEBER) startingBetterId else bets.last().playerId,
+                trump = winningBet.trump,
+                startingPlayerId = startingPlayer,
                 score = score,
             ),
-            winningBet = bets.last(),
+            winningBet = winningBet,
             playerCards = GameStateHolder.players.associate { it.id to it.cards },
         )
     }

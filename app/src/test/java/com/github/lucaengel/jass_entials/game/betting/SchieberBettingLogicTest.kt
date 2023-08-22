@@ -57,7 +57,7 @@ class SchieberBettingLogicTest {
         )
 
         val result = bettingLogic.nextPlayer(
-            currentBetter = defaultPlayerDatas[1].id,
+            currentBetterId = defaultPlayerDatas[1].id,
             currentPlayerBet = Bet(defaultPlayerDatas[1].id, Trump.UNGER_UFE, BetHeight.HUNDRED),
             bettingState = bettingState,
             )
@@ -68,7 +68,7 @@ class SchieberBettingLogicTest {
     fun ifCurrentPlayerPassesTheTeamPartnerIsReturned() {
         val bettingLogic = SchieberBettingLogic()
         val result = bettingLogic.nextPlayer(
-            currentBetter = defaultPlayerDatas[1].id,
+            currentBetterId = defaultPlayerDatas[1].id,
             currentPlayerBet = null,
             bettingState = defaultBettingState,
             )
@@ -79,7 +79,7 @@ class SchieberBettingLogicTest {
     fun ifCurrentPlayerPassesTheTeamPartnerIsReturnedAlsoWorksWithListOverflow() {
         val bettingLogic = SchieberBettingLogic()
         val result = bettingLogic.nextPlayer(
-            currentBetter = defaultPlayerDatas[3].id,
+            currentBetterId = defaultPlayerDatas[3].id,
             currentPlayerBet = null,
             bettingState = defaultBettingState,
         )
@@ -94,7 +94,7 @@ class SchieberBettingLogicTest {
             betActions = listOf(Bet.BetAction.PASS, Bet.BetAction.PASS),
         )
         val result = bettingLogic.availableActions(
-            currentBetter = defaultPlayerDatas[1].id,
+            currentBetterId = defaultPlayerDatas[1].id,
             bettingState = bettingState,
         )
         assertThat(result, Matchers.containsInAnyOrder(Bet.BetAction.BET))
@@ -108,7 +108,7 @@ class SchieberBettingLogicTest {
             betActions = listOf(),
         )
         val noPassResult = bettingLogic.availableActions(
-            currentBetter = defaultPlayerDatas[1].id,
+            currentBetterId = defaultPlayerDatas[1].id,
             bettingState = noPassBettingState,
         )
 
@@ -122,7 +122,7 @@ class SchieberBettingLogicTest {
         )
 
         val onePassResult = bettingLogic.availableActions(
-            currentBetter = defaultPlayerDatas[1].id,
+            currentBetterId = defaultPlayerDatas[1].id,
             bettingState = onePassBettingState,
         )
 

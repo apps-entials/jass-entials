@@ -4,24 +4,25 @@ import com.github.lucaengel.jass_entials.data.game_state.Bet
 import com.github.lucaengel.jass_entials.data.game_state.BetHeight
 import com.github.lucaengel.jass_entials.data.game_state.BettingState
 import com.github.lucaengel.jass_entials.data.game_state.PlayerId
+import com.github.lucaengel.jass_entials.data.jass.Trump
 
 class SidiBarahniBettingLogic : BettingLogic {
 
     override fun nextPlayer(
-        currentBetter: PlayerId,
+        currentBetterId: PlayerId,
         currentPlayerBet: Bet?,
         bettingState: BettingState
     ): PlayerId {
         // Also here, starting the game is indicated by passing after having the last bet
-        if (bettingState.bets.lastOrNull()?.playerId == currentBetter
+        if (bettingState.bets.lastOrNull()?.playerId == currentBetterId
             && currentPlayerBet == null)
-            return currentBetter
+            return currentBetterId
 
-        return currentBetter.nextPlayer()
+        return currentBetterId.nextPlayer()
     }
 
     override fun availableActions(
-        currentBetter: PlayerId,
+        currentBetterId: PlayerId,
         bettingState: BettingState
     ): List<Bet.BetAction> {
         val lastBet = bettingState.bets
@@ -36,22 +37,34 @@ class SidiBarahniBettingLogic : BettingLogic {
         }
 
         // can pass if the last bet was not from the current player
-        if (lastBet.playerId != currentBetter) {
+        if (lastBet.playerId != currentBetterId) {
             listBuilder.add(Bet.BetAction.PASS)
         }
 
         // can start game if the last bet was from the current player
-        if (lastBet.playerId == currentBetter) {
+        if (lastBet.playerId == currentBetterId) {
             listBuilder.add(Bet.BetAction.START_GAME)
         }
 
         // can double if a member of the opposing team bet
-        if (lastBet.playerId != currentBetter.teamMate()
-            && lastBet.playerId != currentBetter
+        if (lastBet.playerId != currentBetterId.teamMate()
+            && lastBet.playerId != currentBetterId
         ) {
             listBuilder.add(Bet.BetAction.DOUBLE)
         }
 
         return listBuilder.toList()
+    }
+
+    override fun gameStartingPlayerId(startingBetterId: PlayerId, winningBet: Bet): PlayerId {
+        return winningBet.playerId
+    }
+
+    override fun availableTrumps(currentBetterId: PlayerId, prevBets: List<Bet>): List<Trump> {
+        if (prevBets.lastOrNull()?.playerId == currentBetterId) {
+            return Trump.values().filter { it != prevBets.last().trump }
+        }
+
+        return Trump.values().toList()
     }
 }
