@@ -28,6 +28,7 @@ class BettingStateTest {
         bets = listOf(Bet(defaultPlayerDatas[1].id, Trump.UNGER_UFE, BetHeight.HUNDRED)),
         betActions = listOf(Bet.BetAction.BET),
         gameState = GameState(),
+        score = Score.INITIAL,
     )
 
     @Before
@@ -38,7 +39,7 @@ class BettingStateTest {
 
     @Test
     fun nextBettingRoundUpdatesTheWantedElements() {
-        val newBettingState = defaultBettingState.nextBettingRound(defaultPlayerDatas[1].id)
+        val newBettingState = defaultBettingState.nextBettingRound(defaultPlayerDatas[1].id, score = Score.INITIAL)
 
         PlayerId.values().forEach {
             assertThat(GameStateHolder.players.first { p -> p.id == it }.cards.size, `is`(9))
@@ -122,7 +123,7 @@ class BettingStateTest {
             jassType = JassType.SIDI_BARAHNI,
             roundState = RoundState.initial(winningBet.trump, defaultPlayerDatas[0].id),
             winningBet = winningBet,
-            playerCards = defaultPlayerDatas.associate { it.id to it.cards }
+            playerCards = defaultPlayerDatas.associate { it.id to it.cards },
         )
 
         assertThat(bettingState.startGame(), `is`(expectedGameState))

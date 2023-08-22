@@ -36,6 +36,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
 import com.github.lucaengel.jass_entials.data.game_state.PlayerId
+import com.github.lucaengel.jass_entials.data.game_state.Score
 import com.github.lucaengel.jass_entials.data.jass.JassType
 import com.github.lucaengel.jass_entials.game.SelectGameActivity.TestTags.Buttons.Companion.BACK
 import com.github.lucaengel.jass_entials.game.pregame.CoiffeurPregameActivity
@@ -117,7 +118,9 @@ fun SelectGameView(finishActivity: () -> Unit = {}) {
                 GameStateHolder.bettingState = GameStateHolder.bettingState
                     .nextBettingRound(
                         PlayerId.values().random(),
-                        JassType.SCHIEBER/*GameStateHolder.bettingState.currentBetterEmail*/)
+                        JassType.SCHIEBER/*GameStateHolder.bettingState.currentBetterEmail*/,
+                        Score.INITIAL
+                    )
 
                 Intent(context, PreRoundBettingActivity::class.java).also {
                     context.startActivity(it)
@@ -128,7 +131,9 @@ fun SelectGameView(finishActivity: () -> Unit = {}) {
                 GameStateHolder.bettingState = GameStateHolder.bettingState
                     .nextBettingRound(
                         PlayerId.values().random(),
-                        JassType.COIFFEUR/*GameStateHolder.bettingState.currentBetterEmail*/)
+                        JassType.COIFFEUR/*GameStateHolder.bettingState.currentBetterEmail*/,
+                        Score.INITIAL
+                    )
 
                 Intent(context, CoiffeurPregameActivity::class.java).also {
                     context.startActivity(it)
@@ -141,7 +146,9 @@ fun SelectGameView(finishActivity: () -> Unit = {}) {
                 GameStateHolder.bettingState = GameStateHolder.bettingState
                     .nextBettingRound(
                         PlayerId.values().random(),
-                        JassType.SIDI_BARAHNI/*GameStateHolder.bettingState.currentBetterEmail*/)
+                        JassType.SIDI_BARAHNI/*GameStateHolder.bettingState.currentBetterEmail*/,
+                        Score.INITIAL
+                    )
 
                 Intent(context, PreRoundBettingActivity::class.java).also {
                     context.startActivity(it)

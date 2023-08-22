@@ -26,7 +26,19 @@ class ScoreTest {
     }
 
     @Test
-    fun nextRoundResetsRoundPointsAndUpdatesGamePoints() {
+    fun addRoundPointsToGamePointsDoesThat() {
+        val score = Score.INITIAL
+            .withPointsAdded(TeamId.TEAM_1, 100)
+            .withPointsAdded(TeamId.TEAM_2, 200)
+
+        assertThat(score.roundPoints(TeamId.TEAM_1), `is`(100))
+        assertThat(score.roundPoints(TeamId.TEAM_2), `is`(200))
+        assertThat(score.gamePoints(TeamId.TEAM_1), `is`(100))
+        assertThat(score.gamePoints(TeamId.TEAM_2), `is`(200))
+    }
+
+    @Test
+    fun nextRoundResetsRoundPoints() {
         val score = Score.INITIAL
             .withPointsAdded(TeamId.TEAM_1, 100)
             .withPointsAdded(TeamId.TEAM_2, 200)
@@ -34,7 +46,5 @@ class ScoreTest {
 
         assertThat(score.roundPoints(TeamId.TEAM_1), `is`(0))
         assertThat(score.roundPoints(TeamId.TEAM_2), `is`(0))
-        assertThat(score.gamePoints(TeamId.TEAM_1), `is`(100))
-        assertThat(score.gamePoints(TeamId.TEAM_2), `is`(200))
     }
 }

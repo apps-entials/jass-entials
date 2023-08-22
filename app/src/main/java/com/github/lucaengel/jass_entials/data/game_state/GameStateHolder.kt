@@ -90,12 +90,13 @@ class GameStateHolder {
                 bets = listOf(Bet(playerData4.id, Trump.CLUBS, BetHeight.FORTY)),
                 betActions = listOf(Bet.BetAction.BET),
                 gameState = GameState(),
+                score = Score.INITIAL,
             )
 
-        /**
-         * The current jass type.
-         */
-        var jassType: JassType = JassType.SIDI_BARAHNI
+//        /**
+//         * The current jass type.
+//         */
+//        var jassType: JassType = JassType.SIDI_BARAHNI
 
         // TODO: call this when a new game starts
         /*fun startNewGameBettingState(playerDatas: List<PlayerData>, currentPlayerData: PlayerData) {
@@ -117,7 +118,11 @@ class GameStateHolder {
          * @param startingBetter The player that starts the next betting round.
          */
         fun goToNextBettingStateRound(startingBetter: PlayerId) {
-            bettingState = bettingState.nextBettingRound(startingBetter)
+            bettingState = bettingState.nextBettingRound(
+                startingBetter = startingBetter,
+//                jassType = jassType,
+                score = gameState.roundState.score().nextRound(),
+            )
         }
     }
 }

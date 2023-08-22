@@ -31,7 +31,7 @@ import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
 import com.github.lucaengel.jass_entials.data.game_state.PlayerId
 import com.github.lucaengel.jass_entials.game.JassComposables.Companion.CurrentTrick
 import com.github.lucaengel.jass_entials.game.player.DelayedCpuPlayer
-import com.github.lucaengel.jass_entials.game.postgame.SidiBarahniPostRoundActivity
+import com.github.lucaengel.jass_entials.game.postgame.PostRoundActivity
 import com.github.lucaengel.jass_entials.ui.theme.JassentialsTheme
 
 /**
@@ -86,11 +86,12 @@ fun JassRound() {
         gameState = gameState.nextTrick()
 
         if (gameState.isLastTrick()) {
+
             // Store current game state
             GameStateHolder.gameState = gameState
             GameStateHolder.players = players
 
-            val postGameActivity = Intent(context, SidiBarahniPostRoundActivity::class.java)
+            val postGameActivity = Intent(context, PostRoundActivity::class.java)
             context.startActivity(postGameActivity)
         }
     }

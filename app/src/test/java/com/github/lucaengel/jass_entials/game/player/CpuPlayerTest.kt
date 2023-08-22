@@ -9,6 +9,7 @@ import com.github.lucaengel.jass_entials.data.game_state.GameState
 import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
 import com.github.lucaengel.jass_entials.data.game_state.PlayerId
 import com.github.lucaengel.jass_entials.data.game_state.RoundState
+import com.github.lucaengel.jass_entials.data.game_state.Score
 import com.github.lucaengel.jass_entials.data.jass.JassType
 import com.github.lucaengel.jass_entials.data.jass.Trump
 import org.hamcrest.MatcherAssert.assertThat
@@ -59,6 +60,7 @@ class CpuPlayerTest {
         bets = listOf(Bet(defaultPlayerDatas[0].id, Trump.UNGER_UFE, BetHeight.HUNDRED)),
         betActions = listOf(Bet.BetAction.BET),
         gameState = GameState(),
+        score = Score.INITIAL,
     )
 
     @Before

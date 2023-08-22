@@ -123,9 +123,9 @@ data class RoundState(
          * @param trump The trump of the round.
          * @return The new [RoundState].
          */
-        fun initial(trump: Trump, startingPlayerId: PlayerId): RoundState {
+        fun initial(trump: Trump, startingPlayerId: PlayerId, score: Score = Score.INITIAL): RoundState {
             return RoundState(
-                score = Score.INITIAL,
+                score = score,
                 unplayedCards = Deck.STANDARD_DECK.cards,
                 trick = Trick.initial(
                     startingPlayerId = startingPlayerId,
