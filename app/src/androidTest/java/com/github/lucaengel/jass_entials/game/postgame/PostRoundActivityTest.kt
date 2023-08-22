@@ -98,6 +98,18 @@ class PostRoundActivityTest {
     }
 
     @Test
+    fun correctInitialScreenContentForCoiffeur() {
+        GameStateHolder.gameState = gameState.copy(jassType = JassType.COIFFEUR)
+
+        ActivityScenario.launch<PostRoundActivity>(postRoundDefaultIntent).use {
+            composeTestRule.onNodeWithText("This round", substring = true).assertExists()
+            composeTestRule.onNodeWithText("Total points", substring = true).assertExists()
+        }
+
+        // TODO: complete this test once Coiffeur post round screen is implemented
+    }
+
+    @Test
     fun correctPointsAttributedToEachTeam() {
         GameStateHolder.gameState = gameState.copy(
             roundState = gameState.roundState.copy(
