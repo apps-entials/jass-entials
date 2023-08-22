@@ -17,6 +17,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
 import com.github.lucaengel.jass_entials.data.game_state.TeamId
+import com.github.lucaengel.jass_entials.data.jass.JassType
+import com.github.lucaengel.jass_entials.data.jass.Trump
+import com.github.lucaengel.jass_entials.game.SelectGameActivity
 import com.github.lucaengel.jass_entials.game.pregame.PreRoundBettingActivity
 import com.github.lucaengel.jass_entials.ui.theme.JassentialsTheme
 
@@ -89,17 +92,43 @@ fun ScoreSheet() {
 
         Spacer(modifier = Modifier.weight(1f))
 
-        Button(
-            onClick = {
-                // have player to the right of the starting better of the last round start the next round
-                GameStateHolder.goToNextBettingStateRound(bettingState.startingBetterId.nextPlayer())
-
-                val intent = Intent(context, PreRoundBettingActivity::class.java)
-                context.startActivity(intent)
-            }
+        if (gameState.jassType == JassType.COIFFEUR
+            && (GameStateHolder.prevTrumpsByTeam[TeamId.TEAM_1]?.size ?: 0) == Trump.values().size
+            && (GameStateHolder.prevTrumpsByTeam[TeamId.TEAM_2]?.size ?: 0) == Trump.values().size
         ) {
-            Text(text = "Start next round")
+            val winningTeamId = gameState.roundState.winningTeam()
+            val winnerText = if (winningTeamId != null) {
+                "$winningTeamId won the game!"
+            } else {
+                "it was a draw!"
+            }
+
+            Text(text = "The game is over, $winnerText")
+            Button(
+                onClick = {
+                    // have player to the right of the starting better of the last round start the next round
+
+                    val intent = Intent(context, SelectGameActivity::class.java)
+                    context.startActivity(intent)
+                }
+            ) {
+                Text(text = "Choose a new Jass game")
+            }
+
+        } else {
+            Button(
+                onClick = {
+                    // have player to the right of the starting better of the last round start the next round
+                    GameStateHolder.goToNextBettingStateRound(bettingState.startingBetterId.nextPlayer())
+
+                    val intent = Intent(context, PreRoundBettingActivity::class.java)
+                    context.startActivity(intent)
+                }
+            ) {
+                Text(text = "Start next round")
+            }
         }
+
 
         Spacer(modifier = Modifier.weight(1f))
     }

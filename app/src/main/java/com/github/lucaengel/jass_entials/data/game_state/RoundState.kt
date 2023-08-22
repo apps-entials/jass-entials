@@ -50,6 +50,10 @@ data class RoundState(
         return trick.nextPlayer()
     }
 
+    fun winningTeam(): TeamId? {
+        return score.winningTeam()
+    }
+
 //    /**
 //     * Returns a new [RoundState] with the given [startingPlayerId] and [trump].
 //     *

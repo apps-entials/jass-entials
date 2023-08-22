@@ -62,6 +62,21 @@ data class Score(
     }
 
     /**
+     * Returns the winning team or null if the score is equal.
+     *
+     * @return The winning team.
+     */
+    fun winningTeam(): TeamId? {
+        return if (this.gamePointsTeam1 > this.gamePointsTeam2) {
+            TeamId.TEAM_1
+        } else if (gamePointsTeam1 < gamePointsTeam2) {
+            TeamId.TEAM_2
+        } else {
+            null
+        }
+    }
+
+    /**
      * Returns the Score of the next round.
      *
      * @return The Score of the next round.
