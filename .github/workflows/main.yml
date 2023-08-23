@@ -33,7 +33,7 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
       #7
       - name: Run lint
-        run: ./gradlew lintDebug
+        run: ./gradlew.bat lintDebug
       #8
       - name: Run Unit Test
         run: ./gradlew test
