@@ -32,10 +32,8 @@ jobs:
 #            ~/.gradle/wrapper
 #          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
       #7
-#      - name: Run lint
-#        run: |
-#          cd ..
-#          ./gradlew lintDebug
+      - name: Run lint
+        run: gradle lintDebug
       #8
       - name: Run Unit Test
         run: gradle test
@@ -65,4 +63,4 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 29
-          script: ./gradlew connectedAndroidTest
+          script: gradle connectedAndroidTest
