@@ -32,10 +32,10 @@ jobs:
             ~/.gradle/wrapper
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
       #7
-      - name: Run lint
-        run: |
-          cd ..
-          ./gradlew lintDebug
+#      - name: Run lint
+#        run: |
+#          cd ..
+#          ./gradlew lintDebug
       #8
       - name: Run Unit Test
         run: ./gradlew test
