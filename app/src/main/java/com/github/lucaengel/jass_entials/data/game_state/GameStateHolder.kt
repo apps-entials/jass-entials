@@ -95,25 +95,6 @@ class GameStateHolder {
 
         var prevTrumpsByTeam = mapOf<TeamId, Set<Trump>>()
 
-//        /**
-//         * The current jass type.
-//         */
-//        var jassType: JassType = JassType.SIDI_BARAHNI
-
-        // TODO: call this when a new game starts
-        /*fun startNewGameBettingState(playerDatas: List<PlayerData>, currentPlayerData: PlayerData) {
-            if (!playerDatas.contains(currentPlayerData)) throw IllegalArgumentException("Current player must be in playerDatas")
-
-            bettingState = BettingState(
-                0,
-                listOf(playerData1, playerData2, playerData3, playerData4),
-                playerData1,
-                JassType.SIDI_BARAHNI,
-                listOf(),
-                GameState()
-            )
-        }*/
-
         /**
          * Updates the betting state to go to the next betting state round.
          *
