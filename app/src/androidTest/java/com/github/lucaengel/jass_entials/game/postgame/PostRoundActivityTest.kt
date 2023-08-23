@@ -20,6 +20,7 @@ import com.github.lucaengel.jass_entials.data.game_state.Score
 import com.github.lucaengel.jass_entials.data.game_state.TeamId
 import com.github.lucaengel.jass_entials.data.jass.JassType
 import com.github.lucaengel.jass_entials.data.jass.Trump
+import com.github.lucaengel.jass_entials.game.SelectGameActivity
 import com.github.lucaengel.jass_entials.game.pregame.PreRoundBettingActivity
 import org.junit.Before
 import org.junit.Rule
@@ -138,6 +139,99 @@ class PostRoundActivityTest {
                 .performClick()
             Intents.intended(
                 IntentMatchers.hasComponent(PreRoundBettingActivity::class.java.name))
+
+            Intents.release()
+        }
+    }
+
+    @Test
+    fun endScreenIsShownWhenRoundIsDoneForSchieber() {
+        GameStateHolder.pointLimits += JassType.SCHIEBER to 500
+
+        GameStateHolder.gameState = gameState.copy(
+            roundState = gameState.roundState.copy(
+                score = Score.INITIAL
+                    .withPointsAdded(TeamId.TEAM_1, 1000)
+                    .withPointsAdded(TeamId.TEAM_2, 0)
+                    .nextRound()
+            )
+        )
+
+        ActivityScenario.launch<PostRoundActivity>(postRoundDefaultIntent).use {
+            Intents.init()
+
+            composeTestRule.onNodeWithText("${TeamId.TEAM_1} won the game!", substring = true)
+                .assertExists()
+
+            composeTestRule.onNodeWithText("Choose a new Jass game")
+                .assertExists()
+                .performClick()
+
+            Intents.intended(
+                IntentMatchers.hasComponent(SelectGameActivity::class.java.name)
+            )
+
+            Intents.release()
+        }
+    }
+
+    @Test
+    fun endScreenIsShownWhenRoundIsDoneForSidi() {
+        GameStateHolder.pointLimits += JassType.SIDI_BARRANI to 500
+
+        GameStateHolder.gameState = gameState.copy(
+            roundState = gameState.roundState.copy(
+                score = Score.INITIAL
+                    .withPointsAdded(TeamId.TEAM_1, 1000)
+                    .withPointsAdded(TeamId.TEAM_2, 0)
+                    .nextRound()
+            )
+        )
+
+        ActivityScenario.launch<PostRoundActivity>(postRoundDefaultIntent).use {
+            Intents.init()
+
+            composeTestRule.onNodeWithText("${TeamId.TEAM_1} won the game!", substring = true)
+                .assertExists()
+
+            composeTestRule.onNodeWithText("Choose a new Jass game")
+                .assertExists()
+                .performClick()
+
+            Intents.intended(
+                IntentMatchers.hasComponent(SelectGameActivity::class.java.name)
+            )
+
+            Intents.release()
+        }
+    }
+
+    @Test
+    fun endScreenIsShownWhenRoundIsDoneForCoiffeur() {
+        GameStateHolder.pointLimits += JassType.COIFFEUR to 500
+
+        GameStateHolder.gameState = gameState.copy(
+            roundState = gameState.roundState.copy(
+                score = Score.INITIAL
+                    .withPointsAdded(TeamId.TEAM_1, 1000)
+                    .withPointsAdded(TeamId.TEAM_2, 1000)
+                    .nextRound()
+            )
+        )
+
+        ActivityScenario.launch<PostRoundActivity>(postRoundDefaultIntent).use {
+            Intents.init()
+
+            composeTestRule.onNodeWithText("it was a draw!", substring = true)
+                .assertExists()
+
+            composeTestRule.onNodeWithText("Choose a new Jass game")
+                .assertExists()
+                .performClick()
+
+            Intents.intended(
+                IntentMatchers.hasComponent(SelectGameActivity::class.java.name)
+            )
 
             Intents.release()
         }

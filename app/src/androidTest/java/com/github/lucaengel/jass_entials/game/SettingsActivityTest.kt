@@ -13,6 +13,7 @@ import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.lucaengel.jass_entials.data.cards.CardType
 import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
+import com.github.lucaengel.jass_entials.data.jass.JassType
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.`is`
 import org.junit.Before
@@ -81,6 +82,54 @@ class SettingsActivityTest {
                 .assertExists()
 
             Intents.release()
+        }
+    }
+
+    @Test
+    fun settingAPointLimitForSchieberWorks() {
+        GameStateHolder.pointLimits += JassType.SCHIEBER to 500
+        ActivityScenario.launch<SettingsActivity>(settingsActivityDefaultIntent).use {
+
+            assertThat(GameStateHolder.pointLimits[JassType.SCHIEBER], `is`(500))
+
+            composeTestRule.onNodeWithText("500", substring = true)
+                .assertIsDisplayed()
+
+            composeTestRule.onNodeWithContentDescription("dropdown${JassType.SCHIEBER}", useUnmergedTree = true)
+                .assertIsDisplayed()
+                .performClick()
+
+            composeTestRule.onNodeWithText("2000")
+                .assertIsDisplayed()
+                .performClick()
+
+            assertThat(GameStateHolder.pointLimits[JassType.SCHIEBER], `is`(2000))
+
+            composeTestRule.onNodeWithText("2000", substring = true)
+                .assertIsDisplayed()
+        }
+    }
+
+    @Test
+    fun settingAPointLimitForSidiBarraniWorks() {
+        GameStateHolder.pointLimits += JassType.SIDI_BARRANI to 1500
+        ActivityScenario.launch<SettingsActivity>(settingsActivityDefaultIntent).use {
+
+            composeTestRule.onNodeWithText("1500", substring = true)
+                .assertIsDisplayed()
+
+            composeTestRule.onNodeWithContentDescription("dropdown${JassType.SIDI_BARRANI}", useUnmergedTree = true)
+                .assertIsDisplayed()
+                .performClick()
+
+            composeTestRule.onNodeWithText("2500")
+                .assertIsDisplayed()
+                .performClick()
+
+            assertThat(GameStateHolder.pointLimits[JassType.SIDI_BARRANI], `is`(2500))
+
+            composeTestRule.onNodeWithText("2500", substring = true)
+                .assertIsDisplayed()
         }
     }
 }
