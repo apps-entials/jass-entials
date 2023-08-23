@@ -36,31 +36,32 @@ jobs:
         run: gradle lintDebug
       #8
       - name: Run Unit Test
-        run: gradle test
+        run: gradle check connectedCheck
+#        run: gradle test
 
-  android-tests:
-    runs-on: macos-latest
-    #1
-    needs: unit-tests
-    steps:
-      - name: Checkout the code
-        uses: actions/checkout@v3
-
-      - name: Setup JAVA 17
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: 17
-      - name: Cache Gradle and wrapper
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
-      #2
-      - name: Instrumentation Tests
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 29
-          script: gradle connectedAndroidTest
+#  android-tests:
+#    runs-on: macos-latest
+#    #1
+#    needs: unit-tests
+#    steps:
+#      - name: Checkout the code
+#        uses: actions/checkout@v3
+#
+#      - name: Setup JAVA 17
+#        uses: actions/setup-java@v3
+#        with:
+#          distribution: 'temurin'
+#          java-version: 17
+##      - name: Cache Gradle and wrapper
+##        uses: actions/cache@v2
+##        with:
+##          path: |
+##            ~/.gradle/caches
+##            ~/.gradle/wrapper
+##          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+#      #2
+#      - name: Instrumentation Tests
+#        uses: reactivecircus/android-emulator-runner@v2
+#        with:
+#          api-level: 29
+#          script: gradle connectedAndroidTest
