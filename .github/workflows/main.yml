@@ -42,7 +42,7 @@ jobs:
   android-tests:
     runs-on: macos-latest
     #1
-    needs: unit-tests
+#    needs: unit-tests
     steps:
       - name: Checkout the code
         uses: actions/checkout@v3
