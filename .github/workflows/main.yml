@@ -73,6 +73,13 @@ jobs:
           curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
           chmod +x ./cc-test-reporter
           sudo mv ./cc-test-reporter /usr/local/bin/
+          ./cc-test-reporter before-build
+
+      - name: Format and Upload Code Climate coverage
+        run: |
+          export JACOCO_SOURCE_PATH=app/src/main/java/
+          ./cc-test-reporter format-coverage ./app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml --input-type jacoco
+          ./cc-test-reporter upload-coverage
 
       - name: Instrumentation Tests
         uses: reactivecircus/android-emulator-runner@v2
@@ -84,8 +91,8 @@ jobs:
 
 
 
-      - name: Format and Upload Code Climate coverage
-        run: |
-          export JACOCO_SOURCE_PATH=app/src/main/java/
-          ./cc-test-reporter format-coverage ./app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml --input-type jacoco
-          ./cc-test-reporter upload-coverage
+#      - name: Format and Upload Code Climate coverage
+#        run: |
+#          export JACOCO_SOURCE_PATH=app/src/main/java/
+#          ./cc-test-reporter format-coverage ./app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml --input-type jacoco
+#          ./cc-test-reporter upload-coverage
