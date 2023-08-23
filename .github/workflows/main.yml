@@ -40,7 +40,7 @@ jobs:
 #        run: gradle test
 
   android-tests:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest #macos-latest
     #1
 #    needs: unit-tests
     steps:
