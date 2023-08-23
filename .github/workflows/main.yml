@@ -60,6 +60,12 @@ jobs:
 #            ~/.gradle/wrapper
 #          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
       #2
+      - name: Download and set up Code Climate Test Reporter
+        run: |
+          curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+          chmod +x ./cc-test-reporter
+          ./cc-test-reporter before-build
+
       - name: Instrumentation Tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -68,10 +74,7 @@ jobs:
 #          script: gradle connectedAndroidTest
 
 
-      - name: Download and set up Code Climate Test Reporter
-        run: |
-          curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-          chmod +x ./cc-test-reporter
+
 
       - name: Format and Upload Code Climate coverage
         run: |
