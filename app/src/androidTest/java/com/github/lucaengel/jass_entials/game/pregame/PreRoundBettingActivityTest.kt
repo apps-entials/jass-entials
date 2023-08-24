@@ -235,10 +235,10 @@ class PreRoundBettingActivityTest {
                 JassRoundActivity::class.java.name,
             ))
 
-            composeTestRule.onNodeWithText("(doubled)", substring = true)
+            composeTestRule.onNodeWithText("(doubled by ", substring = true)
                 .assertExists()
 
-            assertThat(GameStateHolder.gameState.winningBet.isDoubled, `is`(true))
+            assertThat(GameStateHolder.gameState.winningBet.doubledBy, `is`(defaultPlayerDatas[0].id))
             assertThat(GameStateHolder.gameState.roundState.trick().trump, `is`(Trump.UNGER_UFE))
             assertThat(GameStateHolder.gameState.roundState.trick().startingPlayerId, `is`(defaultPlayerDatas[3].id))
 
