@@ -22,6 +22,8 @@ import com.github.lucaengel.jass_entials.data.game_state.Score
 import com.github.lucaengel.jass_entials.data.jass.JassType
 import com.github.lucaengel.jass_entials.data.jass.Trump
 import com.github.lucaengel.jass_entials.game.JassRoundActivity
+import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.Matchers.`is`
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -201,6 +203,42 @@ class PreRoundBettingActivityTest {
             Intents.intended(IntentMatchers.hasComponent(
                 JassRoundActivity::class.java.name,
             ))
+
+            Intents.release()
+        }
+    }
+
+    @Test
+    fun doublingInSidiBarraniSetsTheDoubledFlagInTheBetAndStartsTheGame() {
+        GameStateHolder.bettingState = defaultBettingState.copy(
+            currentBetterId = defaultPlayerDatas[0].id,
+            jassType = JassType.SIDI_BARAHNI,
+            bets = listOf(Bet(defaultPlayerDatas[3].id, Trump.UNGER_UFE, BetHeight.HUNDRED)),
+            betActions = listOf(
+                Bet.BetAction.PASS,
+                Bet.BetAction.PASS,
+                Bet.BetAction.PASS,
+                Bet.BetAction.BET
+            ),
+        )
+
+        ActivityScenario.launch<PreRoundBettingActivity>(preRoundDefaultIntent).use {
+            Intents.init()
+
+            composeTestRule.onNodeWithText("Double")
+                .assertExists()
+                .performClick()
+
+            Intents.intended(IntentMatchers.hasComponent(
+                JassRoundActivity::class.java.name,
+            ))
+
+            composeTestRule.onNodeWithText("(doubled)", substring = true)
+                .assertExists()
+
+            assertThat(GameStateHolder.gameState.winningBet.isDoubled, `is`(true))
+            assertThat(GameStateHolder.gameState.roundState.trick().trump, `is`(Trump.UNGER_UFE))
+            assertThat(GameStateHolder.gameState.roundState.trick().startingPlayerId, `is`(defaultPlayerDatas[3].id))
 
             Intents.release()
         }
