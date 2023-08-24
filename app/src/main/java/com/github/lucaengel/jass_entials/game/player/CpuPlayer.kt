@@ -70,4 +70,8 @@ class CpuPlayer(
             )
         )
     }
+
+    override fun wantsToDouble(bet: Bet, handCards: List<Card>): CompletableFuture<Boolean> {
+        return CompletableFuture.completedFuture(Random.nextFloat() > 0.95)
+    }
 }

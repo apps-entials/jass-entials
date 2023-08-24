@@ -267,7 +267,7 @@ class JassComposables {
                 else "${lastBetter.firstName} ${lastBetter.lastName}"
 
             val oneLineBettingString = when (jassType) {
-                JassType.SIDI_BARAHNI -> "${lastBet.bet} by $lastBetterName${if (lastBet.isDoubled) " (doubled)" else ""}"
+                JassType.SIDI_BARAHNI -> "${lastBet.bet} by $lastBetterName${if (lastBet.doubledBy != null) " (doubled by ${GameStateHolder.players[lastBet.doubledBy.ordinal].firstName})" else ""}"
                 JassType.COIFFEUR -> "x ${lastBet.trump.ordinal + 1} by $lastBetterName"
                 else -> " by $lastBetterName"
             }
@@ -299,7 +299,7 @@ class JassComposables {
 
                 if (!onTheSameRow) {
                     Text(
-                        text = "$lastBetterName${if (lastBet.isDoubled) "\n(doubled)" else ""}",
+                        text = "$lastBetterName${if (lastBet.doubledBy != null) "\n(doubled by ${GameStateHolder.players[lastBet.doubledBy.ordinal].firstName})" else ""}",
                         modifier = Modifier.align(Alignment.CenterHorizontally),
                     )
 

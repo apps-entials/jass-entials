@@ -93,7 +93,7 @@ fun BettingRound() {
 
     val currentUserId by remember { mutableStateOf(bettingState.currentUserId) }
 
-    val opponents by remember {
+    val otherPlayers by remember {
         mutableStateOf(
             PlayerId.values()
             .filter { it != currentUserId }
@@ -136,8 +136,8 @@ fun BettingRound() {
         context.startActivity(intent)
     }
 
-    fun onDouble(doubledBet: Bet) {
-        val doubledBettingState = bettingState.withBetDoubled(doubledBet)
+    fun onDouble(doubledBet: Bet, playerId: PlayerId) {
+        val doubledBettingState = bettingState.withBetDoubled(doubledBet, playerId)
         // if doubledBettingState is null, the bet was not the last bet
         // and, therefore, cannot be doubled
         if (doubledBettingState != null) {
@@ -150,10 +150,26 @@ fun BettingRound() {
     LaunchedEffect(key1 = bettingState.currentBetterId) {
         val currentBetterId = bettingState.currentBetterId
 
+        if (bettingState.bets.isNotEmpty()) {
+            val doubleCpus = otherPlayers.filter { bettingState.bets.last().playerId.teamId() != it.first.teamId() }
+            for ((id, cpu) in doubleCpus) {
+                if (cpu.wantsToDouble(
+                        bettingState.bets.last(),
+                        players[id.ordinal].cards
+                    ).join()
+                ) {
+                    onDouble(bettingState.bets.last(), id)
+                    break
+                }
+            }
+        }
+
+
+
         if (currentBetterId == currentUserId)
             return@LaunchedEffect
 
-        val player = opponents.first { it.first == currentBetterId }.second
+        val player = otherPlayers.first { it.first == currentBetterId }.second
         setToThinking(currentBetterId)
 
 
@@ -238,14 +254,14 @@ fun BettingRound() {
                 onStartGame = {
                     startGameFun(bettingState)
                 },
-                onDouble = { onDouble(it) }
+                onDouble = { onDouble(it, currentUserId) }
             )
         } else {
             MiddleRowInfo(
                 bettingState = bettingState,
                 players = players,
                 currentPlayerId = currentUserId,
-                onDouble = { onDouble(it) }
+                onDouble = { onDouble(it, currentUserId) }
             )
         }
 

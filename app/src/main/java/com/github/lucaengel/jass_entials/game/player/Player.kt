@@ -1,6 +1,7 @@
 package com.github.lucaengel.jass_entials.game.player
 
 import com.github.lucaengel.jass_entials.data.cards.Card
+import com.github.lucaengel.jass_entials.data.game_state.Bet
 import com.github.lucaengel.jass_entials.data.game_state.BettingState
 import com.github.lucaengel.jass_entials.data.game_state.RoundState
 import java.util.concurrent.CompletableFuture
@@ -25,4 +26,12 @@ interface Player {
      * @return the new betting state
      */
     fun bet(bettingState: BettingState, handCards: List<Card>): CompletableFuture<BettingState>
+
+    /**
+     * Returns whether or not the player wants to double the current bet.
+     *
+     * @param bet the current betting state
+     * @return whether or not the player wants to double the current bet
+     */
+    fun wantsToDouble(bet: Bet, handCards: List<Card>): CompletableFuture<Boolean>
 }
