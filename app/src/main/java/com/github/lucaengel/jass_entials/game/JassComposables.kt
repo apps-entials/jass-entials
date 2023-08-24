@@ -302,7 +302,7 @@ class JassComposables {
                         modifier = Modifier.align(Alignment.CenterHorizontally),
                     )
 
-                    if (jassType == JassType.SIDI_BARAHNI
+                    if (jassType == JassType.SIDI_BARRANI
                         && lastBetter.id.teamId() != currentUserId.teamId()
                         && onDouble != {} ) {
                         Button(

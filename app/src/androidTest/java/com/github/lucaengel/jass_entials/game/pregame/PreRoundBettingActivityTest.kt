@@ -227,7 +227,7 @@ class PreRoundBettingActivityTest {
     fun doublingInSidiBarraniSetsTheDoubledFlagInTheBetAndStartsTheGame() {
         GameStateHolder.bettingState = defaultBettingState.copy(
             currentBetterId = defaultPlayerDatas[0].id,
-            jassType = JassType.SIDI_BARAHNI,
+            jassType = JassType.SIDI_BARRANI,
             bets = listOf(Bet(defaultPlayerDatas[3].id, Trump.UNGER_UFE, BetHeight.HUNDRED)),
             betActions = listOf(
                 Bet.BetAction.PASS,
