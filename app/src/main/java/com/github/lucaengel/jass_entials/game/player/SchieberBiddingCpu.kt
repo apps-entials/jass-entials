@@ -37,7 +37,6 @@ class SchieberBiddingCpu(
         const val OBE_LOW_VALUE_AFTER_QUEEN = 3
         const val OBE_KING_BOCK_VALUE = 8
         const val OBE_QUEEN_BOCK_VALUE = 6
-
     }
 
     private data class TrumpEvaluation(val trump: Trump, val points: Int)

@@ -15,6 +15,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Devices
+import androidx.compose.ui.tooling.preview.Preview
 import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
 import com.github.lucaengel.jass_entials.data.game_state.TeamId
 import com.github.lucaengel.jass_entials.data.jass.JassType
@@ -44,6 +46,7 @@ class PostRoundActivity : ComponentActivity() {
 /**
  * Composable for the score sheet.
  */
+@Preview(device = Devices.AUTOMOTIVE_1024p, widthDp = 720, heightDp = 360)
 @Composable
 fun ScoreSheet() {
     val context = LocalContext.current

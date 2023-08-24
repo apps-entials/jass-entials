@@ -1,6 +1,7 @@
 package com.github.lucaengel.jass_entials.game.player
 
 import com.github.lucaengel.jass_entials.data.cards.Card
+import com.github.lucaengel.jass_entials.data.game_state.Bet
 import com.github.lucaengel.jass_entials.data.game_state.BettingState
 import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
 import com.github.lucaengel.jass_entials.data.game_state.PlayerId
@@ -59,5 +60,9 @@ class DelayedCpuPlayer(
         }
 
         return betFuture
+    }
+
+    override fun wantsToDouble(bet: Bet, handCards: List<Card>): CompletableFuture<Boolean> {
+        return cpuPlayer.wantsToDouble(bet, handCards)
     }
 }

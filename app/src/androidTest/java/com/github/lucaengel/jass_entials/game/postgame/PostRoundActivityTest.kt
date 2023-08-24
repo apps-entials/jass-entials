@@ -22,10 +22,12 @@ import com.github.lucaengel.jass_entials.data.jass.JassType
 import com.github.lucaengel.jass_entials.data.jass.Trump
 import com.github.lucaengel.jass_entials.game.SelectGameActivity
 import com.github.lucaengel.jass_entials.game.pregame.PreRoundBettingActivity
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.lang.Thread.sleep
 
 @RunWith(AndroidJUnit4::class)
 class PostRoundActivityTest {
@@ -87,6 +89,15 @@ class PostRoundActivityTest {
     fun setup() {
         GameStateHolder.runCpuAsynchronously = false
         GameStateHolder.gameState = gameState
+
+        Intents.init()
+    }
+
+    @After
+    fun tearDown() {
+        sleep(1000)
+
+        Intents.release()
     }
 
     @Test
@@ -132,7 +143,6 @@ class PostRoundActivityTest {
     @Test
     fun startNextRoundButtonOpensNextSidiBarraniBiddingActivity() {
         ActivityScenario.launch<PostRoundActivity>(postRoundDefaultIntent).use {
-            Intents.init()
 
             composeTestRule.onNodeWithText("Start next round")
                 .assertExists()
@@ -140,7 +150,6 @@ class PostRoundActivityTest {
             Intents.intended(
                 IntentMatchers.hasComponent(PreRoundBettingActivity::class.java.name))
 
-            Intents.release()
         }
     }
 

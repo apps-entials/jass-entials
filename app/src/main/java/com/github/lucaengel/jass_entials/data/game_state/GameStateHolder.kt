@@ -46,6 +46,9 @@ class GameStateHolder {
             "123"
         )
 
+        /**
+         * Whether the cpu should be run asynchronousl or not (for testing purposes this will be set to false).
+         */
         var runCpuAsynchronously = true
 
         /**
@@ -92,7 +95,7 @@ class GameStateHolder {
                 playerEmails = listOf(),
                 currentBetterId = playerData1.id,
                 startingBetterId = playerData4.id,
-                jassType = JassType.SCHIEBER,
+                jassType = JassType.SIDI_BARAHNI,
                 bets = listOf(Bet(playerData4.id, Trump.CLUBS, BetHeight.FORTY)),
                 betActions = listOf(Bet.BetAction.BET),
                 gameState = GameState(),
