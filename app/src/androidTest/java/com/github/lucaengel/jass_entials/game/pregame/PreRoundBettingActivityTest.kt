@@ -121,7 +121,7 @@ class PreRoundBettingActivityTest {
             Intents.init()
 
             composeTestRule.onNodeWithText("Place Bet")
-                .assertDoesNotExist() // since cannot bet any higher
+                .assertDoesNotExist() // since cannot bet any higher, can only start the game
             composeTestRule.onNodeWithText("Start Game")
                 .assertExists()
                 .performClick()
