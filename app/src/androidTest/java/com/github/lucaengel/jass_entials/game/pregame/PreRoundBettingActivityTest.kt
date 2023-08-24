@@ -24,10 +24,12 @@ import com.github.lucaengel.jass_entials.data.jass.Trump
 import com.github.lucaengel.jass_entials.game.JassRoundActivity
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.`is`
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.lang.Thread.sleep
 
 @RunWith(AndroidJUnit4::class)
 class PreRoundBettingActivityTest {
@@ -73,6 +75,15 @@ class PreRoundBettingActivityTest {
         GameStateHolder.runCpuAsynchronously = false
         GameStateHolder.players = defaultPlayerDatas
         GameStateHolder.bettingState = defaultBettingState
+
+        Intents.init()
+    }
+
+    @After
+    fun tearDown() {
+        sleep(1000)
+
+        Intents.release()
     }
 
     @Test
@@ -89,7 +100,6 @@ class PreRoundBettingActivityTest {
         )
 
         ActivityScenario.launch<PreRoundBettingActivity>(preRoundDefaultIntent).use {
-            Intents.init()
 
             composeTestRule.onNodeWithText("Place Bet").assertExists()
             composeTestRule.onNodeWithText("Start Game")
@@ -100,7 +110,6 @@ class PreRoundBettingActivityTest {
                 JassRoundActivity::class.java.name,
             ))
 
-            Intents.release()
         }
     }
 
@@ -118,7 +127,6 @@ class PreRoundBettingActivityTest {
         )
 
         ActivityScenario.launch<PreRoundBettingActivity>(preRoundDefaultIntent).use {
-            Intents.init()
 
             composeTestRule.onNodeWithText("Place Bet")
                 .assertDoesNotExist() // since cannot bet any higher, can only start the game
@@ -130,7 +138,6 @@ class PreRoundBettingActivityTest {
                 JassRoundActivity::class.java.name,
             ))
 
-            Intents.release()
         }
     }
 
@@ -149,7 +156,6 @@ class PreRoundBettingActivityTest {
         )
 
         ActivityScenario.launch<PreRoundBettingActivity>(preRoundDefaultIntent).use {
-            Intents.init()
 
             composeTestRule.onNodeWithContentDescription("Bet placing dropdown icon")
                 .assertExists("trump dropdown not found")
@@ -167,7 +173,6 @@ class PreRoundBettingActivityTest {
                 JassRoundActivity::class.java.name,
             ))
 
-            Intents.release()
         }
     }
 
@@ -186,7 +191,6 @@ class PreRoundBettingActivityTest {
         )
 
         ActivityScenario.launch<PreRoundBettingActivity>(preRoundDefaultIntent).use {
-            Intents.init()
 
             composeTestRule.onNodeWithContentDescription("Bet placing dropdown icon")
                 .assertExists("trump dropdown not found")
@@ -204,7 +208,6 @@ class PreRoundBettingActivityTest {
                 JassRoundActivity::class.java.name,
             ))
 
-            Intents.release()
         }
     }
 
@@ -223,7 +226,6 @@ class PreRoundBettingActivityTest {
         )
 
         ActivityScenario.launch<PreRoundBettingActivity>(preRoundDefaultIntent).use {
-            Intents.init()
 
             composeTestRule.onNodeWithText("Double")
                 .assertExists()
@@ -240,7 +242,6 @@ class PreRoundBettingActivityTest {
             assertThat(GameStateHolder.gameState.roundState.trick().trump, `is`(Trump.UNGER_UFE))
             assertThat(GameStateHolder.gameState.roundState.trick().startingPlayerId, `is`(defaultPlayerDatas[3].id))
 
-            Intents.release()
         }
     }
 }
