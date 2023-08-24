@@ -10,6 +10,8 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.UiDevice
 import com.github.lucaengel.jass_entials.data.cards.Deck
 import com.github.lucaengel.jass_entials.data.cards.PlayerData
 import com.github.lucaengel.jass_entials.data.game_state.Bet
@@ -156,14 +158,19 @@ class PreRoundBettingActivityTest {
         )
 
         ActivityScenario.launch<PreRoundBettingActivity>(preRoundDefaultIntent).use {
+            val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
             composeTestRule.onNodeWithContentDescription("Bet placing dropdown icon")
                 .assertExists("trump dropdown not found")
                 .performClick()
 
+            device.waitForIdle()
+
             composeTestRule.onNodeWithContentDescription(label = Trump.HEARTS.toString(), useUnmergedTree = true)
                 .assertExists("trump dropdown item not found")
                 .performClick()
+
+            device.waitForIdle()
 
             composeTestRule.onNodeWithText("Start Game")
                 .assertExists()
@@ -191,14 +198,19 @@ class PreRoundBettingActivityTest {
         )
 
         ActivityScenario.launch<PreRoundBettingActivity>(preRoundDefaultIntent).use {
+            val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
             composeTestRule.onNodeWithContentDescription("Bet placing dropdown icon")
                 .assertExists("trump dropdown not found")
                 .performClick()
 
+            device.waitForIdle()
+
             composeTestRule.onNodeWithContentDescription(label = Trump.HEARTS.toString(), useUnmergedTree = true)
-                .assertExists("trump dropdown item not found")
+                .assertExists("trump not found")
                 .performClick()
+
+            device.waitForIdle()
 
             composeTestRule.onNodeWithText("Start Game")
                 .assertExists()

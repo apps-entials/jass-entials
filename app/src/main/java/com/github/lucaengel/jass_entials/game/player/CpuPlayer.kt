@@ -3,6 +3,7 @@ package com.github.lucaengel.jass_entials.game.player
 import com.github.lucaengel.jass_entials.data.cards.Card
 import com.github.lucaengel.jass_entials.data.game_state.Bet
 import com.github.lucaengel.jass_entials.data.game_state.BettingState
+import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
 import com.github.lucaengel.jass_entials.data.game_state.PlayerId
 import com.github.lucaengel.jass_entials.data.game_state.RoundState
 import com.github.lucaengel.jass_entials.data.jass.JassType
@@ -72,6 +73,6 @@ class CpuPlayer(
     }
 
     override fun wantsToDouble(bet: Bet, handCards: List<Card>): CompletableFuture<Boolean> {
-        return CompletableFuture.completedFuture(Random.nextFloat() > 0.95)
+        return CompletableFuture.completedFuture(if (!GameStateHolder.runCpuAsynchronously) false else (Random.nextFloat() > 0.95))
     }
 }
