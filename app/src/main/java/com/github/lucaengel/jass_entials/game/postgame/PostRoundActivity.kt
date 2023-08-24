@@ -138,7 +138,6 @@ fun ScoreSheet() {
             }
         }
 
-
         Spacer(modifier = Modifier.weight(1f))
     }
 }
