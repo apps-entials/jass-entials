@@ -78,6 +78,14 @@ data class BettingState(
         )
     }
 
+    fun withBetDoubled(doubledBet: Bet, doubledBy: PlayerId): BettingState? {
+        if (bets.lastOrNull() != doubledBet) return null
+
+        return this.copy(
+            bets = bets.map { if (it == doubledBet) it.copy(doubledBy = doubledBy) else it }
+        )
+    }
+
     /**
      * Returns the new betting state where the next player can place a bet
      *
@@ -162,7 +170,12 @@ data class BettingState(
  * @param trump the selected trump suit for the bet
  * @param bet the bet height
  */
-data class Bet(val playerId: PlayerId, val trump: Trump, val bet: BetHeight) {
+data class Bet(
+    val playerId: PlayerId,
+    val trump: Trump,
+    val bet: BetHeight,
+    val doubledBy: PlayerId? = null
+) {
 
     constructor(): this(PlayerId.PLAYER_1, Trump.HEARTS, BetHeight.NONE)
 
@@ -178,7 +191,8 @@ data class Bet(val playerId: PlayerId, val trump: Trump, val bet: BetHeight) {
 
     override fun toString(): String {
         val player = GameStateHolder.players.first { it.id == playerId }
-        return "$trump${if (bet == BetHeight.NONE) "" else bet} by ${player.firstName} ${player.lastName}"
+        val betString = "$trump${if (bet == BetHeight.NONE) "" else bet} by ${player.firstName} ${player.lastName}"
+        return if (doubledBy != null) "$betString (doubled by ${GameStateHolder.players[doubledBy.ordinal].firstName})" else betString
     }
 }
 

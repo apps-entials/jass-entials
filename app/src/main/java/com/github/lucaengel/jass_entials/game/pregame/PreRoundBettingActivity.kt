@@ -93,7 +93,7 @@ fun BettingRound() {
 
     val currentUserId by remember { mutableStateOf(bettingState.currentUserId) }
 
-    val opponents by remember {
+    val otherPlayers by remember {
         mutableStateOf(
             PlayerId.values()
             .filter { it != currentUserId }
@@ -127,14 +127,49 @@ fun BettingRound() {
         }
     }
 
+    fun startGameFun(currBettingState: BettingState) {
+        val gameState = currBettingState.startGame()
+        GameStateHolder.gameState = gameState
+        GameStateHolder.players = players
+
+        val intent = Intent(context, JassRoundActivity::class.java)
+        context.startActivity(intent)
+    }
+
+    fun onDouble(doubledBet: Bet, playerId: PlayerId) {
+        val doubledBettingState = bettingState.withBetDoubled(doubledBet, playerId)
+        // if doubledBettingState is null, the bet was not the last bet
+        // and, therefore, cannot be doubled
+        if (doubledBettingState != null) {
+            bettingState = doubledBettingState
+            startGameFun(bettingState)
+        }
+    }
+
     // this launched effect is responsible for the cpu players' actions
     LaunchedEffect(key1 = bettingState.currentBetterId) {
         val currentBetterId = bettingState.currentBetterId
 
+        if (bettingState.bets.isNotEmpty()) {
+            val doubleCpus = otherPlayers.filter { bettingState.bets.last().playerId.teamId() != it.first.teamId() }
+            for ((id, cpu) in doubleCpus) {
+                if (cpu.wantsToDouble(
+                        bettingState.bets.last(),
+                        players[id.ordinal].cards
+                    ).join()
+                ) {
+                    onDouble(bettingState.bets.last(), id)
+                    break
+                }
+            }
+        }
+
+
+
         if (currentBetterId == currentUserId)
             return@LaunchedEffect
 
-        val player = opponents.first { it.first == currentBetterId }.second
+        val player = otherPlayers.first { it.first == currentBetterId }.second
         setToThinking(currentBetterId)
 
 
@@ -201,15 +236,6 @@ fun BettingRound() {
 
         if (bettingState.currentBetterId == currentUserId) {
 
-            fun startGameFun(currBettingState: BettingState) {
-                val gameState = currBettingState.startGame()
-                GameStateHolder.gameState = gameState
-                GameStateHolder.players = players
-
-                val intent = Intent(context, JassRoundActivity::class.java)
-                context.startActivity(intent)
-            }
-
             BettingRow(
                 bettingState = bettingState,
                 players = players,
@@ -227,10 +253,16 @@ fun BettingRound() {
                 onPass = { bettingState = bettingState.nextPlayer() },
                 onStartGame = {
                     startGameFun(bettingState)
-                }
+                },
+                onDouble = { onDouble(it, currentUserId) }
             )
         } else {
-            MiddleRowInfo(bettingState = bettingState, players = players, currentPlayerId = currentUserId)
+            MiddleRowInfo(
+                bettingState = bettingState,
+                players = players,
+                currentPlayerId = currentUserId,
+                onDouble = { onDouble(it, currentUserId) }
+            )
         }
 
         Spacer(modifier = Modifier.weight(1f))
@@ -243,7 +275,12 @@ fun BettingRound() {
  * Betting row composable (contains the betting elements or the players in the middle row).
  */
 @Composable
-private fun MiddleRowInfo(bettingState: BettingState, players: List<PlayerData>, currentPlayerId: PlayerId) {
+private fun MiddleRowInfo(
+    bettingState: BettingState,
+    players: List<PlayerData>,
+    currentPlayerId: PlayerId,
+    onDouble: (Bet) -> Unit = {},
+) {
     Row {
 
         JassComposables.PlayerBox(
@@ -283,7 +320,8 @@ private fun MiddleRowInfo(bettingState: BettingState, players: List<PlayerData>,
                     lastBet = lastBet,
                     jassType = bettingState.jassType,
                     currentUserId = bettingState.currentUserId,
-                    lastBetter = lastBetter
+                    lastBetter = lastBetter,
+                    onDouble = { onDouble(it) }
                 )
             }
         }
@@ -312,6 +350,7 @@ fun BettingRow(
     onBetPlace: (Bet) -> Unit = {},
     onPass: () -> Unit = {},
     onStartGame: () -> Unit = {},
+    onDouble: (Bet) -> Unit = {},
 ) {
     var isBetDropdownExpanded by remember { mutableStateOf(false) }
     var isTrumpDropdownExpanded by remember { mutableStateOf(false) }
@@ -344,7 +383,8 @@ fun BettingRow(
                 lastBet = lastBet,
                 jassType = bettingState.jassType,
                 currentUserId = bettingState.currentUserId,
-                lastBetter = lastBetter
+                lastBetter = lastBetter,
+                onDouble = { onDouble(it) }
             )
         }
 
@@ -448,7 +488,12 @@ fun BettingRow(
                         modifier = Modifier
                             .height(50.dp)
                             .align(Alignment.CenterVertically)
-                            .padding(10.dp, 8.dp, if (bettingState.jassType == JassType.COIFFEUR) 0.dp else 10.dp, 8.dp),
+                            .padding(
+                                10.dp,
+                                8.dp,
+                                if (bettingState.jassType == JassType.COIFFEUR) 0.dp else 10.dp,
+                                8.dp
+                            ),
                         alignment = Alignment.Center,
                     )
 

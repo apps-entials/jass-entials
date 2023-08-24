@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -240,11 +241,13 @@ class JassComposables {
                         .requiredHeight(cardHeight)
                         .graphicsLayer {
                             rotationZ = zRotation
-                        }.border(
+                        }
+                        .border(
                             width = Dp.Hairline,
                             shape = RoundedCornerShape(cornerShape),
                             color = MaterialTheme.colorScheme.onPrimaryContainer
-                        ).clip(RoundedCornerShape(cornerShape))
+                        )
+                        .clip(RoundedCornerShape(cornerShape))
                         .clickable(onClick = onClick),
                 )
             }
@@ -256,14 +259,15 @@ class JassComposables {
             jassType: JassType,
             currentUserId: PlayerId,
             lastBetter: PlayerData,
-            onTheSameRow: Boolean = false
+            onTheSameRow: Boolean = false,
+            onDouble: (Bet) -> Unit = {},
         ) {
             val lastBetterName =
                 if (lastBetter.id == currentUserId) "you"
                 else "${lastBetter.firstName} ${lastBetter.lastName}"
 
             val oneLineBettingString = when (jassType) {
-                JassType.SIDI_BARAHNI -> "${lastBet.bet} by $lastBetterName"
+                JassType.SIDI_BARAHNI -> "${lastBet.bet} by $lastBetterName${if (lastBet.doubledBy != null) " (doubled by ${GameStateHolder.players[lastBet.doubledBy.ordinal].firstName})" else ""}"
                 JassType.COIFFEUR -> "x ${lastBet.trump.ordinal + 1} by $lastBetterName"
                 else -> " by $lastBetterName"
             }
@@ -289,13 +293,28 @@ class JassComposables {
                         modifier = Modifier
                             .align(Alignment.CenterVertically),
                     )
+
+
                 }
 
                 if (!onTheSameRow) {
                     Text(
-                        text = lastBetterName,
+                        text = "$lastBetterName${if (lastBet.doubledBy != null) "\n(doubled by ${GameStateHolder.players[lastBet.doubledBy.ordinal].firstName})" else ""}",
                         modifier = Modifier.align(Alignment.CenterHorizontally),
                     )
+
+                    if (jassType == JassType.SIDI_BARAHNI
+                        && lastBetter.id.teamId() != currentUserId.teamId()
+                        && onDouble != {} ) {
+                        Button(
+                            onClick = {
+                                onDouble(lastBet)
+                            },
+                            modifier = Modifier.align(Alignment.CenterHorizontally)
+                        ) {
+                            Text(text = "Double")
+                        }
+                    }
                 }
             }
         }
