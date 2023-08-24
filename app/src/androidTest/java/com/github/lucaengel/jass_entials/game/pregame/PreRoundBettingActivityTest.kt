@@ -65,7 +65,7 @@ class PreRoundBettingActivityTest {
         playerEmails = listOf(),
         currentBetterId = defaultPlayerDatas[0].id,
         startingBetterId = defaultPlayerDatas[0].id,
-        jassType = JassType.SIDI_BARAHNI,
+        jassType = JassType.SIDI_BARRANI,
         bets = listOf(Bet(defaultPlayerDatas[1].id, Trump.UNGER_UFE, BetHeight.HUNDRED)),
         betActions = listOf(Bet.BetAction.BET),
         gameState = GameState(),
@@ -77,6 +77,7 @@ class PreRoundBettingActivityTest {
         GameStateHolder.runCpuAsynchronously = false
         GameStateHolder.players = defaultPlayerDatas
         GameStateHolder.bettingState = defaultBettingState
+        GameStateHolder.prevTrumpsByTeam = mapOf()
 
         Intents.init()
     }
@@ -89,7 +90,7 @@ class PreRoundBettingActivityTest {
     }
 
     @Test
-    fun inSidiBarahniPlaceBetAndStartGameButtonIsPresentIfCurrentPlayerPlacedLastBetAndItWasNotAMatch() {
+    fun inSidiBarraniPlaceBetAndStartGameButtonIsPresentIfCurrentPlayerPlacedLastBetAndItWasNotAMatch() {
         GameStateHolder.bettingState = defaultBettingState.copy(
             currentBetterId = defaultPlayerDatas[0].id,
             bets = listOf(Bet(defaultPlayerDatas[0].id, Trump.UNGER_UFE, BetHeight.HUNDRED)),
@@ -111,12 +112,11 @@ class PreRoundBettingActivityTest {
             Intents.intended(IntentMatchers.hasComponent(
                 JassRoundActivity::class.java.name,
             ))
-
         }
     }
 
     @Test
-    fun inSidiBarahniOnlyStartGameButtonIsPresentIfTheyAreTheLastBetterAndBidMatch() {
+    fun inSidiBarraniOnlyStartGameButtonIsPresentIfTheyAreTheLastBetterAndBidMatch() {
         GameStateHolder.bettingState = defaultBettingState.copy(
             currentBetterId = defaultPlayerDatas[0].id,
             bets = listOf(Bet(defaultPlayerDatas[0].id, Trump.UNGER_UFE, BetHeight.MATCH)),
@@ -139,7 +139,6 @@ class PreRoundBettingActivityTest {
             Intents.intended(IntentMatchers.hasComponent(
                 JassRoundActivity::class.java.name,
             ))
-
         }
     }
 
@@ -160,7 +159,7 @@ class PreRoundBettingActivityTest {
         ActivityScenario.launch<PreRoundBettingActivity>(preRoundDefaultIntent).use {
             val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
-            composeTestRule.onNodeWithContentDescription("Bet placing dropdown icon")
+            composeTestRule.onNodeWithContentDescription("Bet placing dropdown icon", useUnmergedTree = true)
                 .assertExists("trump dropdown not found")
                 .performClick()
 
@@ -179,7 +178,6 @@ class PreRoundBettingActivityTest {
             Intents.intended(IntentMatchers.hasComponent(
                 JassRoundActivity::class.java.name,
             ))
-
         }
     }
 
@@ -200,7 +198,7 @@ class PreRoundBettingActivityTest {
         ActivityScenario.launch<PreRoundBettingActivity>(preRoundDefaultIntent).use {
             val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
-            composeTestRule.onNodeWithContentDescription("Bet placing dropdown icon")
+            composeTestRule.onNodeWithContentDescription("Bet placing dropdown icon", useUnmergedTree = true)
                 .assertExists("trump dropdown not found")
                 .performClick()
 
@@ -219,7 +217,6 @@ class PreRoundBettingActivityTest {
             Intents.intended(IntentMatchers.hasComponent(
                 JassRoundActivity::class.java.name,
             ))
-
         }
     }
 
@@ -227,7 +224,7 @@ class PreRoundBettingActivityTest {
     fun doublingInSidiBarraniSetsTheDoubledFlagInTheBetAndStartsTheGame() {
         GameStateHolder.bettingState = defaultBettingState.copy(
             currentBetterId = defaultPlayerDatas[0].id,
-            jassType = JassType.SIDI_BARAHNI,
+            jassType = JassType.SIDI_BARRANI,
             bets = listOf(Bet(defaultPlayerDatas[3].id, Trump.UNGER_UFE, BetHeight.HUNDRED)),
             betActions = listOf(
                 Bet.BetAction.PASS,
@@ -253,7 +250,6 @@ class PreRoundBettingActivityTest {
             assertThat(GameStateHolder.gameState.winningBet.doubledBy, `is`(defaultPlayerDatas[0].id))
             assertThat(GameStateHolder.gameState.roundState.trick().trump, `is`(Trump.UNGER_UFE))
             assertThat(GameStateHolder.gameState.roundState.trick().startingPlayerId, `is`(defaultPlayerDatas[3].id))
-
         }
     }
 }

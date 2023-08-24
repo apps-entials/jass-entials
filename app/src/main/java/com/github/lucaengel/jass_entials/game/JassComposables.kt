@@ -38,6 +38,7 @@ import com.github.lucaengel.jass_entials.data.game_state.GameState
 import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
 import com.github.lucaengel.jass_entials.data.game_state.PlayerId
 import com.github.lucaengel.jass_entials.data.jass.JassType
+import com.github.lucaengel.jass_entials.game.betting.CoiffeurBettingLogic
 import kotlin.math.absoluteValue
 
 /**
@@ -267,11 +268,11 @@ class JassComposables {
                 else "${lastBetter.firstName} ${lastBetter.lastName}"
 
             val oneLineBettingString = when (jassType) {
-                JassType.SIDI_BARAHNI -> "${lastBet.bet} by $lastBetterName${if (lastBet.doubledBy != null) " (doubled by ${GameStateHolder.players[lastBet.doubledBy.ordinal].firstName})" else ""}"
-                JassType.COIFFEUR -> "x ${lastBet.trump.ordinal + 1} by $lastBetterName"
+                JassType.SIDI_BARRANI -> "${lastBet.bet} by $lastBetterName${if (lastBet.doubledBy != null) " (doubled by ${GameStateHolder.players[lastBet.doubledBy.ordinal].firstName})" else ""}"
+                JassType.COIFFEUR -> "x ${CoiffeurBettingLogic.factorForTrump(lastBet.trump)} by $lastBetterName"
                 else -> " by $lastBetterName"
             }
-            val twoLineBettingStringTop = if (jassType == JassType.SIDI_BARAHNI) "${lastBet.bet} by" else " by"
+            val twoLineBettingStringTop = if (jassType == JassType.SIDI_BARRANI) "${lastBet.bet} by" else " by"
 
             Column {
                 Row (
@@ -293,8 +294,6 @@ class JassComposables {
                         modifier = Modifier
                             .align(Alignment.CenterVertically),
                     )
-
-
                 }
 
                 if (!onTheSameRow) {
@@ -303,7 +302,7 @@ class JassComposables {
                         modifier = Modifier.align(Alignment.CenterHorizontally),
                     )
 
-                    if (jassType == JassType.SIDI_BARAHNI
+                    if (jassType == JassType.SIDI_BARRANI
                         && lastBetter.id.teamId() != currentUserId.teamId()
                         && onDouble != {} ) {
                         Button(

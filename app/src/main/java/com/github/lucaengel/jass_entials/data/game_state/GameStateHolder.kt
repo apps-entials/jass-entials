@@ -70,7 +70,7 @@ class GameStateHolder {
             currentPlayerId = playerData1.id,
             startingPlayerId = playerData1.id,
             currentRound = 1,
-            jassType = JassType.SIDI_BARAHNI,
+            jassType = JassType.SIDI_BARRANI,
             roundState = RoundState.initial(trump = Trump.CLUBS, startingPlayerId = playerData2.id)
                 .withCardPlayed(Deck.STANDARD_DECK.cards[0])
                 .withCardPlayed(Deck.STANDARD_DECK.cards[1])
@@ -81,6 +81,12 @@ class GameStateHolder {
         )
 
         /**
+         * The current point limits for the different jass types.
+         * The default value is 1000.
+         */
+        var pointLimits = mapOf<JassType, Int>().withDefault { 1000 }
+
+        /**
          * The current betting state.
          */
         var bettingState: BettingState =
@@ -89,7 +95,7 @@ class GameStateHolder {
                 playerEmails = listOf(),
                 currentBetterId = playerData1.id,
                 startingBetterId = playerData4.id,
-                jassType = JassType.SIDI_BARAHNI,
+                jassType = JassType.SIDI_BARRANI,
                 bets = listOf(Bet(playerData4.id, Trump.CLUBS, BetHeight.FORTY)),
                 betActions = listOf(Bet.BetAction.BET),
                 gameState = GameState(),
@@ -101,7 +107,7 @@ class GameStateHolder {
 //        /**
 //         * The current jass type.
 //         */
-//        var jassType: JassType = JassType.SIDI_BARAHNI
+//        var jassType: JassType = JassType.SIDI_BARRANI
 
         // TODO: call this when a new game starts
         /*fun startNewGameBettingState(playerDatas: List<PlayerData>, currentPlayerData: PlayerData) {
@@ -111,7 +117,7 @@ class GameStateHolder {
                 0,
                 listOf(playerData1, playerData2, playerData3, playerData4),
                 playerData1,
-                JassType.SIDI_BARAHNI,
+                JassType.SIDI_BARRANI,
                 listOf(),
                 GameState()
             )
@@ -123,6 +129,7 @@ class GameStateHolder {
          * @param startingBetter The player that starts the next betting round.
          */
         fun goToNextBettingStateRound(startingBetter: PlayerId) {
+            prevTrumpsByTeam = mapOf()
             bettingState = bettingState.nextBettingRound(
                 startingBetter = startingBetter,
 //                jassType = jassType,

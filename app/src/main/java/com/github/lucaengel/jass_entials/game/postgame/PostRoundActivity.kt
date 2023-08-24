@@ -26,7 +26,7 @@ import com.github.lucaengel.jass_entials.game.pregame.PreRoundBettingActivity
 import com.github.lucaengel.jass_entials.ui.theme.JassentialsTheme
 
 /**
- * Activity for the Sidi Barahni post round screen.
+ * Activity for the Sidi Barrani post round screen.
  */
 class PostRoundActivity : ComponentActivity() {
 
@@ -95,10 +95,21 @@ fun ScoreSheet() {
 
         Spacer(modifier = Modifier.weight(1f))
 
-        if (gameState.jassType == JassType.COIFFEUR
-            && (GameStateHolder.prevTrumpsByTeam[TeamId.TEAM_1]?.size ?: 0) == Trump.values().size
-            && (GameStateHolder.prevTrumpsByTeam[TeamId.TEAM_2]?.size ?: 0) == Trump.values().size
-        ) {
+        val isSchieberOver = gameState.jassType == JassType.SCHIEBER && (
+                (GameStateHolder.pointLimits[JassType.SCHIEBER] ?: 1000) <= gameState.roundState.score().gamePoints(TeamId.TEAM_1)
+                        || (GameStateHolder.pointLimits[JassType.SCHIEBER] ?: 1000) <= gameState.roundState.score().gamePoints(TeamId.TEAM_2)
+                )
+
+        val isCoiffeurOver = gameState.jassType == JassType.COIFFEUR
+                && (GameStateHolder.prevTrumpsByTeam[TeamId.TEAM_1]?.size ?: 0) == Trump.values().size
+                && (GameStateHolder.prevTrumpsByTeam[TeamId.TEAM_2]?.size ?: 0) == Trump.values().size
+
+        val isSidiBarraniOver = gameState.jassType == JassType.SIDI_BARRANI && (
+                (GameStateHolder.pointLimits[JassType.SIDI_BARRANI] ?: 1000) <= gameState.roundState.score().gamePoints(TeamId.TEAM_1)
+                        || (GameStateHolder.pointLimits[JassType.SIDI_BARRANI] ?: 1000) <= gameState.roundState.score().gamePoints(TeamId.TEAM_2)
+        )
+
+        if (isSchieberOver || isCoiffeurOver || isSidiBarraniOver) {
             val winningTeamId = gameState.roundState.winningTeam()
             val winnerText = if (winningTeamId != null) {
                 "$winningTeamId won the game!"
@@ -109,8 +120,6 @@ fun ScoreSheet() {
             Text(text = "The game is over, $winnerText")
             Button(
                 onClick = {
-                    // have player to the right of the starting better of the last round start the next round
-
                     val intent = Intent(context, SelectGameActivity::class.java)
                     context.startActivity(intent)
                 }
@@ -131,7 +140,6 @@ fun ScoreSheet() {
                 Text(text = "Start next round")
             }
         }
-
 
         Spacer(modifier = Modifier.weight(1f))
     }

@@ -39,7 +39,7 @@
             android:name=".game.pregame.PreRoundBettingActivity"
             android:screenOrientation="landscape"
             android:exported="true"
-            android:label="Sidi Barahni Pregame Activity"
+            android:label="Sidi Barrani Pregame Activity"
             android:theme="@style/Theme.Jassentials" >
         </activity>
         <activity
@@ -52,7 +52,7 @@
         <activity
             android:name=".game.postgame.PostRoundActivity"
             android:exported="true"
-            android:label="SidiBarahni Postgame Activity"
+            android:label="SidiBarrani Postgame Activity"
             android:theme="@style/Theme.Jassentials" >
         </activity>
     </application>

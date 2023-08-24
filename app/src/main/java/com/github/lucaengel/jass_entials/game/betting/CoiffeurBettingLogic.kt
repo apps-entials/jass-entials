@@ -46,4 +46,17 @@ class CoiffeurBettingLogic : BettingLogic {
     override fun gameStartingPlayerId(startingBetterId: PlayerId, winningBet: Bet): PlayerId {
         return startingBetterId
     }
+
+    companion object {
+        fun factorForTrump(trump: Trump): Int {
+            return when (trump) {
+                Trump.DIAMONDS -> 1
+                Trump.HEARTS -> 2
+                Trump.SPADES -> 3
+                Trump.CLUBS -> 4
+                Trump.UNGER_UFE -> 5
+                Trump.OBE_ABE -> 6
+            }
+        }
+    }
 }

@@ -16,7 +16,7 @@ import org.hamcrest.Matchers
 import org.junit.Before
 import org.junit.Test
 
-class SidiBarahniBettingLogicTest {
+class SidiBarraniBettingLogicTest {
 
     private val defaultPlayerDatas = listOf(
         PlayerData().copy(
@@ -42,7 +42,7 @@ class SidiBarahniBettingLogicTest {
         playerEmails = listOf(),
         currentBetterId = defaultPlayerDatas[0].id,
         startingBetterId = defaultPlayerDatas[0].id,
-        jassType = JassType.SIDI_BARAHNI,
+        jassType = JassType.SIDI_BARRANI,
         bets = listOf(Bet(defaultPlayerDatas[1].id, Trump.UNGER_UFE, BetHeight.HUNDRED)),
         betActions = listOf(Bet.BetAction.BET),
         gameState = GameState(),
@@ -53,7 +53,7 @@ class SidiBarahniBettingLogicTest {
 
     @Before
     fun setUp() {
-        bettingLogic = SidiBarahniBettingLogic()
+        bettingLogic = SidiBarraniBettingLogic()
     }
 
     @Test
@@ -103,7 +103,7 @@ class SidiBarahniBettingLogicTest {
 
     @Test
     fun whenCurrentPlayerBidsOverTheirLastBetThePlayerToTheirRightIsNext() {
-        val bettingLogic = SidiBarahniBettingLogic()
+        val bettingLogic = SidiBarraniBettingLogic()
         val bettingState = defaultBettingState.copy(
             bets = listOf(Bet(defaultPlayerDatas[2].id, Trump.UNGER_UFE, BetHeight.HUNDRED)),
             betActions = listOf(Bet.BetAction.PASS),
@@ -119,7 +119,7 @@ class SidiBarahniBettingLogicTest {
 
     @Test
     fun availableActionsReturnsBetAndPassIfNoBetsPlacedPreviously() {
-        val bettingLogic = SidiBarahniBettingLogic()
+        val bettingLogic = SidiBarraniBettingLogic()
         val bettingState = defaultBettingState.copy(
             bets = listOf(),
             betActions = listOf(),
@@ -137,7 +137,7 @@ class SidiBarahniBettingLogicTest {
 
     @Test
     fun ifCurrentBetterIsLastBetterAndHadBidAMatchInTheLastRoundCurrentBetterCanOnlyStartTheGame() {
-        val bettingLogic = SidiBarahniBettingLogic()
+        val bettingLogic = SidiBarraniBettingLogic()
         val bettingState = defaultBettingState.copy(
             bets = listOf(Bet(defaultPlayerDatas[0].id, Trump.UNGER_UFE, BetHeight.MATCH)),
             betActions = listOf(Bet.BetAction.BET),
@@ -154,7 +154,7 @@ class SidiBarahniBettingLogicTest {
 
     @Test
     fun ifCurrentBetterIsLastBetterButDidNotBitAMatchTheyCanStartOrBid() {
-        val bettingLogic = SidiBarahniBettingLogic()
+        val bettingLogic = SidiBarraniBettingLogic()
         val bettingState = defaultBettingState.copy(
             bets = listOf(Bet(defaultPlayerDatas[0].id, Trump.UNGER_UFE, BetHeight.HUNDRED)),
             betActions = listOf(Bet.BetAction.BET),
@@ -172,7 +172,7 @@ class SidiBarahniBettingLogicTest {
 
     @Test
     fun playerCanBetPassOrDoubleIfOpposingTeamMemberBidLast() {
-        val bettingLogic = SidiBarahniBettingLogic()
+        val bettingLogic = SidiBarraniBettingLogic()
         val bettingState = defaultBettingState.copy(
             bets = listOf(Bet(defaultPlayerDatas[0].id, Trump.UNGER_UFE, BetHeight.HUNDRED)),
             betActions = listOf(Bet.BetAction.BET),
@@ -191,7 +191,7 @@ class SidiBarahniBettingLogicTest {
 
     @Test
     fun currentPlayerCanBetOrPassIfTeamMemberWasLastToBidNotMatch() {
-        val bettingLogic = SidiBarahniBettingLogic()
+        val bettingLogic = SidiBarraniBettingLogic()
         val bettingState = defaultBettingState.copy(
             bets = listOf(Bet(defaultPlayerDatas[0].id, Trump.UNGER_UFE, BetHeight.HUNDRED)),
             betActions = listOf(Bet.BetAction.BET),

@@ -52,11 +52,12 @@ import com.github.lucaengel.jass_entials.data.jass.JassType
 import com.github.lucaengel.jass_entials.data.jass.Trump
 import com.github.lucaengel.jass_entials.game.JassComposables
 import com.github.lucaengel.jass_entials.game.JassRoundActivity
+import com.github.lucaengel.jass_entials.game.betting.CoiffeurBettingLogic
 import com.github.lucaengel.jass_entials.game.player.DelayedCpuPlayer
 import com.github.lucaengel.jass_entials.ui.theme.JassentialsTheme
 
 /**
- * Sidi Barahni pre-round activity (i.e., betting round).
+ * Sidi Barrani pre-round activity (i.e., betting round).
  */
 class PreRoundBettingActivity : ComponentActivity() {
 
@@ -180,8 +181,8 @@ fun BettingRound() {
                 setToNormalName(currentBetterId)
                 bettingState = it
 
-                // Checks for game start when not playing sidi barahni
-                if (it.jassType != JassType.SIDI_BARAHNI
+                // Checks for game start when not playing sidi barrani
+                if (it.jassType != JassType.SIDI_BARRANI
                     && it.betActions.last() != Bet.BetAction.PASS) {
                     val gameState = bettingState.startGame()
                     GameStateHolder.gameState = gameState
@@ -194,8 +195,8 @@ fun BettingRound() {
                 it
             }
 
-        // cpu starting the game for sidi barahni
-        if (oldBettingState.jassType == JassType.SIDI_BARAHNI
+        // cpu starting the game for sidi barrani
+        if (oldBettingState.jassType == JassType.SIDI_BARRANI
             && oldBettingState.bets.lastOrNull()?.playerId == currentBetterId) {
             // TODO: for now, if cpu can start the game, the start game is signalled by
             //  a pass after the last bet (since you cannot pass if you have made the last bet).
@@ -242,9 +243,9 @@ fun BettingRound() {
                 onBetPlace = { bet ->
                     val newBettingState = bettingState.nextPlayer(bet)
 
-                    // Only in Sidi Barahni, the next players
+                    // Only in Sidi Barrani, the next players
                     // can place a higher bet than the current one.
-                    if (bettingState.jassType != JassType.SIDI_BARAHNI) {
+                    if (bettingState.jassType != JassType.SIDI_BARRANI) {
                         startGameFun(newBettingState)
                     } else {
                         bettingState = newBettingState
@@ -402,7 +403,7 @@ fun BettingRow(
 
             if (bettingState.jassType == JassType.COIFFEUR) {
                 Text(
-                    text = " x ${selectedTrump!!.ordinal + 1}",
+                    text = " x ${CoiffeurBettingLogic.factorForTrump(selectedTrump!!)}",
                     modifier = Modifier
                         .align(Alignment.CenterVertically)
                         .padding(5.dp, 0.dp, 10.dp, 0.dp),
@@ -411,10 +412,11 @@ fun BettingRow(
         }
 
         if (bettingState.availableTrumps().isNotEmpty()
-            && (bettingState.jassType != JassType.SIDI_BARAHNI || bettingState.availableBets().isNotEmpty())) {
-            if (bettingState.jassType == JassType.SIDI_BARAHNI || selectedTrump == null) {
+            && (bettingState.jassType != JassType.SIDI_BARRANI || bettingState.availableBets().isNotEmpty())) {
+
+            if (bettingState.jassType == JassType.SIDI_BARRANI || selectedTrump == null) {
                 Text(
-                    text = if (bettingState.jassType == JassType.SIDI_BARAHNI && selectedBet == BetHeight.NONE || selectedTrump == null) {
+                    text = if (bettingState.jassType == JassType.SIDI_BARRANI && selectedBet == BetHeight.NONE || selectedTrump == null) {
                         "Select a bet: "
                     } else {
                         selectedBet.toString()
@@ -432,7 +434,7 @@ fun BettingRow(
                             isBetDropdownExpanded = false
                             isTrumpDropdownExpanded = false
                         } else {
-                            if (bettingState.jassType == JassType.SIDI_BARAHNI) isBetDropdownExpanded =
+                            if (bettingState.jassType == JassType.SIDI_BARRANI) isBetDropdownExpanded =
                                 true
                             isTrumpDropdownExpanded = true
                         }
@@ -442,7 +444,7 @@ fun BettingRow(
             )
         }
 
-        if (bettingState.jassType == JassType.SIDI_BARAHNI) {
+        if (bettingState.jassType == JassType.SIDI_BARRANI) {
             DropdownMenu(
                 expanded = isBetDropdownExpanded,
                 onDismissRequest = { isBetDropdownExpanded = false },
@@ -499,7 +501,7 @@ fun BettingRow(
 
                     if (bettingState.jassType == JassType.COIFFEUR) {
                         Text(
-                            text = " x ${trump.ordinal + 1}",
+                            text = " x ${CoiffeurBettingLogic.factorForTrump(trump)}",
                             modifier = Modifier
                                 .align(Alignment.CenterVertically)
                                 .padding(5.dp, 0.dp, 10.dp, 0.dp),
@@ -511,12 +513,12 @@ fun BettingRow(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        if (bettingState.jassType == JassType.SIDI_BARAHNI && bettingState.availableActions().contains(Bet.BetAction.BET)
-            || bettingState.jassType != JassType.SIDI_BARAHNI) {
+        if (bettingState.jassType == JassType.SIDI_BARRANI && bettingState.availableActions().contains(Bet.BetAction.BET)
+            || bettingState.jassType != JassType.SIDI_BARRANI) {
             Button(
                 onClick = {
 
-                    if ((selectedBet != BetHeight.NONE || bettingState.jassType != JassType.SIDI_BARAHNI) && selectedTrump != null) {
+                    if ((selectedBet != BetHeight.NONE || bettingState.jassType != JassType.SIDI_BARRANI) && selectedTrump != null) {
 
                         onBetPlace(
                             Bet(
@@ -536,7 +538,7 @@ fun BettingRow(
             ) {
                 val actions = bettingState.availableActions()
                 if (actions.contains(Bet.BetAction.BET)) {
-                    if (bettingState.jassType == JassType.SIDI_BARAHNI)
+                    if (bettingState.jassType == JassType.SIDI_BARRANI)
                         Text(text = "Place Bet")
                     else
                         Text(text = "Start Game")
@@ -544,7 +546,7 @@ fun BettingRow(
             }
         }
 
-        if (bettingState.jassType == JassType.SIDI_BARAHNI || bettingState.availableActions().contains(Bet.BetAction.PASS)) {
+        if (bettingState.jassType == JassType.SIDI_BARRANI || bettingState.availableActions().contains(Bet.BetAction.PASS)) {
             Button(
                 onClick = {
                     // If the last bet was placed by the current player, the player can start the game

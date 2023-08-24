@@ -8,6 +8,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,6 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.github.lucaengel.jass_entials.data.cards.CardType
 import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
+import com.github.lucaengel.jass_entials.data.jass.JassType
 import com.github.lucaengel.jass_entials.ui.theme.JassentialsTheme
 
 class SettingsActivity : ComponentActivity() {
@@ -73,24 +76,23 @@ fun SettingsScreen(finishActivity: () -> Unit = {}) {
                 .padding(padding)
         ) {
             Column {
-                Row (
-                    modifier = Modifier
-                        .padding(16.dp)
-                ) {
-                    Text(
-                        text = "Select Playing Card Type:",
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier
-                            .align(Alignment.CenterVertically)
-                    )
 
-                    Spacer(modifier = Modifier.width(16.dp))
-
-                    CardTypeSelector(selectedCardType) { cardType ->
-                        selectedCardType = cardType
-                        GameStateHolder.cardType = cardType
-                    }
+                CardTypeSelector(selectedCardType) { cardType ->
+                    selectedCardType = cardType
+                    GameStateHolder.cardType = cardType
                 }
+
+                listOf(JassType.SCHIEBER, JassType.SIDI_BARRANI)
+                    .map { jassType ->
+                        Divider()
+
+                        PointLimitSetter(
+                            jassType = jassType,
+                            onPointLimitSelected = { pointLimit ->
+                                GameStateHolder.pointLimits += (jassType to pointLimit)
+                            }
+                        )
+                    }
             }
         }
     }
@@ -101,25 +103,98 @@ fun CardTypeSelector(
     selectedCardType: CardType,
     onCardTypeSelected: (CardType) -> Unit
 ) {
-    CardType.values().forEach { cardType ->
-        Row(
-            modifier = Modifier,
-            verticalAlignment = Alignment.CenterVertically,
+    Row (
+        modifier = Modifier
+            .padding(16.dp)
+    ) {
+        Text(
+            text = "Select Playing Card Type:",
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier
+                .align(Alignment.CenterVertically)
+        )
+
+        Spacer(modifier = Modifier.width(16.dp))
+        CardType.values().forEach { cardType ->
+            Row(
+                modifier = Modifier,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                RadioButton(
+                    modifier = Modifier.align(Alignment.CenterVertically),
+                    selected = cardType == selectedCardType,
+                    onClick = { onCardTypeSelected(cardType) }
+                )
+                Text(
+                    text = cardType.string,
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically)
+                        .clickable { onCardTypeSelected(cardType) }
+                        .padding(4.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+            }
+        }
+    }
+}
+
+@Composable
+fun PointLimitSetter(
+    jassType: JassType,
+    onPointLimitSelected: (Int) -> Unit
+) {
+    var currentLimit by remember { mutableStateOf(
+        GameStateHolder.pointLimits.getOrDefault(jassType, 1000)
+    ) }
+    val pointLimits = listOf(500, 1000, 1500, 2000, 2500, 3000, 3500, 4000)
+
+    var isDropdownExpanded by remember { mutableStateOf(false) }
+    val icon = if (isDropdownExpanded)
+        Icons.Filled.KeyboardArrowUp
+    else
+        Icons.Filled.KeyboardArrowDown
+
+    Row(
+        modifier = Modifier
+            .padding(16.dp)
+    ) {
+        Text(
+            text = "Current point limit for $jassType: $currentLimit",
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier
+                .align(Alignment.CenterVertically)
+        )
+
+        Icon(icon,
+            contentDescription = "dropdown$jassType",
+            modifier = Modifier
+                .clickable {
+                    isDropdownExpanded = !isDropdownExpanded
+                }
+                .align(Alignment.CenterVertically)
+                .padding(5.dp)
+        )
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        DropdownMenu(
+            expanded = isDropdownExpanded,
+            onDismissRequest = { isDropdownExpanded = false },
         ) {
-            RadioButton(
-                modifier = Modifier.align(Alignment.CenterVertically),
-                selected = cardType == selectedCardType,
-                onClick = { onCardTypeSelected(cardType) }
-            )
-            Text(
-                text = cardType.string,
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier
-                    .align(Alignment.CenterVertically)
-                    .clickable { onCardTypeSelected(cardType) }
-                    .padding(4.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
+            pointLimits.forEach { limit ->
+                Text(
+                    text = limit.toString(),
+                    modifier = Modifier
+                        .padding(vertical = 4.dp, horizontal = 8.dp)
+                        .align(Alignment.CenterHorizontally)
+                        .clickable {
+                            onPointLimitSelected(limit)
+                            currentLimit = limit
+                            isDropdownExpanded = false
+                        }
+                )
+            }
         }
     }
 }
