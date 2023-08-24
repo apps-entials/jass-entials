@@ -7,6 +7,10 @@ container:
 env:
   CC_TEST_REPORTER_ID: ENCRYPTED[!942125cb3ea65a81b33ed29fae738238f9060dfe3594af3e63b76f040c72b321905507ae5822965c7b031109cf07e3c8!]
 
+Install_Java_17:
+  sudo apt-get update
+  sudo apt-get install -y openjdk-17-jdk
+
 check_android_task:
   name: Run Android tests
   install_emulator_script:
