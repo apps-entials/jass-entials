@@ -413,6 +413,7 @@ fun BettingRow(
 
         if (bettingState.availableTrumps().isNotEmpty()
             && (bettingState.jassType != JassType.SIDI_BARRANI || bettingState.availableBets().isNotEmpty())) {
+
             if (bettingState.jassType == JassType.SIDI_BARRANI || selectedTrump == null) {
                 Text(
                     text = if (bettingState.jassType == JassType.SIDI_BARRANI && selectedBet == BetHeight.NONE || selectedTrump == null) {

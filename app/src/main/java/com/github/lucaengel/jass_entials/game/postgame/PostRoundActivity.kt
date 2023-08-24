@@ -105,8 +105,8 @@ fun ScoreSheet() {
                 && (GameStateHolder.prevTrumpsByTeam[TeamId.TEAM_2]?.size ?: 0) == Trump.values().size
 
         val isSidiBarraniOver = gameState.jassType == JassType.SIDI_BARRANI && (
-                (GameStateHolder.pointLimits[JassType.SCHIEBER] ?: 1000) <= gameState.roundState.score().gamePoints(TeamId.TEAM_1)
-                        || (GameStateHolder.pointLimits[JassType.SCHIEBER] ?: 1000) <= gameState.roundState.score().gamePoints(TeamId.TEAM_2)
+                (GameStateHolder.pointLimits[JassType.SIDI_BARRANI] ?: 1000) <= gameState.roundState.score().gamePoints(TeamId.TEAM_1)
+                        || (GameStateHolder.pointLimits[JassType.SIDI_BARRANI] ?: 1000) <= gameState.roundState.score().gamePoints(TeamId.TEAM_2)
         )
 
         if (isSchieberOver || isCoiffeurOver || isSidiBarraniOver) {

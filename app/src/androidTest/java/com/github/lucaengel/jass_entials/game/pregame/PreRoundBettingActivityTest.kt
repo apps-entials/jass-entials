@@ -77,6 +77,7 @@ class PreRoundBettingActivityTest {
         GameStateHolder.runCpuAsynchronously = false
         GameStateHolder.players = defaultPlayerDatas
         GameStateHolder.bettingState = defaultBettingState
+        GameStateHolder.prevTrumpsByTeam = mapOf()
 
         Intents.init()
     }
@@ -111,7 +112,6 @@ class PreRoundBettingActivityTest {
             Intents.intended(IntentMatchers.hasComponent(
                 JassRoundActivity::class.java.name,
             ))
-
         }
     }
 
@@ -139,7 +139,6 @@ class PreRoundBettingActivityTest {
             Intents.intended(IntentMatchers.hasComponent(
                 JassRoundActivity::class.java.name,
             ))
-
         }
     }
 
@@ -160,7 +159,7 @@ class PreRoundBettingActivityTest {
         ActivityScenario.launch<PreRoundBettingActivity>(preRoundDefaultIntent).use {
             val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
-            composeTestRule.onNodeWithContentDescription("Bet placing dropdown icon")
+            composeTestRule.onNodeWithContentDescription("Bet placing dropdown icon", useUnmergedTree = true)
                 .assertExists("trump dropdown not found")
                 .performClick()
 
@@ -179,7 +178,6 @@ class PreRoundBettingActivityTest {
             Intents.intended(IntentMatchers.hasComponent(
                 JassRoundActivity::class.java.name,
             ))
-
         }
     }
 
@@ -200,7 +198,7 @@ class PreRoundBettingActivityTest {
         ActivityScenario.launch<PreRoundBettingActivity>(preRoundDefaultIntent).use {
             val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
-            composeTestRule.onNodeWithContentDescription("Bet placing dropdown icon")
+            composeTestRule.onNodeWithContentDescription("Bet placing dropdown icon", useUnmergedTree = true)
                 .assertExists("trump dropdown not found")
                 .performClick()
 
@@ -219,7 +217,6 @@ class PreRoundBettingActivityTest {
             Intents.intended(IntentMatchers.hasComponent(
                 JassRoundActivity::class.java.name,
             ))
-
         }
     }
 
@@ -253,7 +250,6 @@ class PreRoundBettingActivityTest {
             assertThat(GameStateHolder.gameState.winningBet.doubledBy, `is`(defaultPlayerDatas[0].id))
             assertThat(GameStateHolder.gameState.roundState.trick().trump, `is`(Trump.UNGER_UFE))
             assertThat(GameStateHolder.gameState.roundState.trick().startingPlayerId, `is`(defaultPlayerDatas[3].id))
-
         }
     }
 }

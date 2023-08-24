@@ -129,6 +129,7 @@ class GameStateHolder {
          * @param startingBetter The player that starts the next betting round.
          */
         fun goToNextBettingStateRound(startingBetter: PlayerId) {
+            prevTrumpsByTeam = mapOf()
             bettingState = bettingState.nextBettingRound(
                 startingBetter = startingBetter,
 //                jassType = jassType,

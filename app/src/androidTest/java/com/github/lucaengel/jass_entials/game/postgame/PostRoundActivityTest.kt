@@ -167,7 +167,6 @@ class PostRoundActivityTest {
         )
 
         ActivityScenario.launch<PostRoundActivity>(postRoundDefaultIntent).use {
-            Intents.init()
 
             composeTestRule.onNodeWithText("${TeamId.TEAM_1} won the game!", substring = true)
                 .assertExists()
@@ -179,8 +178,6 @@ class PostRoundActivityTest {
             Intents.intended(
                 IntentMatchers.hasComponent(SelectGameActivity::class.java.name)
             )
-
-            Intents.release()
         }
     }
 
@@ -194,11 +191,11 @@ class PostRoundActivityTest {
                     .withPointsAdded(TeamId.TEAM_1, 1000)
                     .withPointsAdded(TeamId.TEAM_2, 0)
                     .nextRound()
-            )
+            ),
+            jassType = JassType.SIDI_BARRANI
         )
 
         ActivityScenario.launch<PostRoundActivity>(postRoundDefaultIntent).use {
-            Intents.init()
 
             composeTestRule.onNodeWithText("${TeamId.TEAM_1} won the game!", substring = true)
                 .assertExists()
@@ -210,14 +207,16 @@ class PostRoundActivityTest {
             Intents.intended(
                 IntentMatchers.hasComponent(SelectGameActivity::class.java.name)
             )
-
-            Intents.release()
         }
     }
 
     @Test
     fun endScreenIsShownWhenRoundIsDoneForCoiffeur() {
         GameStateHolder.pointLimits += JassType.COIFFEUR to 500
+        GameStateHolder.prevTrumpsByTeam = mapOf(
+            TeamId.TEAM_1 to setOf(Trump.CLUBS, Trump.DIAMONDS, Trump.HEARTS, Trump.SPADES, Trump.UNGER_UFE, Trump.OBE_ABE),
+            TeamId.TEAM_2 to setOf(Trump.CLUBS, Trump.DIAMONDS, Trump.HEARTS, Trump.SPADES, Trump.UNGER_UFE, Trump.OBE_ABE)
+        )
 
         GameStateHolder.gameState = gameState.copy(
             roundState = gameState.roundState.copy(
@@ -225,11 +224,11 @@ class PostRoundActivityTest {
                     .withPointsAdded(TeamId.TEAM_1, 1000)
                     .withPointsAdded(TeamId.TEAM_2, 1000)
                     .nextRound()
-            )
+            ),
+            jassType = JassType.COIFFEUR
         )
 
         ActivityScenario.launch<PostRoundActivity>(postRoundDefaultIntent).use {
-            Intents.init()
 
             composeTestRule.onNodeWithText("it was a draw!", substring = true)
                 .assertExists()
@@ -241,8 +240,6 @@ class PostRoundActivityTest {
             Intents.intended(
                 IntentMatchers.hasComponent(SelectGameActivity::class.java.name)
             )
-
-            Intents.release()
         }
     }
 }
