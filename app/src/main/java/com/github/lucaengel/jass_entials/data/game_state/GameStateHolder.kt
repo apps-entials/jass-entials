@@ -46,6 +46,9 @@ class GameStateHolder {
             "123"
         )
 
+        /**
+         * Whether the cpu should be run asynchronousl or not (for testing purposes this will be set to false).
+         */
         var runCpuAsynchronously = true
 
         /**
