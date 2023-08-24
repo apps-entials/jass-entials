@@ -13,8 +13,8 @@ check_android_task:
     sdkmanager --install "system-images;android-30;google_apis_playstore;x86"
 
   install_java_17_script:
-    sudo apt-get update
-    sudo apt-get install -y openjdk-17-jdk
+    - sudo apt-get update
+    - sudo apt-get install -y openjdk-17-jdk
 
 
   create_avd_script:
