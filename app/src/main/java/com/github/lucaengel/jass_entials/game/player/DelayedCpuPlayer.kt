@@ -12,7 +12,7 @@ import kotlin.random.Random
 class DelayedCpuPlayer(
     val playerId: PlayerId,
     seed: Long = Random.nextLong(),
-    nbSimulations: Int = 100,
+    nbSimulations: Int = 600,
     private val threadSleepTime: Long = 300
 ) : Player {
 
@@ -25,7 +25,8 @@ class DelayedCpuPlayer(
         roundState: RoundState,
         handCards: List<Card>
     ): CompletableFuture<Card> {
-        val future = CompletableFuture<Card>()
+        val cardFuture = CompletableFuture<Card>()
+        val sleepFuture = CompletableFuture<Void>()
 
         // TODO: This is a temporary solution for testing to not have the cpu wait
         //  consider refactoring this to a more elegant solution
@@ -33,14 +34,25 @@ class DelayedCpuPlayer(
             CompletableFuture.runAsync {
                 Thread.sleep(threadSleepTime)
 
-                future.complete(cpuPlayer.cardToPlay(roundState, handCards).join())
+                sleepFuture.complete(null)
+            }
+            CompletableFuture.runAsync {
+//                Thread.sleep(threadSleepTime)
+
+                cardFuture.complete(cpuPlayer.cardToPlay(roundState, handCards).join())
             }
         } else {
             // this is where tests run
-            future.complete(cpuPlayer.cardToPlay(roundState, handCards).join())
-        }
+            sleepFuture.complete(null)
 
-        return future
+            cardFuture.complete(cpuPlayer.cardToPlay(roundState, handCards).join())
+        }
+        val result = CompletableFuture<Card>()
+
+        // once sleepFuture and cardFuture have completed, return the card
+        sleepFuture.thenAcceptBoth(cardFuture) { _, card -> result.complete(card) }
+
+        return result
     }
 
     override fun bet(bettingState: BettingState, handCards: List<Card>): CompletableFuture<BettingState> {
