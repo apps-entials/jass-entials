@@ -525,7 +525,6 @@ class MonteCarloCpuTest {
             c
         )
 
-
         val teamPartnerState = stateWithSuitsNotInHandAdapted
             .withCardPlayed(Card(Suit.CLUBS, Rank.TEN))
             .withCardPlayed(Card(Suit.CLUBS, Rank.JACK))
