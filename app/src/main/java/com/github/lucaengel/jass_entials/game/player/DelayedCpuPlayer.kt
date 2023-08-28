@@ -6,6 +6,7 @@ import com.github.lucaengel.jass_entials.data.game_state.BettingState
 import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
 import com.github.lucaengel.jass_entials.data.game_state.PlayerId
 import com.github.lucaengel.jass_entials.data.game_state.RoundState
+import com.github.lucaengel.jass_entials.data.jass.JassType
 import java.util.concurrent.CompletableFuture
 import kotlin.random.Random
 
@@ -50,7 +51,7 @@ class DelayedCpuPlayer(
         //  consider refactoring this to a more elegant solution
         if (GameStateHolder.runCpuAsynchronously) {
             CompletableFuture.runAsync {
-                Thread.sleep(3 * threadSleepTime)
+                Thread.sleep((if (bettingState.jassType == JassType.SIDI_BARRANI) 6 else 3) * threadSleepTime)
 
                 betFuture.complete(cpuPlayer.bet(bettingState, handCards).join())
             }

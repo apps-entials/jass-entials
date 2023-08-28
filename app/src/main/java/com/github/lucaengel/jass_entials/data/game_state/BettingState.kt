@@ -219,6 +219,10 @@ enum class BetHeight(private val value: Int) {
     HUNDRED_FIFTY_SEVEN(157),
     MATCH(257);
 
+    fun asInt(): Int {
+        return value
+    }
+
     override fun toString(): String {
         return when (this) {
             NONE -> "no bet"
@@ -239,6 +243,32 @@ enum class BetHeight(private val value: Int) {
                 "no bet" -> NONE
                 "match" -> MATCH
                 else -> BetHeight.values().first { it.value == string.toInt() }
+            }
+        }
+
+        /**
+         * Returns the bet height closest to the given number of points.
+         *
+         * @param points the number of points
+         * @return the closest bet height
+         */
+        fun fromPoints(points: Int): BetHeight {
+            return when {
+                points < 40 -> NONE
+                points < 50 -> FORTY
+                points < 60 -> FIFTY
+                points < 70 -> SIXTY
+                points < 80 -> SEVENTY
+                points < 90 -> EIGHTY
+                points < 100 -> NINETY
+                points < 110 -> HUNDRED
+                points < 120 -> HUNDRED_TEN
+                points < 130 -> HUNDRED_TWENTY
+                points < 140 -> HUNDRED_THIRTY
+                points < 150 -> HUNDRED_FORTY
+                points < 157 -> HUNDRED_FIFTY
+                points < 170 -> HUNDRED_FIFTY_SEVEN
+                else -> MATCH
             }
         }
     }

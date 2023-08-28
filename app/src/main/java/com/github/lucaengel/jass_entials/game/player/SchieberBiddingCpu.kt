@@ -11,7 +11,7 @@ import com.github.lucaengel.jass_entials.data.jass.Trump
 
 class SchieberBiddingCpu(
     val playerId: PlayerId,
-) {
+) : BiddingCpu {
     companion object {
         private const val FIRST_PLAYER_THRESHOLD = 58
 
@@ -39,9 +39,9 @@ class SchieberBiddingCpu(
         const val OBE_QUEEN_BOCK_VALUE = 6
     }
 
-    private data class TrumpEvaluation(val trump: Trump, val points: Int)
+    data class TrumpEvaluation(val trump: Trump, val points: Int)
 
-    fun bet(bettingState: BettingState, handCards: List<Card>): Bet? {
+    override fun bet(bettingState: BettingState, handCards: List<Card>): Bet? {
 
         if (bettingState.availableActions().contains(Bet.BetAction.BET)) println("contains bet action")
         if (bettingState.availableActions().contains(Bet.BetAction.START_GAME)) println("contains start game action")
@@ -53,7 +53,7 @@ class SchieberBiddingCpu(
         val evaluations = evaluateTrumps(
             handCards = handCards,
             trumps = Trump.values().toList(),
-            isVorrderhand = bettingState.bets.isEmpty()
+            isVorderhand = bettingState.bets.isEmpty()
         )
 
         println("hand cards : $handCards")
@@ -66,7 +66,7 @@ class SchieberBiddingCpu(
 
     }
 
-    private fun findBestBet(
+    fun findBestBet(
         evaluations: List<TrumpEvaluation>,
         threshold: Int
     ): Bet? {
@@ -81,7 +81,15 @@ class SchieberBiddingCpu(
         )
     }
 
-    private fun evaluateTrumps(handCards: List<Card>, trumps: List<Trump>, isVorrderhand: Boolean): List<TrumpEvaluation> {
+    /**
+     * Evaluates the trumps for a given hand.
+     *
+     * @param handCards The hand cards of the player.
+     * @param trumps The trumps to evaluate.
+     * @param isVorderhand Whether the player is Vorderhand or not.
+     * @return A list of [TrumpEvaluation]s for the given trumps.
+     */
+    fun evaluateTrumps(handCards: List<Card>, trumps: List<Trump>, isVorderhand: Boolean): List<TrumpEvaluation> {
         val trumpValues = mutableListOf<TrumpEvaluation>()
         for (trump in trumps) {
             when (trump) {
@@ -94,7 +102,7 @@ class SchieberBiddingCpu(
                 else -> {
                     val trumpSuit = Trump.asSuit(trump)!!
 
-                    val points = trumpPoints(handCards, trumpSuit, isVorrderhand)
+                    val points = trumpPoints(handCards, trumpSuit, isVorderhand)
                     trumpValues.add(TrumpEvaluation(trump, points))
                 }
             }
