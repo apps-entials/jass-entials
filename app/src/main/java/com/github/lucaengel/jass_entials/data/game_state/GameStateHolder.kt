@@ -1,8 +1,10 @@
 package com.github.lucaengel.jass_entials.data.game_state
 
+import com.github.lucaengel.jass_entials.data.cards.Card
 import com.github.lucaengel.jass_entials.data.cards.CardType
 import com.github.lucaengel.jass_entials.data.cards.Deck
 import com.github.lucaengel.jass_entials.data.cards.PlayerData
+import com.github.lucaengel.jass_entials.data.cards.Suit
 import com.github.lucaengel.jass_entials.data.jass.JassType
 import com.github.lucaengel.jass_entials.data.jass.Trump
 
@@ -102,7 +104,25 @@ class GameStateHolder {
                 score = Score.INITIAL,
             )
 
+        /**
+         * The trumps that have already been bet by each team. Used mainly for Coiffeur
+         */
         var prevTrumpsByTeam = mapOf<TeamId, Set<Trump>>()
+
+        /**
+         * The cards that are guaranteed to be in the hands of the given players.
+         */
+        var guaranteedCards = mapOf<PlayerId, Set<Card>>()
+
+        /**
+         * The number of cards for a given suit that are guaranteed to be in the hands of a given player.
+         */
+        var cardsPerSuit = mapOf<PlayerId, Map<Suit, Int>>()
+
+        /**
+         * The number of aces that are guaranteed to be in the hands of a given player. (6's when unger ufe)
+         */
+        var acesPerPlayer = mapOf<PlayerId, Int>()
 
 //        /**
 //         * The current jass type.

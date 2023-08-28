@@ -49,6 +49,10 @@ enum class Trump {
 //        }
 //    }
 
+    fun asSuit(): Suit? {
+        return Trump.asSuit(this)
+    }
+
     companion object {
 
         /**

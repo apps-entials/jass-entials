@@ -2,6 +2,7 @@ package com.github.lucaengel.jass_entials.data.game_state
 
 import com.github.lucaengel.jass_entials.data.cards.Card
 import com.github.lucaengel.jass_entials.data.cards.Deck
+import com.github.lucaengel.jass_entials.data.cards.Rank
 import com.github.lucaengel.jass_entials.data.cards.Trick
 import com.github.lucaengel.jass_entials.data.jass.JassConstants
 import com.github.lucaengel.jass_entials.data.jass.Trump
@@ -119,10 +120,86 @@ data class RoundState(
         if (!unplayedCards.contains(card))
             throw IllegalStateException("Cannot play $card as it has already been played.")
 
+        updateCardDistributions(card)
+
         return this.copy(
             unplayedCards = unplayedCards - card,
             trick = trick.withNewCardPlayed(card),
         )
+    }
+
+    /**
+     * Responsible to update the card distributions known in GameStateHolder based on the newly played card.
+     *
+     * @param card The card that was played.
+     */
+    private fun updateCardDistributions(card: Card) {
+        if (trick.trump == Trump.OBE_ABE
+            && card.rank == Rank.ACE
+            && GameStateHolder.acesPerPlayer.isNotEmpty()
+        ) {
+            val acesLeft = unplayedCards.filter { it.rank == Rank.ACE } - card
+            if (acesLeft.isEmpty()) {
+                GameStateHolder.acesPerPlayer = mapOf()
+                return
+            }
+
+            val acesPerPlayer = GameStateHolder.acesPerPlayer[nextPlayer()] ?: 0
+            if (acesPerPlayer > 0) GameStateHolder.acesPerPlayer += nextPlayer() to (acesPerPlayer - 1)
+
+            // adjust guaranteed cards if they are clear
+            if (GameStateHolder.acesPerPlayer.containsValue(acesLeft.size) && acesLeft.isNotEmpty()) {
+                GameStateHolder.acesPerPlayer.toList().filter { it.second == acesLeft.size }.forEach {
+                    GameStateHolder.guaranteedCards += it.first to
+                            ((GameStateHolder.guaranteedCards[it.first] ?: setOf())
+                                    + acesLeft)
+                }
+            }
+        } else if (trick.trump == Trump.UNGER_UFE
+            && card.rank == Rank.SIX
+            && GameStateHolder.acesPerPlayer.isNotEmpty()
+            ) {
+
+            val sixesLeft = unplayedCards.filter { it.rank == Rank.SIX } - card
+            if (sixesLeft.isEmpty()) {
+                GameStateHolder.acesPerPlayer = mapOf()
+                return
+            }
+
+            val sixesPerPlayer = GameStateHolder.acesPerPlayer[nextPlayer()] ?: 0
+            if (sixesPerPlayer > 0) GameStateHolder.acesPerPlayer += nextPlayer() to (sixesPerPlayer - 1)
+
+            // adjust guaranteed cards if they are clear
+            if (GameStateHolder.acesPerPlayer.containsValue(sixesLeft.size)
+                && sixesLeft.isNotEmpty()) {
+                GameStateHolder.acesPerPlayer.toList().filter { it.second == sixesLeft.size }.forEach {
+                    GameStateHolder.guaranteedCards += it.first to
+                            ((GameStateHolder.guaranteedCards[it.first] ?: setOf())
+                                    + sixesLeft)
+                }
+                // TODO: could also still update the cards per suit if the sixes / aces are not already included in the player's cards per suit
+            }
+
+
+        }
+
+        // adjust guaranteed cards if they are clear for number of cards per color
+        if (GameStateHolder.cardsPerSuit.isNotEmpty()) {
+            val cardsLeft = unplayedCards.filter { it.suit == card.suit } - card
+
+            if (GameStateHolder.cardsPerSuit.containsValue(mapOf(card.suit to cardsLeft.size))
+                && cardsLeft.isNotEmpty()) {
+
+                GameStateHolder.cardsPerSuit
+                    .toList()
+                    .filter { (it.second[card.suit] ?: 0) == cardsLeft.size }
+                    .forEach { (id, _) ->
+
+                        GameStateHolder.guaranteedCards += id to
+                                (GameStateHolder.guaranteedCards[id] ?: setOf()) + cardsLeft.toSet()
+                    }
+            }
+        }
     }
 
     companion object {
