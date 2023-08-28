@@ -84,7 +84,7 @@ class SelectGameActivity: ComponentActivity() {
         }
 
         setContent {
-            GroundTheme() { finish() }
+            GroundTheme { finish() }
         }
     }
 }
@@ -113,7 +113,15 @@ fun SelectGameView(finishActivity: () -> Unit = {}) {
 
     fun onGameTypeClicked(gameType: JassType) {
         // reset the previous trumps
-        GameStateHolder.prevTrumpsByTeam = mapOf()
+
+
+        println("am i before???")
+        GameStateHolder.prevTrumpsByTeam = mutableMapOf()
+        GameStateHolder.guaranteedCards = mutableMapOf()
+        GameStateHolder.cardsPerSuitPerPlayer = mutableMapOf()
+        GameStateHolder.acesPerPlayer = mutableMapOf()
+        println("made elems non null!!!")
+
 
         when (gameType) {
             JassType.SCHIEBER -> {

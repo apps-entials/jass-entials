@@ -107,22 +107,22 @@ class GameStateHolder {
         /**
          * The trumps that have already been bet by each team. Used mainly for Coiffeur
          */
-        var prevTrumpsByTeam = mapOf<TeamId, Set<Trump>>()
+        var prevTrumpsByTeam = mutableMapOf<TeamId, Set<Trump>>()
 
         /**
          * The cards that are guaranteed to be in the hands of the given players.
          */
-        var guaranteedCards = mapOf<PlayerId, Set<Card>>()
+        var guaranteedCards = mutableMapOf<PlayerId, Set<Card>>()
 
         /**
          * The number of cards for a given suit that are guaranteed to be in the hands of a given player.
          */
-        var cardsPerSuit = mapOf<PlayerId, Map<Suit, Int>>()
+        var cardsPerSuitPerPlayer = mutableMapOf<PlayerId, Set<Pair<Suit, Int>>>()
 
         /**
          * The number of aces that are guaranteed to be in the hands of a given player. (6's when unger ufe)
          */
-        var acesPerPlayer = mapOf<PlayerId, Int>()
+        var acesPerPlayer = mutableMapOf<PlayerId, Int>()
 
 //        /**
 //         * The current jass type.
@@ -149,7 +149,7 @@ class GameStateHolder {
          * @param startingBetter The player that starts the next betting round.
          */
         fun goToNextBettingStateRound(startingBetter: PlayerId) {
-            prevTrumpsByTeam = mapOf()
+            prevTrumpsByTeam = mutableMapOf()
             bettingState = bettingState.nextBettingRound(
                 startingBetter = startingBetter,
 //                jassType = jassType,

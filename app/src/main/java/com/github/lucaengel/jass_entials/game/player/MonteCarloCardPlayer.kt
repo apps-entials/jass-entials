@@ -2,6 +2,7 @@ package com.github.lucaengel.jass_entials.game.player
 
 import com.github.lucaengel.jass_entials.data.cards.Card
 import com.github.lucaengel.jass_entials.data.cards.PlayerData
+import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
 import com.github.lucaengel.jass_entials.data.game_state.PlayerId
 import com.github.lucaengel.jass_entials.data.game_state.RoundState
 import com.github.lucaengel.jass_entials.data.game_state.Score
@@ -194,7 +195,11 @@ class MonteCarloCardPlayer(
         if (state.isRoundOver()) return listOf()
 
         // filter out cards that the player does not have
-        val playableCards = state.unplayedCards().filter { !currentState.suitsNotInHand().getOrDefault(playerId, listOf()).contains(it.suit) }
+        val currentPlayerPotentialCards = state.unplayedCards().filter { !currentState.suitsNotInHand().getOrDefault(playerId, listOf()).contains(it.suit) }
+
+        // filter out cards that other players have guaranteed
+        val guaranteedCards = GameStateHolder.guaranteedCards.filter { it.key != playerId }.values.flatten()
+        val playableCards = currentPlayerPotentialCards.minus(guaranteedCards.toSet())
 
         val cards =
             if (playerId == this.playerId) {

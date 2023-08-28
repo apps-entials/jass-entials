@@ -7,6 +7,7 @@ import com.github.lucaengel.jass_entials.game.betting.BettingLogic
 import com.github.lucaengel.jass_entials.game.betting.CoiffeurBettingLogic
 import com.github.lucaengel.jass_entials.game.betting.SchieberBettingLogic
 import com.github.lucaengel.jass_entials.game.betting.SidiBarraniBettingLogic
+import com.github.lucaengel.jass_entials.game.player.SidiBarraniBiddingCpu
 
 /**
  * Represents the state of the betting phase of a game.
@@ -95,11 +96,21 @@ data class BettingState(
     fun nextPlayer(placedBet: Bet? = null): BettingState {
 
         val nextBetterId = bettingLogic.nextPlayer(currentBetterId, placedBet, this)
-        return this.copy(
+        val newState = this.copy(
             currentBetterId = nextBetterId,
             bets = if (placedBet != null) bets + placedBet else bets,
             betActions = if (placedBet != null) betActions + Bet.BetAction.BET else betActions + Bet.BetAction.PASS,
         )
+
+        if (placedBet != null && jassType == JassType.SIDI_BARRANI) {
+            // analyze who has which cards: only need last 4 bets (the ones before have already been analyzed)
+            val nbBetsInLastPass = newState.betActions.takeLast(3).count { it == Bet.BetAction.BET }
+            val lastBets = newState.bets.takeLast(nbBetsInLastPass + 1)
+            SidiBarraniBiddingCpu.extractKnowledgeFromBets(nbBetsInLastPass, lastBets)
+        }
+
+
+        return newState
     }
 
     fun availableActions(): List<Bet.BetAction> {

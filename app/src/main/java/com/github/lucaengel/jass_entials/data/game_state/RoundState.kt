@@ -174,7 +174,7 @@ data class RoundState(
         ) {
             val acesLeft = unplayedCards.filter { it.rank == Rank.ACE } - card
             if (acesLeft.isEmpty()) {
-                GameStateHolder.acesPerPlayer = mapOf()
+                GameStateHolder.acesPerPlayer = mutableMapOf()
                 return
             }
 
@@ -196,7 +196,7 @@ data class RoundState(
 
             val sixesLeft = unplayedCards.filter { it.rank == Rank.SIX } - card
             if (sixesLeft.isEmpty()) {
-                GameStateHolder.acesPerPlayer = mapOf()
+                GameStateHolder.acesPerPlayer = mutableMapOf()
                 return
             }
 
@@ -213,22 +213,28 @@ data class RoundState(
                 }
                 // TODO: could also still update the cards per suit if the sixes / aces are not already included in the player's cards per suit
             }
-
-
         }
 
-        // adjust guaranteed cards if they are clear for number of cards per color
-        if (GameStateHolder.cardsPerSuit.isNotEmpty()) {
+        // adjust guaranteed cards if they are clear from number of cards per color
+//        println("cards per suit per player: ${GameStateHolder.cardsPerSuitPerPlayer}")
+
+        if (GameStateHolder.cardsPerSuitPerPlayer == null) {
+            GameStateHolder.cardsPerSuitPerPlayer = mutableMapOf()
+            println("in the null case")
+        }
+
+        if (GameStateHolder.cardsPerSuitPerPlayer.isNotEmpty()) {
+            println("in the non null case")
             val cardsLeft = unplayedCards.filter { it.suit == card.suit } - card
 
-            if (GameStateHolder.cardsPerSuit.containsValue(mapOf(card.suit to cardsLeft.size))
+            if (GameStateHolder.cardsPerSuitPerPlayer.values.flatten().contains(Pair(card.suit, cardsLeft.size))
                 && cardsLeft.isNotEmpty()) {
 
-                GameStateHolder.cardsPerSuit
+                GameStateHolder.cardsPerSuitPerPlayer
                     .toList()
-                    .filter { (it.second[card.suit] ?: 0) == cardsLeft.size }
+                    // TODO: maybe == instead of >= is needed, test this!!!
+                    .filter { (_, suitOccurrences) -> (suitOccurrences.firstOrNull { it.first == card.suit && it.second >= cardsLeft.size } != null) }
                     .forEach { (id, _) ->
-
                         GameStateHolder.guaranteedCards += id to
                                 (GameStateHolder.guaranteedCards[id] ?: setOf()) + cardsLeft.toSet()
                     }
