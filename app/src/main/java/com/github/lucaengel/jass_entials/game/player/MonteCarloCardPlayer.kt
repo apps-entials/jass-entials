@@ -50,8 +50,10 @@ class MonteCarloCardPlayer(
     fun monteCarloCardToPlay(roundState: RoundState, handCards: List<Card>): Card {
         val playableCards = determinePlayableCards(roundState, roundState.nextPlayer(), handCards)
 
+        println("playable cards: $playableCards")
+
         val root = Node(
-            roundState = roundState,
+            roundState = if (roundState.trick().isFull()) roundState.withTrickCollected() else roundState,
             childNodes = ArrayList(List(playableCards.size) { null }),
             nonExistentChildNodes = playableCards,
             totalPoints = 0,
@@ -109,7 +111,7 @@ class MonteCarloCardPlayer(
         val cardToPlay = currNode.nonExistentChildNodes[0]
         var currState =
             (if (currNode.roundState.trick().isFull()) {
-                currNode.roundState.withTrickCollected()
+                currNode.roundState.withTrickCollected(isSimulating = true)
             } else {
                 currNode.roundState
             })
@@ -149,7 +151,7 @@ class MonteCarloCardPlayer(
 
         var currState =
             if (initialState.trick().isFull()) {
-                initialState.withTrickCollected()
+                initialState.withTrickCollected(isSimulating = true)
             } else {
                 initialState
             }
@@ -165,7 +167,7 @@ class MonteCarloCardPlayer(
             currState = currState.withCardPlayed(cardToPlay)
 
             if (currState.trick().isFull()) {
-                currState = currState.withTrickCollected()
+                currState = currState.withTrickCollected(isSimulating = true)
             }
         }
 
@@ -184,18 +186,21 @@ class MonteCarloCardPlayer(
 
         val state =
             if (currentState.trick().isFull()) {
-                currentState.withTrickCollected()
+                currentState.withTrickCollected(isSimulating = true)
             } else {
                 currentState
             }
 
         if (state.isRoundOver()) return listOf()
 
+        // filter out cards that the player does not have
+        val playableCards = state.unplayedCards().filter { !currentState.suitsNotInHand().getOrDefault(playerId, listOf()).contains(it.suit) }
+
         val cards =
             if (playerId == this.playerId) {
-                handCards.intersect(state.unplayedCards().toSet()).toList()
+                handCards.intersect(playableCards.toSet()).toList()
             } else {
-                state.unplayedCards().minus(handCards.toSet())
+                playableCards.minus(handCards.toSet())
             }
 
         return PlayerData.playableCards(trick = currentState.trick(), trump = currentState.trick().trump, cards = cards)

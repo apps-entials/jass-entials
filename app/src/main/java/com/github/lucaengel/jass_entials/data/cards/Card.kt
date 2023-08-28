@@ -3,63 +3,7 @@ package com.github.lucaengel.jass_entials.data.cards
 import com.github.lucaengel.jass_entials.R
 import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
 import com.github.lucaengel.jass_entials.data.jass.Trump
-import java.io.Serializable
 
-/**
- * The suits of a card.
- *
- * @property toStringFrench The french name of the suit.
- * @property toStringGerman The german name of the suit.
- * @property frenchSymbol The french symbol of the suit.
- * @property germanSymbol The german symbol of the suit.
- */
-enum class Suit(private val toStringFrench: String, private val toStringGerman: String, private val frenchSymbol: Char, private val germanSymbol: String) : Serializable  {
-    CLUBS("Clubs", "Eichel", '\u2663', "\uD83C\uDF30"),
-    SPADES("Spades", "Schilte", '\u2660', "🛡"),
-    HEARTS("Hearts", "Rosen", '\u2661', "\uD83C\uDFF5"),
-    DIAMONDS("Diamonds", "Schellen", '\u2662', "\uD83D\uDD14");
-
-    fun symbol(): String {
-        return if (GameStateHolder.cardType == CardType.FRENCH) frenchSymbol.toString()
-        else germanSymbol
-    }
-
-    override fun toString(): String {
-        return if (GameStateHolder.cardType == CardType.FRENCH) toStringFrench
-        else toStringGerman
-    }
-}
-
-/**
- * The ranks of a card.
- *
- * @property rank The name of the rank.
- * @property normalHeight The height of the card in a normal game.
- * @property trumpHeight The height of the card in a trump game.
- */
-enum class Rank(private val rank: String, private val normalHeight: Int, val trumpHeight: Int) : Serializable  {
-    SIX("6", 6, 6),
-    SEVEN("7", 7, 7),
-    EIGHT("8", 8, 8),
-    NINE("9", 9, 15),
-    TEN("10", 10, 10),
-    JACK("J", 11, 16),
-    QUEEN("Q", 12, 12),
-    KING("K", 13, 13),
-    ACE("A", 14, 14);
-
-    override fun toString(): String {
-        return rank
-    }
-}
-
-enum class CardType(val string: String) {
-    FRENCH("French"), GERMAN("German");
-
-    override fun toString(): String {
-        return string
-    }
-}
 
 /**
  * A card in a game of Jass.
@@ -70,7 +14,7 @@ enum class CardType(val string: String) {
 data class Card(
     val suit: Suit,
     val rank: Rank,
-) : Serializable {
+) {
     constructor() : this(Suit.HEARTS, Rank.TEN)
 
     /**

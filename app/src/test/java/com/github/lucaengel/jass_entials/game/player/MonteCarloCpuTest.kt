@@ -189,6 +189,9 @@ class MonteCarloCpuTest {
             .add(Card(Suit.HEARTS, Rank.JACK))
             .add(Card(Suit.HEARTS, Rank.QUEEN))
 
+        println("unable to play: ${state.suitsNotInHand()}")
+        println("hand: ${hand.cards()}")
+        println("state: $state")
         val c: Card = p.cardToPlay(state, hand.cards()).join()
         assertEquals(
             Card(
@@ -296,7 +299,9 @@ class MonteCarloCpuTest {
             .add(Card(Suit.CLUBS, Rank.SIX))
             .add(Card(Suit.CLUBS, Rank.ACE))
 
-        val c: Card = p.cardToPlay(state, hand.cards()).join()
+        val stateWithoutSuitsNotInHand = state.copy(suitsNotInHand = mapOf())
+
+        val c: Card = p.cardToPlay(stateWithoutSuitsNotInHand, hand.cards()).join()
         assertEquals(
             Card(Suit.CLUBS, Rank.ACE),
             c
@@ -446,7 +451,9 @@ class MonteCarloCpuTest {
             .add(Card(Suit.SPADES, Rank.SIX))
             .add(Card(Suit.HEARTS, Rank.SIX))
 
-        val c: Card = p.cardToPlay(state, hand.cards()).join()
+        val stateWithoutSuitsNotInHand = state.copy(suitsNotInHand = mapOf())
+
+        val c: Card = p.cardToPlay(stateWithoutSuitsNotInHand, hand.cards()).join()
         assertEquals(
             Card(
                 Suit.HEARTS,
@@ -480,6 +487,60 @@ class MonteCarloCpuTest {
                 Suit.HEARTS,
                 Rank.TEN
             ), c
+        )
+    }
+
+    @Test
+    fun cpuPlayerPlaysCorrectly16() {
+        // Teammate and us each have a trump, don't pull trump
+        val toPlay: CardSet = CardSet.ALL_CARDS
+//            .remove(Card(Suit.HEARTS, Rank.SIX))
+            .remove(Card(Suit.HEARTS, Rank.SEVEN))
+            .remove(Card(Suit.HEARTS, Rank.KING))
+//            .remove(Card(Suit.CLUBS, Rank.SIX))
+            .remove(Card(Suit.CLUBS, Rank.TEN))
+            .remove(Card(Suit.CLUBS, Rank.JACK))
+            .remove(Card(Suit.CLUBS, Rank.KING))
+            .remove(Card(Suit.CLUBS, Rank.ACE))
+            .remove(Card(Suit.DIAMONDS, Rank.SIX))
+            .remove(Card(Suit.DIAMONDS, Rank.NINE))
+        val state: RoundState = stateAfterPlayingAllCardsIn(toPlay, Trump.DIAMONDS, PlayerId.PLAYER_1)
+        assert(state.trick().cards.isEmpty())
+        val p = CpuPlayer(state.nextPlayer(), seed = SEED, nbSimulations = ITERATIONS)
+        val hand: CardSet = CardSet.EMPTY
+            .add(Card(Suit.CLUBS, Rank.TEN))
+            .add(Card(Suit.DIAMONDS, Rank.NINE))
+
+        // team partners do not have
+        val stateWithSuitsNotInHandAdapted = state.copy(
+            suitsNotInHand = mapOf(
+                p.playerId.nextPlayer() to setOf(Suit.DIAMONDS),
+                p.playerId.teamMate().nextPlayer() to setOf(Suit.DIAMONDS),
+            )
+        )
+
+        val c: Card = p.cardToPlay(stateWithSuitsNotInHandAdapted, hand.cards()).join()
+        assertEquals(
+            Card(Suit.CLUBS, Rank.TEN),
+            c
+        )
+
+        val teamPartnerState = stateWithSuitsNotInHandAdapted
+            .withCardPlayed(Card(Suit.CLUBS, Rank.TEN))
+            .withCardPlayed(Card(Suit.CLUBS, Rank.JACK))
+
+        assert(teamPartnerState.trick().cards.size == 2)
+
+        val teamPartner = CpuPlayer(teamPartnerState.nextPlayer(), seed = SEED, nbSimulations = ITERATIONS)
+        val teamPartnerHand = CardSet.EMPTY
+            .add(Card(Suit.CLUBS, Rank.KING))
+            .add(Card(Suit.DIAMONDS, Rank.SIX))
+
+        // play trump to win both tricks (team partner has the nell for the last round and the clubs ace is still in the game)
+        val partnerC: Card = teamPartner.cardToPlay(teamPartnerState, teamPartnerHand.cards()).join()
+        assertEquals(
+            Card(Suit.DIAMONDS, Rank.SIX),
+            partnerC
         )
     }
 

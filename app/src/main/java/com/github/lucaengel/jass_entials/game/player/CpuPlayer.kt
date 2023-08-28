@@ -76,6 +76,10 @@ class CpuPlayer(
     }
 
     override fun cardToPlay(roundState: RoundState, handCards: List<Card>): CompletableFuture<Card> {
+        println("\n\n--------- suits not in hand: ------------")
+        println(roundState.suitsNotInHand())
+        println("-----------------------------\n\n")
+
         return CompletableFuture.completedFuture(
             monteCarloCpu.monteCarloCardToPlay(
                 roundState = roundState,

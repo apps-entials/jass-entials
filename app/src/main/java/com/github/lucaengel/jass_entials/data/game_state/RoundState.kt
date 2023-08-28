@@ -2,6 +2,7 @@ package com.github.lucaengel.jass_entials.data.game_state
 
 import com.github.lucaengel.jass_entials.data.cards.Card
 import com.github.lucaengel.jass_entials.data.cards.Deck
+import com.github.lucaengel.jass_entials.data.cards.Suit
 import com.github.lucaengel.jass_entials.data.cards.Rank
 import com.github.lucaengel.jass_entials.data.cards.Trick
 import com.github.lucaengel.jass_entials.data.jass.JassConstants
@@ -9,13 +10,26 @@ import com.github.lucaengel.jass_entials.data.jass.Trump
 
 /**
  * Represents the state of a Jass round.
+ *
+ * @param score The current score.
+ * @param unplayedCards The unplayed cards.
+ * @param trick The current trick.
+ * @param trickNumber The number of the current trick.
+ * @param suitsNotInHand map from players to cards they do not have
  */
 data class RoundState(
     private val score: Score,
     private val unplayedCards: List<Card>,
     private val trick: Trick,
     private val trickNumber: Int,
+    //a map from players to cards they do not have
+    private val suitsNotInHand: Map<PlayerId, Set<Suit>> = mapOf(),
+
 ) {
+
+    fun suitsNotInHand(): Map<PlayerId, Set<Suit>> {
+        return suitsNotInHand
+    }
 
     /**
      * Returns the current score.
@@ -96,7 +110,7 @@ data class RoundState(
      * @throws IllegalStateException If the current trick is not full.
      * @return The new [RoundState].
      */
-    fun withTrickCollected(): RoundState {
+    fun withTrickCollected(isSimulating: Boolean = false): RoundState {
         if (!trick.isFull())
             throw IllegalStateException("Cannot collect a trick that is not full.")
 
@@ -106,7 +120,27 @@ data class RoundState(
             unplayedCards = unplayedCards,
             trick = trick.nextTrick(),
             trickNumber = trickNumber + 1,
+            suitsNotInHand = if (isSimulating) suitsNotInHand else updateSuitsNotInHand(),
         )
+    }
+
+    /**
+     * Returns an updated map containing the suits not in hand for each player.
+     *
+     * @return The updated map.
+     */
+    private fun updateSuitsNotInHand(): Map<PlayerId, Set<Suit>> {
+        val suit = trick.cards.first().suit
+        val newSuitsNotInHand = this.suitsNotInHand.toMutableMap()
+        for ((idx, card) in trick.cards.drop(1).withIndex()) {
+            // if cannot follow suit and did not play trump on a non-trump suit, add suit to suits not in hand
+            if (card.suit != suit && card.suit != Trump.asSuit(trick.trump)) {
+                val playerId = trick.startingPlayerId.playerAtPosition(idx + 1)
+                newSuitsNotInHand += playerId to newSuitsNotInHand.getOrDefault(playerId, setOf()).plus(suit)
+            }
+        }
+
+        return newSuitsNotInHand
     }
 
     /**
