@@ -7,7 +7,6 @@ import com.github.lucaengel.jass_entials.game.betting.BettingLogic
 import com.github.lucaengel.jass_entials.game.betting.CoiffeurBettingLogic
 import com.github.lucaengel.jass_entials.game.betting.SchieberBettingLogic
 import com.github.lucaengel.jass_entials.game.betting.SidiBarraniBettingLogic
-import com.github.lucaengel.jass_entials.game.player.SidiBarraniBiddingCpu
 
 /**
  * Represents the state of the betting phase of a game.
@@ -96,21 +95,19 @@ data class BettingState(
     fun nextPlayer(placedBet: Bet? = null): BettingState {
 
         val nextBetterId = bettingLogic.nextPlayer(currentBetterId, placedBet, this)
-        val newState = this.copy(
+
+//        // todo: not the nicest solution ever, maybe find a more abstract way to do this
+//        if (placedBet != null && jassType == JassType.SIDI_BARRANI) {
+//            // analyze who has which cards: only need last 4 bets (the ones before have already been analyzed)
+//            val nbBetsInLastPass = newState.betActions.takeLast(3).count { it == Bet.BetAction.BET }
+//            SidiBarraniBiddingCpu.extractKnowledgeFromBets(nbBetsInLastPass, bets)
+//        }
+
+        return copy(
             currentBetterId = nextBetterId,
             bets = if (placedBet != null) bets + placedBet else bets,
             betActions = if (placedBet != null) betActions + Bet.BetAction.BET else betActions + Bet.BetAction.PASS,
         )
-
-        if (placedBet != null && jassType == JassType.SIDI_BARRANI) {
-            // analyze who has which cards: only need last 4 bets (the ones before have already been analyzed)
-            val nbBetsInLastPass = newState.betActions.takeLast(3).count { it == Bet.BetAction.BET }
-            val lastBets = newState.bets.takeLast(nbBetsInLastPass + 1)
-            SidiBarraniBiddingCpu.extractKnowledgeFromBets(nbBetsInLastPass, lastBets)
-        }
-
-
-        return newState
     }
 
     fun availableActions(): List<Bet.BetAction> {
@@ -213,7 +210,7 @@ data class Bet(
  *
  * @param value the points the bet is worth
  */
-enum class BetHeight(private val value: Int) {
+enum class BetHeight(val value: Int) {
     NONE(0),
     FORTY(40),
     FIFTY(50),
@@ -232,6 +229,41 @@ enum class BetHeight(private val value: Int) {
 
     fun asInt(): Int {
         return value
+    }
+
+    fun isOdd(): Boolean {
+        // since FORTY is even and ordinal 1, we check for == 0 for odd
+        return ordinal % 2 == 0
+    }
+
+    fun firstEven(): BetHeight {
+        return if (isOdd()) {
+            nHigher(1)
+        } else {
+            this
+        }
+    }
+
+    fun firstOdd(): BetHeight {
+        return if (isOdd()) {
+            this
+        } else {
+            nHigher(1)
+        }
+    }
+
+    /**
+     * Returns the BetHeight that is n higher than this one. (clamped between FORTY and MATCH)
+     *
+     * @param n the number of steps to go up
+     * @return the new BetHeight
+     */
+    fun nHigher(n: Int): BetHeight {
+        return if (n > 0) {
+            values()[(this.ordinal + n).coerceAtMost(values().size - 1)]
+        } else {
+            values()[(this.ordinal + n).coerceAtLeast(1)]
+        }
     }
 
     override fun toString(): String {

@@ -20,10 +20,12 @@ class SidiBarraniBiddingCpu(
          * Analyzes the last bets and extracts knowledge from them.
          *
          * @param nbBetsInLastPass the number of bets in the last pass (i.e., the number of bets since current player placed their last bet)
-         * @param lastBets the last bets
+         * @param allBets all bets that have been placed so far
          */
-        fun extractKnowledgeFromBets(nbBetsInLastPass: Int, lastBets: List<Bet>) {
-            if (lastBets.isEmpty()) return
+        fun extractKnowledgeFromBets(nbBetsInLastPass: Int, allBets: List<Bet>) {
+            if (allBets.isEmpty()) return
+
+            val lastBets = allBets.takeLast(nbBetsInLastPass + 1)
 
             val betsWithLastBet =
                 if (lastBets.size < nbBetsInLastPass + 1 || lastBets.size < 4) {
@@ -46,42 +48,84 @@ class SidiBarraniBiddingCpu(
 
                 if (currBet.bet <= NORMAL_BIDDING_THRESHOLD) {
                     // here, we can add the known cards to the evaluation
-                    if (currBet.trump in listOf(
-                            Trump.HEARTS,
-                            Trump.DIAMONDS,
-                            Trump.CLUBS,
-                            Trump.SPADES
-                        )
-                    ) {
-                        // TODO: adapt algo for if the partner had already bid this suit before --> nel z zwöit, ass z dritt, etc.
+                    when (currBet.trump) {
+                        Trump.OBE_ABE -> {
+                            GameStateHolder.acesPerPlayer += currBet.playerId to jump
+                        }
+                        Trump.UNGER_UFE -> {
+                            GameStateHolder.sixesPerPlayer += currBet.playerId to jump
+                        }
+                        // any suit trump
+                        else -> {
+                            // TODO: adapt algo for if the partner had already bid this suit before --> nel z zwöit, ass z dritt, etc.
 
-                        val currGuaranteedCards =
-                            GameStateHolder.guaranteedCards[currBet.playerId] ?: setOf()
+                            val currGuaranteedCards =
+                                GameStateHolder.guaranteedCards[currBet.playerId] ?: setOf()
 
-                        // add trump jack or nine to guaranteed cards
-                        GameStateHolder.guaranteedCards += (currBet.playerId to
-                                currGuaranteedCards +
-                                if (isEven) Card(currBet.trump.asSuit()!!, Rank.JACK)
-                                else Card(currBet.trump.asSuit()!!, Rank.NINE))
+                            val firstSuchBet = allBets
+                                .first {
+                                    it.trump == currBet.trump
+                                            && it.playerId.teamId() == currBet.playerId.teamId()
+                                }
 
-                        // number of cards for the given suit
-                        val currCardsPerSuit = GameStateHolder.cardsPerSuitPerPlayer[currBet.playerId] ?: setOf()
+                            val nbCurrTeamTrumpBets = allBets
+                                .count { it.trump == currBet.trump
+                                        && it.playerId.teamId() == currBet.playerId.teamId()
+                                }
+                            // since, now, we do not know exactly what is being announced!
+                            if (nbCurrTeamTrumpBets > 2) return
 
-                        // three as default and an additional card for every 20 added points (2 added in the ordinal)
-                        val cardsForCurrTrump = 3 + (jump - 1) / 2
 
-                        GameStateHolder.cardsPerSuitPerPlayer += currBet.playerId to
-                                currCardsPerSuit + Pair(currBet.trump.asSuit()!!, cardsForCurrTrump)
-                    } else {
-                        GameStateHolder.acesPerPlayer += currBet.playerId to jump
+
+
+                            val guaranteedCard: Card
+                            val nbCardsForSuit: Int
+                            if (isEven && firstSuchBet == currBet) {
+                                guaranteedCard = Card(currBet.trump.asSuit()!!, Rank.JACK)
+                                nbCardsForSuit = 3
+                            } else if (isEven && firstSuchBet.bet.ordinal % 2 == 1) {
+                                guaranteedCard = Card(currBet.trump.asSuit()!!, Rank.ACE)
+                                nbCardsForSuit = 3
+                            // team partner announced the nell
+                            } else if (isEven) {
+                                guaranteedCard = Card(currBet.trump.asSuit()!!, Rank.JACK)
+                                nbCardsForSuit = 2
+                            } else if (firstSuchBet == currBet) {
+                                guaranteedCard = Card(currBet.trump.asSuit()!!, Rank.NINE)
+                                nbCardsForSuit = 3
+                            // team partner announced the jack
+                            } else if (firstSuchBet.bet.ordinal % 2 == 1) {
+                                guaranteedCard = Card(currBet.trump.asSuit()!!, Rank.NINE)
+                                nbCardsForSuit = 2
+                            } else {
+                                guaranteedCard = Card(currBet.trump.asSuit()!!, Rank.ACE)
+                                nbCardsForSuit = 3
+                            }
+
+                            // add trump jack, nine, or ace to guaranteed cards
+                            GameStateHolder.guaranteedCards += (currBet.playerId to
+                                    currGuaranteedCards + guaranteedCard)
+                                    // TODO: do you say ace with 2 when the partner announced the nell?
+
+
+                            // number of cards for the given suit
+                            val currCardsPerSuit = GameStateHolder.cardsPerSuitPerPlayer[currBet.playerId] ?: mapOf()
+
+                            // an additional card for every 20 added points (2 added in the ordinal)
+                            val cardsForCurrTrump = nbCardsForSuit + (jump - 1) / 2
+
+                            GameStateHolder.cardsPerSuitPerPlayer += currBet.playerId to
+                                    currCardsPerSuit + Pair(currBet.trump.asSuit()!!, cardsForCurrTrump)
+                        }
                     }
 
 
-
-                    println(" stuff1: ${GameStateHolder.prevTrumpsByTeam}")
-                    println(" stuff2: ${GameStateHolder.guaranteedCards}")
-                    println(" stuff3: ${GameStateHolder.cardsPerSuitPerPlayer}")
-                    println(" stuff4: ${GameStateHolder.acesPerPlayer}")
+                    println("\n\n\n")
+                    println(" trumpsbyteams: ${GameStateHolder.prevTrumpsByTeam}")
+                    println(" guaranteed c': ${GameStateHolder.guaranteedCards}")
+                    println(" cardsuit p pl: ${GameStateHolder.cardsPerSuitPerPlayer}")
+                    println(" aces per play: ${GameStateHolder.acesPerPlayer}")
+                    println("\n\n\n")
 
 
                     // TODO: come up with technique for the aces (maybe just have a number of aces that are guaranteed without the suit?)
@@ -111,7 +155,7 @@ class SidiBarraniBiddingCpu(
 
         val trumpEvalsWithPartnerBonus = trumpEvaluations.map { eval ->
             if (teamPartnersTrumps.contains(eval.trump)) {
-                eval.copy(points = eval.points + bonusForPartnerBet(bettingState, handCards, eval.trump))
+                eval.copy(points = eval.points + bonusForPartnerBet(bettingState, handCards, eval.trump, teamPartnerBets))
             } else {
                 eval
             }
@@ -135,22 +179,89 @@ class SidiBarraniBiddingCpu(
         }
     }
 
-    private fun bonusForPartnerBet(bettingState: BettingState, handCards: List<Card>, trump: Trump): Int {
-        return 35
+    private fun bonusForPartnerBet(
+        bettingState: BettingState,
+        handCards: List<Card>,
+        trump: Trump,
+        teamPartnerBets: List<Bet>
+    ): Int {
+        return teamPartnerBets.first { it.trump == trump }.bet.value / 2
     }
 
-    private fun findBetHeight(bettingState: BettingState, bet: Bet, evalForBet: SchieberBiddingCpu.TrumpEvaluation, handCards: List<Card>): BetHeight {
-        val lastBet = bettingState.bets.lastOrNull()
+    private fun findBetHeight(
+        bettingState: BettingState,
+        bet: Bet,
+        evalForBet: SchieberBiddingCpu.TrumpEvaluation,
+        handCards: List<Card>
+    ): BetHeight {
 
-        // TODO: add logic to bidding for saying aces, sixes, jacks, nels, etc.
-        return if (lastBet == null) {
-            bettingState.availableBets().firstOrNull() ?: BetHeight.NONE
-        } else {
-            if (bettingState.availableBets().contains(BetHeight.fromPoints(evalForBet.points))) {
-                bettingState.availableBets().first()
-            } else {
-                BetHeight.NONE
+        val lastBet = bettingState.bets.lastOrNull()
+        val lastBetHeight = lastBet?.bet ?: BetHeight.NONE
+
+        // if cannot bid higher than previous bet, pass
+        if (lastBetHeight >= BetHeight.fromPoints(evalForBet.points)) {
+            return BetHeight.NONE
+        }
+
+        if (bet.trump == Trump.OBE_ABE) {
+            val nbAces = handCards.count { it.rank == Rank.ACE } - 1
+
+            return bettingState.availableBets()[nbAces.coerceAtLeast(0)]
+        } else if (bet.trump == Trump.UNGER_UFE) {
+            val nbSixes = handCards.count { it.rank == Rank.SIX } - 1
+
+            return bettingState.availableBets()[nbSixes.coerceAtLeast(0)]
+        }
+
+        // suit trumps
+        val trumpCards = handCards.filter { it.suit == bet.trump.asSuit() }
+
+        val lastTeamBetForTrump = bettingState.bets
+            .filter { it.trump == bet.trump
+                    && it.playerId.teamId() == playerId.teamId()
+            }.lastOrNull()
+
+        if (lastTeamBetForTrump == null) {
+            if (trumpCards.any { it.rank == Rank.JACK }) {
+                // need 3 per suit, every additional one, jump by 20 point (i.e., 2 in the ordinal)
+                val nHigher = ((trumpCards.size - 3) * 2).coerceAtLeast(0)
+                return bettingState.availableBets().first()
+                    .firstEven().nHigher(nHigher)
+            } else if (trumpCards.any {it.rank == Rank.NINE}) {
+                // need 3 per suit, every additional one, jump by 20 point (i.e., 2 in the ordinal)
+                val nHigher = ((trumpCards.size - 3) * 2).coerceAtLeast(0)
+                return bettingState.availableBets().first()
+                    .firstOdd().nHigher(nHigher)
+            }
+        } else if (lastTeamBetForTrump.bet.isOdd()) {
+            // partner has the nell
+            if (trumpCards.any { it.rank == Rank.JACK }) { // TODO: double check that only one jack is needed!!!
+                // need 1 per suit, every additional one, jump by 20 point (i.e., 2 in the ordinal)
+                val nHigher = ((trumpCards.size - 1) * 2).coerceAtLeast(0)
+                return bettingState.availableBets().first()
+                    .firstEven().nHigher(nHigher)
+            } else if (trumpCards.any { it.rank == Rank.ACE } && trumpCards.size >= 3) {
+                // need 3 per suit, every additional one, jump by 20 point (i.e., 2 in the ordinal)
+                val nHigher = ((trumpCards.size - 3) * 2).coerceAtLeast(0)
+                return bettingState.availableBets().first()
+                    .firstOdd().nHigher(nHigher)
+            }
+        } else if (!lastTeamBetForTrump.bet.isOdd()) {
+            // partner has the jack
+            if (trumpCards.any { it.rank == Rank.NINE }) {
+                // need 2 per suit, every additional one, jump by 20 point (i.e., 2 in the ordinal)
+                val nHigher = ((trumpCards.size - 2) * 2).coerceAtLeast(0)
+                return bettingState.availableBets().first()
+                    .firstEven().nHigher(nHigher)
+            } else if (trumpCards.any { it.rank == Rank.ACE } && trumpCards.size >= 3) {
+                // need 3 per suit, every additional one, jump by 20 point (i.e., 2 in the ordinal)
+                val nHigher = ((trumpCards.size - 3) * 2).coerceAtLeast(0)
+                return bettingState.availableBets().first()
+                    .firstOdd().nHigher(nHigher)
             }
         }
+
+        // nothing fits --> pass
+        return BetHeight.NONE
     }
 }

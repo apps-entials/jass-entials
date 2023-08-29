@@ -120,6 +120,7 @@ fun SelectGameView(finishActivity: () -> Unit = {}) {
         GameStateHolder.guaranteedCards = mutableMapOf()
         GameStateHolder.cardsPerSuitPerPlayer = mutableMapOf()
         GameStateHolder.acesPerPlayer = mutableMapOf()
+        GameStateHolder.sixesPerPlayer = mutableMapOf()
         println("made elems non null!!!")
 
 

@@ -118,7 +118,7 @@ class MonteCarloCardPlayer(
             })
 
         // add card of the current player
-        currState = currState.withCardPlayed(cardToPlay)
+        currState = currState.withCardPlayed(cardToPlay, isSimulating = true)
 
         // playable cards of the next player
         val newPlayableCards = determinePlayableCards(currState, currState.nextPlayer(), handCards)
@@ -165,7 +165,7 @@ class MonteCarloCardPlayer(
             val num = rng.nextInt(playableCards.size)
             val cardToPlay = playableCards[num]
 
-            currState = currState.withCardPlayed(cardToPlay)
+            currState = currState.withCardPlayed(cardToPlay, isSimulating = true)
 
             if (currState.trick().isFull()) {
                 currState = currState.withTrickCollected(isSimulating = true)
@@ -203,10 +203,17 @@ class MonteCarloCardPlayer(
 
         val cards =
             if (playerId == this.playerId) {
-                handCards.intersect(playableCards.toSet()).toList()
+                handCards.intersect(playableCards.toSet())
+                    .ifEmpty { handCards.intersect(currentPlayerPotentialCards.toSet()) }
+                    .ifEmpty { handCards.intersect(state.unplayedCards().toSet()) }
+                    .toList()
             } else {
                 playableCards.minus(handCards.toSet())
+                    .ifEmpty { currentPlayerPotentialCards.minus(handCards.toSet()).toList() }
+                    .ifEmpty { currentState.unplayedCards().minus(handCards.toSet()).toList() }
             }
+
+//        println("determine playable cards for player $playerId: \n$cards")
 
         return PlayerData.playableCards(trick = currentState.trick(), trump = currentState.trick().trump, cards = cards)
     }

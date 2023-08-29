@@ -5,6 +5,7 @@ import com.github.lucaengel.jass_entials.data.game_state.BetHeight
 import com.github.lucaengel.jass_entials.data.game_state.BettingState
 import com.github.lucaengel.jass_entials.data.game_state.PlayerId
 import com.github.lucaengel.jass_entials.data.jass.Trump
+import com.github.lucaengel.jass_entials.game.player.SidiBarraniBiddingCpu
 
 class SidiBarraniBettingLogic : BettingLogic {
 
@@ -13,6 +14,22 @@ class SidiBarraniBettingLogic : BettingLogic {
         currentPlayerBet: Bet?,
         bettingState: BettingState
     ): PlayerId {
+        // extract knowledge from bets
+        val bets = if (currentPlayerBet != null) {
+            bettingState.bets + currentPlayerBet
+        } else {
+            bettingState.bets
+        }
+        val betActions = bettingState.betActions +
+                if (currentPlayerBet == null) Bet.BetAction.PASS
+                else Bet.BetAction.BET
+
+        if (currentPlayerBet != null) {
+            val nbBetsInLastPass = betActions.takeLast(3).count { it == Bet.BetAction.BET }
+            SidiBarraniBiddingCpu.extractKnowledgeFromBets(nbBetsInLastPass, bets)
+        }
+
+
         // Also here, starting the game is indicated by passing after having the last bet
         if (bettingState.bets.lastOrNull()?.playerId == currentBetterId
             && currentPlayerBet == null)

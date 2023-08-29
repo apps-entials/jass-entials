@@ -39,8 +39,8 @@ class DelayedCpuPlayer(
             }
             CompletableFuture.runAsync {
 //                Thread.sleep(threadSleepTime)
-
                 cardFuture.complete(cpuPlayer.cardToPlay(roundState, handCards).join())
+
             }
         } else {
             // this is where tests run

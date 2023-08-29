@@ -85,6 +85,11 @@ fun JassRound() {
     val nextTrickFun: () -> Unit = {
         gameState = gameState.nextTrick()
 
+        println("${players[0].id} cards: ${players[0].cards}")
+        println("${players[1].id} cards: ${players[1].cards}")
+        println("${players[2].id} cards: ${players[2].cards}")
+        println("${players[3].id} cards: ${players[3].cards}")
+
         if (gameState.isLastTrick()) {
 
             // Store current game state

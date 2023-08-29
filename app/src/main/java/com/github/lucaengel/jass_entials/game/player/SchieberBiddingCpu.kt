@@ -178,7 +178,7 @@ class SchieberBiddingCpu(
             rank = Rank.values()[Rank.values().size - 1 - it.rank.ordinal])
         }
 
-        println("unger ufe as obe abe: $ungerUfeAsObeAbe")
+        println("hand cards: $handCards")
         return evaluateObeAbe(
             ungerUfeAsObeAbe
         ).copy(trump = Trump.UNGER_UFE)

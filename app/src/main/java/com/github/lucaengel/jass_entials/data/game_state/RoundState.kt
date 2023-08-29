@@ -114,6 +114,20 @@ data class RoundState(
         if (!trick.isFull())
             throw IllegalStateException("Cannot collect a trick that is not full.")
 
+        if (!isSimulating) {
+            println("\n\n\ncollecting trick $trickNumber:")
+            println("unplayedCards: $unplayedCards")
+            println("guaranteedCards: ${GameStateHolder.guaranteedCards}")
+            println("cardsPerSuitPerPlayer: ${GameStateHolder.cardsPerSuitPerPlayer}")
+            println("acesPerPlayer: ${GameStateHolder.acesPerPlayer}")
+            println("sixesPerPlayer: ${GameStateHolder.sixesPerPlayer}")
+            println("suitsNotInHand: $suitsNotInHand")
+            println("\n\n\n")
+        }
+
+
+
+
         val points = trick.points() + if (trickNumber == JassConstants.TRICKS_PER_ROUND) 5 else 0
         return RoundState(
             score = score.withPointsAdded(trick.winner().teamId(), points),
@@ -134,8 +148,31 @@ data class RoundState(
         val newSuitsNotInHand = this.suitsNotInHand.toMutableMap()
         for ((idx, card) in trick.cards.drop(1).withIndex()) {
             // if cannot follow suit and did not play trump on a non-trump suit, add suit to suits not in hand
-            if (card.suit != suit && card.suit != Trump.asSuit(trick.trump)) {
+            if (card.suit != suit
+                && card.suit != Trump.asSuit(trick.trump)
+                ) {
                 val playerId = trick.startingPlayerId.playerAtPosition(idx + 1)
+
+                // if jack of trump is still in the game, we check if it is guaranteed to be in someone else's hand
+                // only if that is true, we add the suit to the suits not in hand (o/w the player could still have it)
+                if (suit == Trump.asSuit(trick.trump) && unplayedCards.contains(Card(suit, Rank.JACK))) {
+                    GameStateHolder.guaranteedCards.toList().firstOrNull { it.second.contains(Card(suit, Rank.JACK)) }?.let {
+                        if (it.first != playerId) {
+                            newSuitsNotInHand += playerId to newSuitsNotInHand.getOrDefault(
+                                playerId,
+                                setOf()
+                            ).plus(suit)
+                        }
+                    }
+
+                    continue
+                }
+
+
+                println("updating suits not in hand: for trick: $trick")
+                println("player $playerId should be at index ${idx + 1} and played $card")
+
+
                 newSuitsNotInHand += playerId to newSuitsNotInHand.getOrDefault(playerId, setOf()).plus(suit)
             }
         }
@@ -150,11 +187,16 @@ data class RoundState(
      * @param card The card to play.
      * @return The new [RoundState].
      */
-    fun withCardPlayed(card: Card): RoundState {
+    fun withCardPlayed(card: Card, isSimulating: Boolean = false): RoundState {
         if (!unplayedCards.contains(card))
             throw IllegalStateException("Cannot play $card as it has already been played.")
 
-        updateCardDistributions(card)
+        if (!isSimulating) CardDistributionsHandler.updateCardDistributions(
+            card = card,
+            trick = trick,
+            unplayedCards = unplayedCards,
+            nextPlayer = { nextPlayer() },
+        )
 
         return this.copy(
             unplayedCards = unplayedCards - card,
@@ -162,85 +204,7 @@ data class RoundState(
         )
     }
 
-    /**
-     * Responsible to update the card distributions known in GameStateHolder based on the newly played card.
-     *
-     * @param card The card that was played.
-     */
-    private fun updateCardDistributions(card: Card) {
-        if (trick.trump == Trump.OBE_ABE
-            && card.rank == Rank.ACE
-            && GameStateHolder.acesPerPlayer.isNotEmpty()
-        ) {
-            val acesLeft = unplayedCards.filter { it.rank == Rank.ACE } - card
-            if (acesLeft.isEmpty()) {
-                GameStateHolder.acesPerPlayer = mutableMapOf()
-                return
-            }
 
-            val acesPerPlayer = GameStateHolder.acesPerPlayer[nextPlayer()] ?: 0
-            if (acesPerPlayer > 0) GameStateHolder.acesPerPlayer += nextPlayer() to (acesPerPlayer - 1)
-
-            // adjust guaranteed cards if they are clear
-            if (GameStateHolder.acesPerPlayer.containsValue(acesLeft.size) && acesLeft.isNotEmpty()) {
-                GameStateHolder.acesPerPlayer.toList().filter { it.second == acesLeft.size }.forEach {
-                    GameStateHolder.guaranteedCards += it.first to
-                            ((GameStateHolder.guaranteedCards[it.first] ?: setOf())
-                                    + acesLeft)
-                }
-            }
-        } else if (trick.trump == Trump.UNGER_UFE
-            && card.rank == Rank.SIX
-            && GameStateHolder.acesPerPlayer.isNotEmpty()
-            ) {
-
-            val sixesLeft = unplayedCards.filter { it.rank == Rank.SIX } - card
-            if (sixesLeft.isEmpty()) {
-                GameStateHolder.acesPerPlayer = mutableMapOf()
-                return
-            }
-
-            val sixesPerPlayer = GameStateHolder.acesPerPlayer[nextPlayer()] ?: 0
-            if (sixesPerPlayer > 0) GameStateHolder.acesPerPlayer += nextPlayer() to (sixesPerPlayer - 1)
-
-            // adjust guaranteed cards if they are clear
-            if (GameStateHolder.acesPerPlayer.containsValue(sixesLeft.size)
-                && sixesLeft.isNotEmpty()) {
-                GameStateHolder.acesPerPlayer.toList().filter { it.second == sixesLeft.size }.forEach {
-                    GameStateHolder.guaranteedCards += it.first to
-                            ((GameStateHolder.guaranteedCards[it.first] ?: setOf())
-                                    + sixesLeft)
-                }
-                // TODO: could also still update the cards per suit if the sixes / aces are not already included in the player's cards per suit
-            }
-        }
-
-        // adjust guaranteed cards if they are clear from number of cards per color
-//        println("cards per suit per player: ${GameStateHolder.cardsPerSuitPerPlayer}")
-
-        if (GameStateHolder.cardsPerSuitPerPlayer == null) {
-            GameStateHolder.cardsPerSuitPerPlayer = mutableMapOf()
-            println("in the null case")
-        }
-
-        if (GameStateHolder.cardsPerSuitPerPlayer.isNotEmpty()) {
-            println("in the non null case")
-            val cardsLeft = unplayedCards.filter { it.suit == card.suit } - card
-
-            if (GameStateHolder.cardsPerSuitPerPlayer.values.flatten().contains(Pair(card.suit, cardsLeft.size))
-                && cardsLeft.isNotEmpty()) {
-
-                GameStateHolder.cardsPerSuitPerPlayer
-                    .toList()
-                    // TODO: maybe == instead of >= is needed, test this!!!
-                    .filter { (_, suitOccurrences) -> (suitOccurrences.firstOrNull { it.first == card.suit && it.second >= cardsLeft.size } != null) }
-                    .forEach { (id, _) ->
-                        GameStateHolder.guaranteedCards += id to
-                                (GameStateHolder.guaranteedCards[id] ?: setOf()) + cardsLeft.toSet()
-                    }
-            }
-        }
-    }
 
     companion object {
 

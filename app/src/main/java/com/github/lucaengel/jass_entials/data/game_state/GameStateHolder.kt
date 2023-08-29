@@ -117,12 +117,17 @@ class GameStateHolder {
         /**
          * The number of cards for a given suit that are guaranteed to be in the hands of a given player.
          */
-        var cardsPerSuitPerPlayer = mutableMapOf<PlayerId, Set<Pair<Suit, Int>>>()
+        var cardsPerSuitPerPlayer = mutableMapOf<PlayerId, Map<Suit, Int>>()
 
         /**
          * The number of aces that are guaranteed to be in the hands of a given player. (6's when unger ufe)
          */
         var acesPerPlayer = mutableMapOf<PlayerId, Int>()
+
+        /**
+         * The number of aces that are guaranteed to be in the hands of a given player. (6's when unger ufe)
+         */
+        var sixesPerPlayer = mutableMapOf<PlayerId, Int>()
 
 //        /**
 //         * The current jass type.
@@ -150,6 +155,12 @@ class GameStateHolder {
          */
         fun goToNextBettingStateRound(startingBetter: PlayerId) {
             prevTrumpsByTeam = mutableMapOf()
+            guaranteedCards = mutableMapOf()
+            cardsPerSuitPerPlayer = mutableMapOf()
+            acesPerPlayer = mutableMapOf()
+            sixesPerPlayer = mutableMapOf()
+
+
             bettingState = bettingState.nextBettingRound(
                 startingBetter = startingBetter,
 //                jassType = jassType,
