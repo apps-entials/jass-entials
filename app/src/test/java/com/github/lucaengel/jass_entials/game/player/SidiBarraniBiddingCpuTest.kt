@@ -111,7 +111,6 @@ class SidiBarraniBiddingCpuTest {
             Card(Suit.HEARTS, Rank.TEN),
             Card(Suit.HEARTS, Rank.EIGHT),
             Card(Suit.HEARTS, Rank.SEVEN),
-            Card(Suit.HEARTS, Rank.SIX),
         )
 
         val fillUpCards = listOf(
@@ -124,21 +123,19 @@ class SidiBarraniBiddingCpuTest {
             Card(Suit.CLUBS, Rank.QUEEN),
             Card(Suit.CLUBS, Rank.KING),
         )
-        val expectedBetheights = listOf(
+        val expectedBetHeights = listOf(
             BetHeight.FIFTY,
             BetHeight.SEVENTY,
             BetHeight.NINETY,
         )
 
-        for (i in 3..5) {
-            resetCardDistributionsHandler()
-
-            // saying trump with jack with 'i' cards
-            val handCards = trumpCards.take(i) + fillUpCards.take(9-i)
-
-            val expectedBet = Bet(PlayerId.PLAYER_1, Trump.HEARTS, expectedBetheights[i-3])
-            assertThat(bettingCpu.bet(defaultBettingState, handCards), `is`(expectedBet))
-        }
+        checkForCorrectBetPlaced(
+            startingNbTrumpableCards = 3,
+            trumpableCards = trumpCards,
+            fillUpCards = fillUpCards,
+            expectedBetheights = expectedBetHeights,
+            expectedTrump = Trump.HEARTS
+        )
     }
 
     @Test
@@ -170,20 +167,18 @@ class SidiBarraniBiddingCpuTest {
             BetHeight.SEVENTY,
         )
 
-        for (i in 1..4) {
-            resetCardDistributionsHandler()
-
-            // saying trump with jack with 'i' cards
-            var handCards = aces.take(i) + fillUpCards.take(9-i)
-
-            val expectedBet = Bet(PlayerId.PLAYER_1, Trump.OBE_ABE, expectedBetheights[i-1])
-            assertThat(bettingCpu.bet(defaultBettingState, handCards), `is`(expectedBet))
-        }
+        checkForCorrectBetPlaced(
+            startingNbTrumpableCards = 1,
+            trumpableCards = aces,
+            fillUpCards = fillUpCards,
+            expectedBetheights = expectedBetheights,
+            expectedTrump = Trump.OBE_ABE
+        )
     }
 
     @Test
     fun correctSpacingForUngerUfeBetting() {
-        val aces = listOf(
+        val sixes = listOf(
             Card(Suit.HEARTS, Rank.SIX),
             Card(Suit.SPADES, Rank.SIX),
             Card(Suit.DIAMONDS, Rank.SIX),
@@ -210,13 +205,55 @@ class SidiBarraniBiddingCpuTest {
             BetHeight.SEVENTY,
         )
 
-        for (i in 1..4) {
+        checkForCorrectBetPlaced(
+            startingNbTrumpableCards = 1,
+            trumpableCards = sixes,
+            fillUpCards = fillUpCards,
+            expectedBetheights = expectedBetheights,
+            expectedTrump = Trump.UNGER_UFE
+        )
+    }
+
+    // Betting after opponents bet
+
+
+
+
+
+
+
+
+    /**
+     * Checks if the correct bet is placed for a given number of trumpable cards.
+     *
+     * @param startingNbTrumpableCards the number of trumpable cards to start with (i.e. so the bet is placed)
+     * @param trumpableCards the trumpable cards
+     * @param fillUpCards the fill up cards
+     * @param expectedBetheights the expected bet heights
+     * @param expectedTrump the expected trump
+     */
+    private fun checkForCorrectBetPlaced(
+        startingNbTrumpableCards: Int,
+        trumpableCards: List<Card>,
+        fillUpCards: List<Card>,
+        expectedBetheights: List<BetHeight>,
+        expectedTrump: Trump
+    ) {
+        // otherwise we will get an index out of bounds exception
+        //  --> adapt trumpableCards size to how many bet heights
+        //      you want to test
+        assertThat(trumpableCards.size - startingNbTrumpableCards <= expectedBetheights.size, `is`(true))
+
+        for (i in startingNbTrumpableCards..trumpableCards.size) {
             resetCardDistributionsHandler()
 
-            // saying trump with jack with 'i' cards
-            val handCards = aces.take(i) + fillUpCards.take(9-i)
+            // saying trump with 'i' trumpable cards
+            val handCards = trumpableCards.take(i) + fillUpCards.take(9 - i)
 
-            val expectedBet = Bet(PlayerId.PLAYER_1, Trump.UNGER_UFE, expectedBetheights[i-1])
+            assertThat(handCards.size, `is`(9))
+
+            val expectedBet =
+                Bet(PlayerId.PLAYER_1, expectedTrump, expectedBetheights[i - startingNbTrumpableCards])
             assertThat(bettingCpu.bet(defaultBettingState, handCards), `is`(expectedBet))
         }
     }
