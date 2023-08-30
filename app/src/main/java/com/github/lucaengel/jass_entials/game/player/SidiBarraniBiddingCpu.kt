@@ -185,7 +185,7 @@ class SidiBarraniBiddingCpu(
      *
      * @param trumpCards the trump cards in the hand
      * @param bettingState the current betting state
-     * @param currentPlayersHighestTrump the rank of the trump card the partner has
+     * @param currentPlayersHighestTrump the rank of the trump card the current player has (if not, then they have the ace, if not, pass)
      * @return the bet height
      */
     private fun betKnowingGivenCard(
@@ -201,14 +201,11 @@ class SidiBarraniBiddingCpu(
 
         return if (trumpCards.any { it.rank == currentPlayersHighestTrump }) {
             // need 2 per suit, every additional one, jump by 20 point (i.e., 2 in the ordinal)
-            val nHigher = ((trumpCards.size - cardsNeededForBet) * 2).coerceAtLeast(0)
-            bettingState.availableBets().first()
-                .firstEven().nHigher(nHigher)
+            betForGivenMinNumberOfTrumps(trumpCards, bettingState, cardsNeededForBet, true)
         } else if (trumpCards.any { it.rank == Rank.ACE } && trumpCards.size >= 3) {
             // need 3 per suit, every additional one, jump by 20 point (i.e., 2 in the ordinal)
-            val nHigher = ((trumpCards.size - 3) * 2).coerceAtLeast(0)
-            bettingState.availableBets().first()
-                .firstOdd().nHigher(nHigher)
+            // if current is looking for the nell, then the team partner has the jack --> bet even if only have the ace, else odd
+            betForGivenMinNumberOfTrumps(trumpCards, bettingState, 3, currentPlayersHighestTrump == Rank.NINE)
         } else {
             BetHeight.NONE
         }
@@ -227,16 +224,32 @@ class SidiBarraniBiddingCpu(
     ): BetHeight {
         return if (trumpCards.any { it.rank == Rank.JACK }) {
             // need 3 per suit, every additional one, jump by 20 point (i.e., 2 in the ordinal)
-            val nHigher = ((trumpCards.size - 3) * 2).coerceAtLeast(0)
-            bettingState.availableBets().first()
-                .firstEven().nHigher(nHigher)
+            betForGivenMinNumberOfTrumps(trumpCards, bettingState, 3, true)
         } else if (trumpCards.any { it.rank == Rank.NINE }) {
             // need 3 per suit, every additional one, jump by 20 point (i.e., 2 in the ordinal)
-            val nHigher = ((trumpCards.size - 3) * 2).coerceAtLeast(0)
-            bettingState.availableBets().first()
-                .firstOdd().nHigher(nHigher)
+            betForGivenMinNumberOfTrumps(trumpCards, bettingState, 3, false)
         } else {
             BetHeight.NONE
         }
+    }
+
+    /**
+     * Returns the bet height for a given minimum number of trumps.
+     *
+     * @param trumpCards the trump cards in the hand
+     * @param bettingState the current betting state
+     * @param minNumberOfTrumps the minimum number of trumps needed
+     * @param shouldBetEven whether the bet should be even or odd
+     * @return the bet height
+     */
+    private fun betForGivenMinNumberOfTrumps(
+        trumpCards: List<Card>,
+        bettingState: BettingState,
+        minNumberOfTrumps: Int,
+        shouldBetEven: Boolean
+    ): BetHeight {
+        val nHigher = ((trumpCards.size - minNumberOfTrumps) * 2).coerceAtLeast(0)
+        return bettingState.availableBets().first()
+            .let { if (shouldBetEven) it.firstEven() else it.firstOdd() }.nHigher(nHigher)
     }
 }
