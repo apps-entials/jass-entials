@@ -146,6 +146,7 @@ class SchieberBiddingCpu(
 
         // other trump cards
         points += nbLowTrumps * TRUMP_LOW_VALUE
+        println("points: $points min trump value: $MIN_TRUMP_VALUE, isVorderhand: $isVorderhand")
 
         if (points <= MIN_TRUMP_VALUE && isVorderhand) {
             return points
@@ -169,6 +170,7 @@ class SchieberBiddingCpu(
             && Card.cardsOfSuit(it.suit, otherCards).size > 2)
         }.size * TRUMP_QUEEN_BOCK_VALUE
 
+        println("actual points: $points")
         return points
     }
 

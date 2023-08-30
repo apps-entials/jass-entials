@@ -23,6 +23,8 @@ class SidiBarraniBiddingCpu(
         val evalForBet = trumpEvalsWithPartnerBonus.first { it.trump == bet.trump }
 
         val betHeight = findBetHeight(bettingState, bet.trump, evalForBet, handCards)
+        println("found bet height: $betHeight")
+        println("for hand cards: $handCards")
 
         return if (betHeight == BetHeight.NONE) {
             null
@@ -54,11 +56,15 @@ class SidiBarraniBiddingCpu(
         // e.g., if I already bid hearts once, then I want to announce ace's, ...
         val myBets = bettingState.bets.filter { it.playerId == playerId }
 
+        println("available trumps: ${bettingState.availableTrumps()}")
+        println("current better id: ${bettingState.currentBetterId}")
         val trumpEvaluations = schieberBiddingCpu.evaluateTrumps(
             handCards = handCards,
             trumps = bettingState.availableTrumps().toList(),
             isVorderhand = true
         )
+
+        println("trump evaluations without partner bonus: $trumpEvaluations")
 
         val trumpEvalsWithPartnerBonus = trumpEvaluations.map { eval ->
             if (teamPartnersTrumps.contains(eval.trump)) {
@@ -92,7 +98,7 @@ class SidiBarraniBiddingCpu(
         trump: Trump,
         teamPartnerBets: List<Bet>
     ): Int {
-        return teamPartnerBets.first { it.trump == trump }.bet.value / 2
+        return 2 * teamPartnerBets.first { it.trump == trump }.bet.value / 3
     }
 
     /**
@@ -166,12 +172,16 @@ class SidiBarraniBiddingCpu(
                         && it.playerId.teamId() == playerId.teamId()
             }.lastOrNull()
 
+        println("last team bet for trump: $lastTeamBetForTrump")
+
         return if (lastTeamBetForTrump == null) {
             firstTeamBetForTrump(trumpCards, bettingState)
         } else if (lastTeamBetForTrump.bet.isOdd()) {
             // partner has the nell --> I need the jack (or the ace)
+            println("partner has the nell")
             betKnowingGivenCard(trumpCards, bettingState, Rank.JACK)
         } else if (!lastTeamBetForTrump.bet.isOdd()) {
+            println("partner has the jack")
             // partner has the jack --> I need the nell (or the ace)
             betKnowingGivenCard(trumpCards, bettingState, Rank.NINE)
         } else {
@@ -191,7 +201,7 @@ class SidiBarraniBiddingCpu(
     private fun betKnowingGivenCard(
         trumpCards: List<Card>,
         bettingState: BettingState,
-        currentPlayersHighestTrump: Rank
+        currentPlayersHighestTrump: Rank // either jack or nell, team mate has the other card
     ): BetHeight {
         val cardsNeededForBet = when (currentPlayersHighestTrump) {
             Rank.JACK -> 1
@@ -201,7 +211,7 @@ class SidiBarraniBiddingCpu(
 
         return if (trumpCards.any { it.rank == currentPlayersHighestTrump }) {
             // need 2 per suit, every additional one, jump by 20 point (i.e., 2 in the ordinal)
-            betForGivenMinNumberOfTrumps(trumpCards, bettingState, cardsNeededForBet, true)
+            betForGivenMinNumberOfTrumps(trumpCards, bettingState, cardsNeededForBet, currentPlayersHighestTrump == Rank.JACK)
         } else if (trumpCards.any { it.rank == Rank.ACE } && trumpCards.size >= 3) {
             // need 3 per suit, every additional one, jump by 20 point (i.e., 2 in the ordinal)
             // if current is looking for the nell, then the team partner has the jack --> bet even if only have the ace, else odd
