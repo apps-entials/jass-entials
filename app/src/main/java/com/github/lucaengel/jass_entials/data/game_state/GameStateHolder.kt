@@ -105,7 +105,7 @@ class GameStateHolder {
         /**
          * The trumps that have already been bet by each team. Used mainly for Coiffeur
          */
-        var prevTrumpsByTeam = mutableMapOf<TeamId, Set<Trump>>()
+        var prevTrumpsByTeam = mapOf<TeamId, Set<Trump>>()
 
 //        /**
 //         * The cards that are guaranteed to be in the hands of the given players.

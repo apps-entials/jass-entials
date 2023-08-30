@@ -4,6 +4,7 @@ import com.github.lucaengel.jass_entials.data.cards.Card
 import com.github.lucaengel.jass_entials.data.cards.Deck
 import com.github.lucaengel.jass_entials.data.cards.Rank
 import com.github.lucaengel.jass_entials.data.cards.Suit
+import com.github.lucaengel.jass_entials.data.game_state.CardDistributionsHandler
 import com.github.lucaengel.jass_entials.data.game_state.PlayerId
 import com.github.lucaengel.jass_entials.data.game_state.RoundState
 import com.github.lucaengel.jass_entials.data.jass.Trump
@@ -189,9 +190,6 @@ class MonteCarloCpuTest {
             .add(Card(Suit.HEARTS, Rank.JACK))
             .add(Card(Suit.HEARTS, Rank.QUEEN))
 
-        println("unable to play: ${state.suitsNotInHand()}")
-        println("hand: ${hand.cards()}")
-        println("state: $state")
         val c: Card = p.cardToPlay(state, hand.cards()).join()
         assertEquals(
             Card(
@@ -299,7 +297,7 @@ class MonteCarloCpuTest {
             .add(Card(Suit.CLUBS, Rank.SIX))
             .add(Card(Suit.CLUBS, Rank.ACE))
 
-        val stateWithoutSuitsNotInHand = state.copy(suitsNotInHand = mapOf())
+        val stateWithoutSuitsNotInHand = state.copy(cardDistributionsHandler = CardDistributionsHandler())
 
         val c: Card = p.cardToPlay(stateWithoutSuitsNotInHand, hand.cards()).join()
         assertEquals(
@@ -451,7 +449,7 @@ class MonteCarloCpuTest {
             .add(Card(Suit.SPADES, Rank.SIX))
             .add(Card(Suit.HEARTS, Rank.SIX))
 
-        val stateWithoutSuitsNotInHand = state.copy(suitsNotInHand = mapOf())
+        val stateWithoutSuitsNotInHand = state.copy(cardDistributionsHandler = CardDistributionsHandler())
 
         val c: Card = p.cardToPlay(stateWithoutSuitsNotInHand, hand.cards()).join()
         assertEquals(
@@ -513,9 +511,11 @@ class MonteCarloCpuTest {
 
         // team partners do not have
         val stateWithSuitsNotInHandAdapted = state.copy(
-            suitsNotInHand = mapOf(
-                p.playerId.nextPlayer() to setOf(Suit.DIAMONDS),
-                p.playerId.teamMate().nextPlayer() to setOf(Suit.DIAMONDS),
+            cardDistributionsHandler = CardDistributionsHandler().setSuitsNotInHand(
+                mapOf(
+                    p.playerId.nextPlayer() to setOf(Suit.DIAMONDS),
+                    p.playerId.teamMate().nextPlayer() to setOf(Suit.DIAMONDS),
+                )
             )
         )
 

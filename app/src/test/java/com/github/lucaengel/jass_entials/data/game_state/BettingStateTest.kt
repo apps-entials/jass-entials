@@ -113,7 +113,8 @@ class BettingStateTest {
     @Test
     fun startGameReturnsGameStateWithNecessaryInformation() {
         val winningBet = Bet(defaultPlayerDatas[0].id, Trump.UNGER_UFE, BetHeight.SEVENTY)
-        val bettingState = defaultBettingState.copy(bets = listOf(winningBet))
+        val cardDistributionsHandler = CardDistributionsHandler()
+        val bettingState = defaultBettingState.copy(bets = listOf(winningBet), cardDistributionsHandler = cardDistributionsHandler)
 
         val expectedGameState = GameState(
             currentUserId = PlayerId.PLAYER_1,
@@ -122,7 +123,7 @@ class BettingStateTest {
             startingPlayerId = defaultPlayerDatas[0].id,
             currentRound = 0,
             jassType = JassType.SIDI_BARRANI,
-            roundState = RoundState.initial(winningBet.trump, defaultPlayerDatas[0].id),
+            roundState = RoundState.initial(winningBet.trump, defaultPlayerDatas[0].id, cardDistributionsHandler = cardDistributionsHandler),
             winningBet = winningBet,
             playerCards = defaultPlayerDatas.associate { it.id to it.cards },
         )

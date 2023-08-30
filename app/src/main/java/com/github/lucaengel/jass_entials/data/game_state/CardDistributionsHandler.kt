@@ -36,6 +36,14 @@ class CardDistributionsHandler {
      */
     private val sixesPerPlayer: MutableMap<PlayerId, Int> = mutableMapOf()
 
+
+    fun setSuitsNotInHand(suitsNotInHand: Map<PlayerId, Set<Suit>>): CardDistributionsHandler {
+        this.suitsNotInHand.clear()
+        this.suitsNotInHand.putAll(suitsNotInHand)
+
+        return this
+    }
+
     fun guaranteedCards(): Map<PlayerId, Set<Card>> {
         return guaranteedCards.toMap()
     }
