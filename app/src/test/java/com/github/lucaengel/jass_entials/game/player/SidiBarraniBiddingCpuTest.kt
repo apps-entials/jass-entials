@@ -462,9 +462,6 @@ class SidiBarraniBiddingCpuTest {
     //  - also not the case where current cpu should not bet...
 
 
-
-
-
     private fun addBetToBettingState(
         bets: Bet,
         firstBetPlacingPlayerId: PlayerId
