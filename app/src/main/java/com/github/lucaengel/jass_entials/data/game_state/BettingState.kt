@@ -29,6 +29,7 @@ data class BettingState(
     val betActions: List<Bet.BetAction>,
     val gameState: GameState,
     val score: Score,
+    val cardDistributionsHandler: CardDistributionsHandler = CardDistributionsHandler()
 ){
 
     private val bettingLogic: BettingLogic = when (jassType) {
@@ -74,7 +75,8 @@ data class BettingState(
             startingBetterId = startingBetter,
             jassType = jassType,
             bets = listOf(),
-            score = score
+            score = score,
+            cardDistributionsHandler = CardDistributionsHandler()
         )
     }
 
@@ -164,6 +166,7 @@ data class BettingState(
                 trump = winningBet.trump,
                 startingPlayerId = startingPlayer,
                 score = score,
+                cardDistributionsHandler = cardDistributionsHandler,
             ),
             winningBet = winningBet,
             playerCards = GameStateHolder.players.associate { it.id to it.cards },

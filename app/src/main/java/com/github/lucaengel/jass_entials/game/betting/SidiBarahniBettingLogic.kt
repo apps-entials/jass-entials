@@ -5,7 +5,6 @@ import com.github.lucaengel.jass_entials.data.game_state.BetHeight
 import com.github.lucaengel.jass_entials.data.game_state.BettingState
 import com.github.lucaengel.jass_entials.data.game_state.PlayerId
 import com.github.lucaengel.jass_entials.data.jass.Trump
-import com.github.lucaengel.jass_entials.game.player.SidiBarraniBiddingCpu
 
 class SidiBarraniBettingLogic : BettingLogic {
 
@@ -26,7 +25,7 @@ class SidiBarraniBettingLogic : BettingLogic {
 
         if (currentPlayerBet != null) {
             val nbBetsInLastPass = betActions.takeLast(3).count { it == Bet.BetAction.BET }
-            SidiBarraniBiddingCpu.extractKnowledgeFromBets(nbBetsInLastPass, bets)
+            bettingState.cardDistributionsHandler.extractKnowledgeFromBets(nbBetsInLastPass, bets)
         }
 
 

@@ -2,8 +2,6 @@ package com.github.lucaengel.jass_entials.data.game_state
 
 import com.github.lucaengel.jass_entials.data.cards.Card
 import com.github.lucaengel.jass_entials.data.cards.Deck
-import com.github.lucaengel.jass_entials.data.cards.Suit
-import com.github.lucaengel.jass_entials.data.cards.Rank
 import com.github.lucaengel.jass_entials.data.cards.Trick
 import com.github.lucaengel.jass_entials.data.jass.JassConstants
 import com.github.lucaengel.jass_entials.data.jass.Trump
@@ -15,7 +13,7 @@ import com.github.lucaengel.jass_entials.data.jass.Trump
  * @param unplayedCards The unplayed cards.
  * @param trick The current trick.
  * @param trickNumber The number of the current trick.
- * @param suitsNotInHand map from players to cards they do not have
+ * @param cardDistributionsHandler Continuously augmenting data set containing the card distributions for each player known by everyone
  */
 data class RoundState(
     private val score: Score,
@@ -23,12 +21,15 @@ data class RoundState(
     private val trick: Trick,
     private val trickNumber: Int,
     //a map from players to cards they do not have
-    private val suitsNotInHand: Map<PlayerId, Set<Suit>> = mapOf(),
-
+//    private val suitsNotInHand: Map<PlayerId, Set<Suit>> = mapOf(),
+    private val cardDistributionsHandler: CardDistributionsHandler
 ) {
 
-    fun suitsNotInHand(): Map<PlayerId, Set<Suit>> {
-        return suitsNotInHand
+//    fun suitsNotInHand(): Map<PlayerId, Set<Suit>> {
+//        return suitsNotInHand
+//    }
+    fun cardDistributionsHandler(): CardDistributionsHandler {
+        return cardDistributionsHandler
     }
 
     /**
@@ -117,11 +118,7 @@ data class RoundState(
         if (!isSimulating) {
             println("\n\n\ncollecting trick $trickNumber:")
             println("unplayedCards: $unplayedCards")
-            println("guaranteedCards: ${GameStateHolder.guaranteedCards}")
-            println("cardsPerSuitPerPlayer: ${GameStateHolder.cardsPerSuitPerPlayer}")
-            println("acesPerPlayer: ${GameStateHolder.acesPerPlayer}")
-            println("sixesPerPlayer: ${GameStateHolder.sixesPerPlayer}")
-            println("suitsNotInHand: $suitsNotInHand")
+            println("card distributions:\n$cardDistributionsHandler")
             println("\n\n\n")
         }
 
@@ -134,51 +131,52 @@ data class RoundState(
             unplayedCards = unplayedCards,
             trick = trick.nextTrick(),
             trickNumber = trickNumber + 1,
-            suitsNotInHand = if (isSimulating) suitsNotInHand else updateSuitsNotInHand(),
+            cardDistributionsHandler = cardDistributionsHandler,
+//            suitsNotInHand = if (isSimulating) suitsNotInHand else updateSuitsNotInHand(),
         )
     }
 
-    /**
-     * Returns an updated map containing the suits not in hand for each player.
-     *
-     * @return The updated map.
-     */
-    private fun updateSuitsNotInHand(): Map<PlayerId, Set<Suit>> {
-        val suit = trick.cards.first().suit
-        val newSuitsNotInHand = this.suitsNotInHand.toMutableMap()
-        for ((idx, card) in trick.cards.drop(1).withIndex()) {
-            // if cannot follow suit and did not play trump on a non-trump suit, add suit to suits not in hand
-            if (card.suit != suit
-                && card.suit != Trump.asSuit(trick.trump)
-                ) {
-                val playerId = trick.startingPlayerId.playerAtPosition(idx + 1)
-
-                // if jack of trump is still in the game, we check if it is guaranteed to be in someone else's hand
-                // only if that is true, we add the suit to the suits not in hand (o/w the player could still have it)
-                if (suit == Trump.asSuit(trick.trump) && unplayedCards.contains(Card(suit, Rank.JACK))) {
-                    GameStateHolder.guaranteedCards.toList().firstOrNull { it.second.contains(Card(suit, Rank.JACK)) }?.let {
-                        if (it.first != playerId) {
-                            newSuitsNotInHand += playerId to newSuitsNotInHand.getOrDefault(
-                                playerId,
-                                setOf()
-                            ).plus(suit)
-                        }
-                    }
-
-                    continue
-                }
-
-
-                println("updating suits not in hand: for trick: $trick")
-                println("player $playerId should be at index ${idx + 1} and played $card")
-
-
-                newSuitsNotInHand += playerId to newSuitsNotInHand.getOrDefault(playerId, setOf()).plus(suit)
-            }
-        }
-
-        return newSuitsNotInHand
-    }
+//    /**
+//     * Returns an updated map containing the suits not in hand for each player.
+//     *
+//     * @return The updated map.
+//     */
+//    private fun updateSuitsNotInHand(): Map<PlayerId, Set<Suit>> {
+//        val suit = trick.cards.first().suit
+//        val newSuitsNotInHand = this.suitsNotInHand.toMutableMap()
+//        for ((idx, card) in trick.cards.drop(1).withIndex()) {
+//            // if cannot follow suit and did not play trump on a non-trump suit, add suit to suits not in hand
+//            if (card.suit != suit
+//                && card.suit != Trump.asSuit(trick.trump)
+//                ) {
+//                val playerId = trick.startingPlayerId.playerAtPosition(idx + 1)
+//
+//                // if jack of trump is still in the game, we check if it is guaranteed to be in someone else's hand
+//                // only if that is true, we add the suit to the suits not in hand (o/w the player could still have it)
+//                if (suit == Trump.asSuit(trick.trump) && unplayedCards.contains(Card(suit, Rank.JACK))) {
+//                    GameStateHolder.guaranteedCards.toList().firstOrNull { it.second.contains(Card(suit, Rank.JACK)) }?.let {
+//                        if (it.first != playerId) {
+//                            newSuitsNotInHand += playerId to newSuitsNotInHand.getOrDefault(
+//                                playerId,
+//                                setOf()
+//                            ).plus(suit)
+//                        }
+//                    }
+//
+//                    continue
+//                }
+//
+//
+//                println("updating suits not in hand: for trick: $trick")
+//                println("player $playerId should be at index ${idx + 1} and played $card")
+//
+//
+//                newSuitsNotInHand += playerId to newSuitsNotInHand.getOrDefault(playerId, setOf()).plus(suit)
+//            }
+//        }
+//
+//        return newSuitsNotInHand
+//    }
 
     /**
      * Returns a new [RoundState] with the given [card] played.
@@ -191,16 +189,18 @@ data class RoundState(
         if (!unplayedCards.contains(card))
             throw IllegalStateException("Cannot play $card as it has already been played.")
 
-        if (!isSimulating) CardDistributionsHandler.updateCardDistributions(
+        val newTrick = trick.withNewCardPlayed(card)
+
+        if (!isSimulating) cardDistributionsHandler.updateCardDistributions(
             card = card,
-            trick = trick,
+            trick = newTrick,
             unplayedCards = unplayedCards,
-            nextPlayer = { nextPlayer() },
+            nextPlayer(),
         )
 
         return this.copy(
             unplayedCards = unplayedCards - card,
-            trick = trick.withNewCardPlayed(card),
+            trick = newTrick,
         )
     }
 
@@ -215,7 +215,7 @@ data class RoundState(
          * @param trump The trump of the round.
          * @return The new [RoundState].
          */
-        fun initial(trump: Trump, startingPlayerId: PlayerId, score: Score = Score.INITIAL): RoundState {
+        fun initial(trump: Trump, startingPlayerId: PlayerId, score: Score = Score.INITIAL, cardDistributionsHandler: CardDistributionsHandler): RoundState {
             return RoundState(
                 score = score,
                 unplayedCards = Deck.STANDARD_DECK.cards,
@@ -224,6 +224,7 @@ data class RoundState(
                     trump = trump,
                 ),
                 trickNumber = 1,
+                cardDistributionsHandler = cardDistributionsHandler,
             )
         }
     }

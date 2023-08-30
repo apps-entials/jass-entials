@@ -115,13 +115,13 @@ fun SelectGameView(finishActivity: () -> Unit = {}) {
         // reset the previous trumps
 
 
-        println("am i before???")
-        GameStateHolder.prevTrumpsByTeam = mutableMapOf()
-        GameStateHolder.guaranteedCards = mutableMapOf()
-        GameStateHolder.cardsPerSuitPerPlayer = mutableMapOf()
-        GameStateHolder.acesPerPlayer = mutableMapOf()
-        GameStateHolder.sixesPerPlayer = mutableMapOf()
-        println("made elems non null!!!")
+//        println("am i before???")
+//        GameStateHolder.prevTrumpsByTeam = mutableMapOf()
+//        GameStateHolder.guaranteedCards = mutableMapOf()
+//        GameStateHolder.cardsPerSuitPerPlayer = mutableMapOf()
+//        GameStateHolder.acesPerPlayer = mutableMapOf()
+//        GameStateHolder.sixesPerPlayer = mutableMapOf()
+//        println("made elems non null!!!")
 
 
         when (gameType) {
