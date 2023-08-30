@@ -22,7 +22,7 @@ class SidiBarraniBiddingCpu(
 
         val evalForBet = trumpEvalsWithPartnerBonus.first { it.trump == bet.trump }
 
-        val betHeight = findBetHeight(bettingState, bet, evalForBet, handCards)
+        val betHeight = findBetHeight(bettingState, bet.trump, evalForBet, handCards)
 
         return if (betHeight == BetHeight.NONE) {
             null
@@ -35,6 +35,13 @@ class SidiBarraniBiddingCpu(
         }
     }
 
+    /**
+     * Returns the trump evaluations with a bonus for the partner's bet.
+     *
+     * @param bettingState the current betting state
+     * @param handCards the hand cards
+     * @return the trump evaluations with a bonus for the partner's bet
+     */
     private fun trumpEvaluationsWithPartnerBonus(
         bettingState: BettingState,
         handCards: List<Card>
@@ -70,6 +77,15 @@ class SidiBarraniBiddingCpu(
         return trumpEvalsWithPartnerBonus
     }
 
+    /**
+     * Returns the bonus points for a given trump if the partner already bet on it.
+     *
+     * @param bettingState the current betting state
+     * @param handCards the hand cards
+     * @param trump the trump to find the bonus for
+     * @param teamPartnerBets the bets of the partner
+     * @return the bonus points
+     */
     private fun bonusForPartnerBet(
         bettingState: BettingState,
         handCards: List<Card>,
@@ -79,9 +95,18 @@ class SidiBarraniBiddingCpu(
         return teamPartnerBets.first { it.trump == trump }.bet.value / 2
     }
 
+    /**
+     * Returns the bet height for a given bet. This is the height the player should bid.
+     *
+     * @param bettingState the current betting state
+     * @param trump the trump to find the bet height for
+     * @param evalForBet the evaluation for the given trump
+     * @param handCards the hand cards
+     * @return the bet height
+     */
     private fun findBetHeight(
         bettingState: BettingState,
-        bet: Bet,
+        trump: Trump,
         evalForBet: SchieberBiddingCpu.TrumpEvaluation,
         handCards: List<Card>
     ): BetHeight {
@@ -92,54 +117,91 @@ class SidiBarraniBiddingCpu(
         // if cannot bid higher than previous bet, pass
         return if (lastBetHeight >= BetHeight.fromPoints(evalForBet.points)) {
             BetHeight.NONE
-        } else if (bet.trump == Trump.OBE_ABE) {
-            val nbAces = handCards.count { it.rank == Rank.ACE } - 1
-
-            bettingState.availableBets()[nbAces.coerceAtLeast(0)]
-        } else if (bet.trump == Trump.UNGER_UFE) {
-            val nbSixes = handCards.count { it.rank == Rank.SIX } - 1
-
-            bettingState.availableBets()[nbSixes.coerceAtLeast(0)]
+        } else if (trump == Trump.OBE_ABE) {
+            getBetJumpForNumberOfCards(handCards, bettingState, Rank.ACE)
+        } else if (trump == Trump.UNGER_UFE) {
+            getBetJumpForNumberOfCards(handCards, bettingState, Rank.SIX)
         } else {
             // suit trumps
-            findSuitTrumpBetHeight(handCards, bet, bettingState)
+            findSuitTrumpBetHeight(handCards, trump, bettingState)
         }
     }
 
+    /**
+     * Returns the bet height based on the number of cards of a given rank in the hand. Mainly for 6's and Ace's.
+     *
+     * @param handCards the hand cards
+     * @param bettingState the current betting state
+     * @param rankOfCards the rank of the cards to count
+     * @return the bet height
+     */
+    private fun getBetJumpForNumberOfCards(
+        handCards: List<Card>,
+        bettingState: BettingState,
+        rankOfCards: Rank
+    ): BetHeight {
+        val nbAces = handCards.count { it.rank == rankOfCards } - 1
+
+        return bettingState.availableBets()[nbAces.coerceAtLeast(0)]
+    }
+
+    /**
+     * Returns the bet height fitting to the current trump and the hand cards.
+     *
+     * @param handCards the hand cards
+     * @param trump the trump to find the bet height for
+     * @param bettingState the current betting state
+     * @return the bet height
+     */
     private fun findSuitTrumpBetHeight(
         handCards: List<Card>,
-        bet: Bet,
+        trump: Trump,
         bettingState: BettingState
     ): BetHeight {
-        val trumpCards = handCards.filter { it.suit == bet.trump.asSuit() }
+        val trumpCards = handCards.filter { it.suit == trump.asSuit() }
 
         val lastTeamBetForTrump = bettingState.bets
             .filter {
-                it.trump == bet.trump
+                it.trump == trump
                         && it.playerId.teamId() == playerId.teamId()
             }.lastOrNull()
 
         return if (lastTeamBetForTrump == null) {
             firstTeamBetForTrump(trumpCards, bettingState)
         } else if (lastTeamBetForTrump.bet.isOdd()) {
-            // partner has the nell
-            betKnowingPartnerHasNell(trumpCards, bettingState)
+            // partner has the nell --> I need the jack (or the ace)
+            betKnowingGivenCard(trumpCards, bettingState, Rank.JACK)
         } else if (!lastTeamBetForTrump.bet.isOdd()) {
-            // partner has the jack
-            betKnowingPartnerHasJack(trumpCards, bettingState)
+            // partner has the jack --> I need the nell (or the ace)
+            betKnowingGivenCard(trumpCards, bettingState, Rank.NINE)
         } else {
             // nothing fits --> pass
             BetHeight.NONE
         }
     }
 
-    private fun betKnowingPartnerHasJack(
+    /**
+     * Returns the betheight based on what highest trump card the partner has. This assumes the partner has the nell or the jack.
+     *
+     * @param trumpCards the trump cards in the hand
+     * @param bettingState the current betting state
+     * @param currentPlayersHighestTrump the rank of the trump card the partner has
+     * @return the bet height
+     */
+    private fun betKnowingGivenCard(
         trumpCards: List<Card>,
-        bettingState: BettingState
+        bettingState: BettingState,
+        currentPlayersHighestTrump: Rank
     ): BetHeight {
-        return if (trumpCards.any { it.rank == Rank.NINE }) {
+        val cardsNeededForBet = when (currentPlayersHighestTrump) {
+            Rank.JACK -> 1
+            Rank.NINE -> 2
+            else -> return BetHeight.NONE
+        }
+
+        return if (trumpCards.any { it.rank == currentPlayersHighestTrump }) {
             // need 2 per suit, every additional one, jump by 20 point (i.e., 2 in the ordinal)
-            val nHigher = ((trumpCards.size - 2) * 2).coerceAtLeast(0)
+            val nHigher = ((trumpCards.size - cardsNeededForBet) * 2).coerceAtLeast(0)
             bettingState.availableBets().first()
                 .firstEven().nHigher(nHigher)
         } else if (trumpCards.any { it.rank == Rank.ACE } && trumpCards.size >= 3) {
@@ -152,25 +214,13 @@ class SidiBarraniBiddingCpu(
         }
     }
 
-    private fun betKnowingPartnerHasNell(
-        trumpCards: List<Card>,
-        bettingState: BettingState
-    ): BetHeight {
-        return if (trumpCards.any { it.rank == Rank.JACK }) { // TODO: double check that only one jack is needed!!!
-            // need 1 per suit, every additional one, jump by 20 point (i.e., 2 in the ordinal)
-            val nHigher = ((trumpCards.size - 1) * 2).coerceAtLeast(0)
-            bettingState.availableBets().first()
-                .firstEven().nHigher(nHigher)
-        } else if (trumpCards.any { it.rank == Rank.ACE } && trumpCards.size >= 3) {
-            // need 3 per suit, every additional one, jump by 20 point (i.e., 2 in the ordinal)
-            val nHigher = ((trumpCards.size - 3) * 2).coerceAtLeast(0)
-            bettingState.availableBets().first()
-                .firstOdd().nHigher(nHigher)
-        } else {
-            BetHeight.NONE
-        }
-    }
-
+    /**
+     * Returns the first bet height for a given trump. This is called when this is the first bet for the player's team.
+     *
+     * @param trumpCards the trump cards in the hand
+     * @param bettingState the current betting state
+     * @return the bet height
+     */
     private fun firstTeamBetForTrump(
         trumpCards: List<Card>,
         bettingState: BettingState
