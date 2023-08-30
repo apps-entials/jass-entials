@@ -17,8 +17,8 @@ class SidiBarraniBiddingCpu(
     override fun bet(bettingState: BettingState, handCards: List<Card>): Bet? {
         val trumpEvalsWithPartnerBonus = trumpEvaluationsWithPartnerBonus(bettingState, handCards)
 
-        val bet = schieberBiddingCpu.findBestBet(trumpEvalsWithPartnerBonus, 0)
-            ?: return null
+        println("trump evals: $trumpEvalsWithPartnerBonus")
+        val bet = schieberBiddingCpu.findBestBet(trumpEvalsWithPartnerBonus, Int.MIN_VALUE)!!
 
         val evalForBet = trumpEvalsWithPartnerBonus.first { it.trump == bet.trump }
 
