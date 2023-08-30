@@ -17,14 +17,10 @@ class SidiBarraniBiddingCpu(
     override fun bet(bettingState: BettingState, handCards: List<Card>): Bet? {
         val trumpEvalsWithPartnerBonus = trumpEvaluationsWithPartnerBonus(bettingState, handCards)
 
-        println("trump evals: $trumpEvalsWithPartnerBonus")
         val bet = schieberBiddingCpu.findBestBet(trumpEvalsWithPartnerBonus, Int.MIN_VALUE)!!
-
         val evalForBet = trumpEvalsWithPartnerBonus.first { it.trump == bet.trump }
 
         val betHeight = findBetHeight(bettingState, bet.trump, evalForBet, handCards)
-        println("found bet height: $betHeight")
-        println("for hand cards: $handCards")
 
         return if (betHeight == BetHeight.NONE) {
             null
@@ -56,15 +52,11 @@ class SidiBarraniBiddingCpu(
         // e.g., if I already bid hearts once, then I want to announce ace's, ...
         val myBets = bettingState.bets.filter { it.playerId == playerId }
 
-        println("available trumps: ${bettingState.availableTrumps()}")
-        println("current better id: ${bettingState.currentBetterId}")
         val trumpEvaluations = schieberBiddingCpu.evaluateTrumps(
             handCards = handCards,
             trumps = bettingState.availableTrumps().toList(),
             isVorderhand = true
         )
-
-        println("trump evaluations without partner bonus: $trumpEvaluations")
 
         val trumpEvalsWithPartnerBonus = trumpEvaluations.map { eval ->
             if (teamPartnersTrumps.contains(eval.trump)) {
@@ -172,16 +164,12 @@ class SidiBarraniBiddingCpu(
                         && it.playerId.teamId() == playerId.teamId()
             }.lastOrNull()
 
-        println("last team bet for trump: $lastTeamBetForTrump")
-
         return if (lastTeamBetForTrump == null) {
             firstTeamBetForTrump(trumpCards, bettingState)
         } else if (lastTeamBetForTrump.bet.isOdd()) {
             // partner has the nell --> I need the jack (or the ace)
-            println("partner has the nell")
             betKnowingGivenCard(trumpCards, bettingState, Rank.JACK)
         } else if (!lastTeamBetForTrump.bet.isOdd()) {
-            println("partner has the jack")
             // partner has the jack --> I need the nell (or the ace)
             betKnowingGivenCard(trumpCards, bettingState, Rank.NINE)
         } else {
