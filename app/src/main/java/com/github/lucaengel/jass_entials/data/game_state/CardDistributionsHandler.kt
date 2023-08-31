@@ -180,7 +180,7 @@ class CardDistributionsHandler {
                         } else if (isEven) {
                             // team partner announced the nell
                             guaranteedCard = Card(currBet.trump.asSuit()!!, Rank.JACK)
-                            nbCardsForSuit = 2
+                            nbCardsForSuit = 1
                         } else if (firstSuchBet == currBet) {
                             guaranteedCard = Card(currBet.trump.asSuit()!!, Rank.NINE)
                             nbCardsForSuit = 3

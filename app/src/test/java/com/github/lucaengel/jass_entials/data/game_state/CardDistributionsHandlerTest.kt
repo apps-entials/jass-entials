@@ -1,8 +1,6 @@
 package com.github.lucaengel.jass_entials.data.game_state
 
 import com.github.lucaengel.jass_entials.data.cards.Card
-import com.github.lucaengel.jass_entials.data.cards.Deck
-import com.github.lucaengel.jass_entials.data.cards.PlayerData
 import com.github.lucaengel.jass_entials.data.cards.Rank
 import com.github.lucaengel.jass_entials.data.cards.Suit
 import com.github.lucaengel.jass_entials.data.jass.Trump
@@ -17,25 +15,6 @@ class CardDistributionsHandlerTest {
 
     private lateinit var distributionsHandler: CardDistributionsHandler
 
-    private val defaultPlayerDatas = listOf(
-        PlayerData().copy(
-            id = PlayerId.PLAYER_1,
-            firstName = "player1",
-            cards = Deck.STANDARD_DECK.cards.subList(0, 9)),
-        PlayerData().copy(
-            id = PlayerId.PLAYER_2,
-            firstName = "player2",
-            cards = Deck.STANDARD_DECK.cards.subList(9, 18)),
-        PlayerData().copy(
-            id = PlayerId.PLAYER_3,
-            firstName = "player3",
-            cards = Deck.STANDARD_DECK.cards.subList(18, 27)),
-        PlayerData().copy(
-            id = PlayerId.PLAYER_4,
-            firstName = "player4",
-            cards = Deck.STANDARD_DECK.cards.subList(27, 36)),
-    )
-
     @Before
     fun setUp() {
         distributionsHandler = CardDistributionsHandler()
@@ -46,7 +25,7 @@ class CardDistributionsHandlerTest {
     }
 
 
-    // ---------- update card distributions tests -------------
+    // ---------- extract knowledge from bets test -------------
 
     @Test
     fun jackWithOthersIsCorrectlyAnalyzed() {
@@ -248,8 +227,216 @@ class CardDistributionsHandlerTest {
         assertThat(sixes[PlayerId.PLAYER_2], `is`(4))
     }
 
+    @Test
+    fun sayingNellAfterPartnerSayingTrumpJackFoundCorrectly() {
+        val bets = listOf(
+            Bet(
+                playerId = PlayerId.PLAYER_1,
+                bet = BetHeight.FORTY,
+                trump = Trump.HEARTS
+            ),
+            Bet(
+                playerId = PlayerId.PLAYER_3,
+                bet = BetHeight.FIFTY,
+                trump = Trump.HEARTS
+            ),
+        )
 
-    // ---------- extract knowledge from bets test ------------
+        distributionsHandler.extractKnowledgeFromBets(2, bets)
+
+        var guaranteedCards = distributionsHandler.guaranteedCards()
+        var cardsPerSuit = distributionsHandler.cardsPerSuitPerPlayer()
+
+        assertThat(guaranteedCards[PlayerId.PLAYER_1], containsInAnyOrder(Card(Suit.HEARTS, Rank.JACK)))
+        assertThat(cardsPerSuit[PlayerId.PLAYER_1]!![Suit.HEARTS], `is`(3))
+
+        assertThat(guaranteedCards[PlayerId.PLAYER_3], containsInAnyOrder(Card(Suit.HEARTS, Rank.NINE)))
+        assertThat(cardsPerSuit[PlayerId.PLAYER_3]!![Suit.HEARTS], `is`(2))
+
+        // try with five cards
+        resetCardDistributions()
+
+        distributionsHandler.extractKnowledgeFromBets(1, listOf(
+            Bet(
+                playerId = PlayerId.PLAYER_1,
+                bet = BetHeight.SIXTY,
+                trump = Trump.HEARTS
+            ),
+            Bet(
+                playerId = PlayerId.PLAYER_3,
+                bet = BetHeight.NINETY,
+                trump = Trump.HEARTS
+            ),
+        ))
+
+        guaranteedCards = distributionsHandler.guaranteedCards()
+        cardsPerSuit = distributionsHandler.cardsPerSuitPerPlayer()
+
+        assertThat(guaranteedCards[PlayerId.PLAYER_1], containsInAnyOrder(Card(Suit.HEARTS, Rank.JACK)))
+        assertThat(cardsPerSuit[PlayerId.PLAYER_1]!![Suit.HEARTS], `is`(4))
+
+        assertThat(guaranteedCards[PlayerId.PLAYER_3], containsInAnyOrder(Card(Suit.HEARTS, Rank.NINE)))
+        assertThat(cardsPerSuit[PlayerId.PLAYER_3]!![Suit.HEARTS], `is`(3))
+    }
+
+    @Test
+    fun sayingJackAfterPartnerSayingNellFoundCorrectly() {
+        val bets = listOf(
+            Bet(
+                playerId = PlayerId.PLAYER_1,
+                bet = BetHeight.FIFTY,
+                trump = Trump.HEARTS
+            ),
+            Bet(
+                playerId = PlayerId.PLAYER_3,
+                bet = BetHeight.SIXTY,
+                trump = Trump.HEARTS
+            ),
+        )
+
+        distributionsHandler.extractKnowledgeFromBets(2, bets)
+
+        var guaranteedCards = distributionsHandler.guaranteedCards()
+        var cardsPerSuit = distributionsHandler.cardsPerSuitPerPlayer()
+
+        assertThat(guaranteedCards[PlayerId.PLAYER_1], containsInAnyOrder(Card(Suit.HEARTS, Rank.NINE)))
+        assertThat(cardsPerSuit[PlayerId.PLAYER_1]!![Suit.HEARTS], `is`(3))
+
+        assertThat(guaranteedCards[PlayerId.PLAYER_3], containsInAnyOrder(Card(Suit.HEARTS, Rank.JACK)))
+        assertThat(cardsPerSuit[PlayerId.PLAYER_3]!![Suit.HEARTS], `is`(1))
+
+        // try with five cards
+        resetCardDistributions()
+
+        distributionsHandler.extractKnowledgeFromBets(1, listOf(
+            Bet(
+                playerId = PlayerId.PLAYER_1,
+                bet = BetHeight.SEVENTY,
+                trump = Trump.HEARTS
+            ),
+            Bet(
+                playerId = PlayerId.PLAYER_3,
+                bet = BetHeight.HUNDRED,
+                trump = Trump.HEARTS
+            ),
+        ))
+
+        guaranteedCards = distributionsHandler.guaranteedCards()
+        cardsPerSuit = distributionsHandler.cardsPerSuitPerPlayer()
+
+        assertThat(guaranteedCards[PlayerId.PLAYER_1], containsInAnyOrder(Card(Suit.HEARTS, Rank.NINE)))
+        assertThat(cardsPerSuit[PlayerId.PLAYER_1]!![Suit.HEARTS], `is`(4))
+
+        assertThat(guaranteedCards[PlayerId.PLAYER_3], containsInAnyOrder(Card(Suit.HEARTS, Rank.JACK)))
+        assertThat(cardsPerSuit[PlayerId.PLAYER_3]!![Suit.HEARTS], `is`(2))
+    }
+
+    @Test
+    fun sayingAceAfterPartnerSayingNellFoundCorrectly() {
+        val bets = listOf(
+            Bet(
+                playerId = PlayerId.PLAYER_1,
+                bet = BetHeight.FIFTY,
+                trump = Trump.HEARTS
+            ),
+            Bet(
+                playerId = PlayerId.PLAYER_3,
+                bet = BetHeight.SEVENTY,
+                trump = Trump.HEARTS
+            ),
+        )
+
+        distributionsHandler.extractKnowledgeFromBets(2, bets)
+
+        var guaranteedCards = distributionsHandler.guaranteedCards()
+        var cardsPerSuit = distributionsHandler.cardsPerSuitPerPlayer()
+
+        assertThat(guaranteedCards[PlayerId.PLAYER_1], containsInAnyOrder(Card(Suit.HEARTS, Rank.NINE)))
+        assertThat(cardsPerSuit[PlayerId.PLAYER_1]!![Suit.HEARTS], `is`(3))
+
+        assertThat(guaranteedCards[PlayerId.PLAYER_3], containsInAnyOrder(Card(Suit.HEARTS, Rank.ACE)))
+        assertThat(cardsPerSuit[PlayerId.PLAYER_3]!![Suit.HEARTS], `is`(3))
+
+        // try with five cards
+        resetCardDistributions()
+
+        distributionsHandler.extractKnowledgeFromBets(1, listOf(
+            Bet(
+                playerId = PlayerId.PLAYER_1,
+                bet = BetHeight.FIFTY,
+                trump = Trump.HEARTS
+            ),
+            Bet(
+                playerId = PlayerId.PLAYER_3,
+                bet = BetHeight.NINETY,
+                trump = Trump.HEARTS
+            ),
+        ))
+
+        guaranteedCards = distributionsHandler.guaranteedCards()
+        cardsPerSuit = distributionsHandler.cardsPerSuitPerPlayer()
+
+        assertThat(guaranteedCards[PlayerId.PLAYER_1], containsInAnyOrder(Card(Suit.HEARTS, Rank.NINE)))
+        assertThat(cardsPerSuit[PlayerId.PLAYER_1]!![Suit.HEARTS], `is`(3))
+
+        assertThat(guaranteedCards[PlayerId.PLAYER_3], containsInAnyOrder(Card(Suit.HEARTS, Rank.ACE)))
+        assertThat(cardsPerSuit[PlayerId.PLAYER_3]!![Suit.HEARTS], `is`(4))
+    }
+
+    @Test
+    fun sayingAceAfterPartnerSayingJackFoundCorrectly() {
+        val bets = listOf(
+            Bet(
+                playerId = PlayerId.PLAYER_1,
+                bet = BetHeight.FORTY,
+                trump = Trump.HEARTS
+            ),
+            Bet(
+                playerId = PlayerId.PLAYER_3,
+                bet = BetHeight.SIXTY,
+                trump = Trump.HEARTS
+            ),
+        )
+
+        distributionsHandler.extractKnowledgeFromBets(2, bets)
+
+        var guaranteedCards = distributionsHandler.guaranteedCards()
+        var cardsPerSuit = distributionsHandler.cardsPerSuitPerPlayer()
+
+        assertThat(guaranteedCards[PlayerId.PLAYER_1], containsInAnyOrder(Card(Suit.HEARTS, Rank.JACK)))
+        assertThat(cardsPerSuit[PlayerId.PLAYER_1]!![Suit.HEARTS], `is`(3))
+
+        assertThat(guaranteedCards[PlayerId.PLAYER_3], containsInAnyOrder(Card(Suit.HEARTS, Rank.ACE)))
+        assertThat(cardsPerSuit[PlayerId.PLAYER_3]!![Suit.HEARTS], `is`(3))
+
+        // try with five cards
+        resetCardDistributions()
+
+        distributionsHandler.extractKnowledgeFromBets(1, listOf(
+            Bet(
+                playerId = PlayerId.PLAYER_1,
+                bet = BetHeight.FORTY,
+                trump = Trump.HEARTS
+            ),
+            Bet(
+                playerId = PlayerId.PLAYER_3,
+                bet = BetHeight.HUNDRED,
+                trump = Trump.HEARTS
+            ),
+        ))
+
+        guaranteedCards = distributionsHandler.guaranteedCards()
+        cardsPerSuit = distributionsHandler.cardsPerSuitPerPlayer()
+
+        assertThat(guaranteedCards[PlayerId.PLAYER_1], containsInAnyOrder(Card(Suit.HEARTS, Rank.JACK)))
+        assertThat(cardsPerSuit[PlayerId.PLAYER_1]!![Suit.HEARTS], `is`(3))
+
+        assertThat(guaranteedCards[PlayerId.PLAYER_3], containsInAnyOrder(Card(Suit.HEARTS, Rank.ACE)))
+        assertThat(cardsPerSuit[PlayerId.PLAYER_3]!![Suit.HEARTS], `is`(5))
+    }
+
+    // TODO: add tests for update card distributions
+    // ---------- update card distributions tests ------------
 
 
 }
