@@ -60,8 +60,6 @@ class SidiBarraniBiddingCpu(
             isVorderhand = true
         )
 
-        println("normal evaluations: $trumpEvaluations")
-
         val trumpEvalsWithPartnerBonus = trumpEvaluations.map { eval ->
             if (teamPartnersTrumps.contains(eval.trump)) {
                 eval.copy(
