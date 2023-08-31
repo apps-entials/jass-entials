@@ -435,6 +435,7 @@ class CardDistributionsHandlerTest {
         assertThat(cardsPerSuit[PlayerId.PLAYER_3]!![Suit.HEARTS], `is`(5))
     }
 
+
     // TODO: add tests for update card distributions
     // ---------- update card distributions tests ------------
 

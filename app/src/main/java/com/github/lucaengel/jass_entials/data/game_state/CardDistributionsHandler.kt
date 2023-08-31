@@ -90,7 +90,7 @@ class CardDistributionsHandler {
 
         // TODO: based on suits not in hand adapt guaranteed cards!!!
         // adjust guaranteed cards if they are clear from number of cards per color
-        updateGuaranteedCards(unplayedCards, card)
+        updateGuaranteedCardsBasedOnCardsPerSuit(unplayedCards, card)
     }
 
     /**
@@ -214,7 +214,16 @@ class CardDistributionsHandler {
         }
     }
 
-    private fun addAllSuitsOfRankToGuaranteed(playerId: PlayerId, rank: Rank) {
+    /**
+     * Adds all cards of a given rank to the guaranteed cards of a given player.
+     *
+     * @param playerId The player to add the cards to.
+     * @param rank The rank of the cards to add.
+     */
+    private fun addAllSuitsOfRankToGuaranteed(
+        playerId: PlayerId,
+        rank: Rank
+    ) {
         guaranteedCards += playerId to
                 (guaranteedCards[playerId] ?: setOf()) +
                 setOf(
@@ -263,7 +272,13 @@ class CardDistributionsHandler {
         }
     }
 
-    private fun updateGuaranteedCards(
+    /**
+     * Adjusts the guaranteed cards if they are clear from number of cards per color.
+     *
+     * @param unplayedCards The cards that are still unplayed.
+     * @param card The card that was played.
+     */
+    private fun updateGuaranteedCardsBasedOnCardsPerSuit(
         unplayedCards: List<Card>,
         card: Card
     ) {
@@ -281,7 +296,6 @@ class CardDistributionsHandler {
                     .filter { (_, suitOccurrences) ->
                         (suitOccurrences[card.suit] ?: -1) >= suitCardsLeft.size
                     }
-    //                            (suitOccurrences.firstOrNull { it.first == card.suit && it.second >= suitCardsLeft.size } != null) }
                     .forEach { (id, _) ->
                         guaranteedCards += id to
                                 (guaranteedCards[id] ?: setOf()) + suitCardsLeft.toSet()
@@ -290,6 +304,14 @@ class CardDistributionsHandler {
         }
     }
 
+    /**
+     * Updates the number of sixes that are guaranteed to be in the hands of a given player and,
+     * if possible, places sixes into the guaranteed cards map.
+     *
+     * @param unplayedCards The cards that are still unplayed.
+     * @param card The card that was played.
+     * @param cardPlayer The player that played the card.
+     */
     private fun updateSixesPerPlayer(
         unplayedCards: List<Card>,
         card: Card,
@@ -320,6 +342,14 @@ class CardDistributionsHandler {
         }
     }
 
+    /**
+     * Updates the number of aces that are guaranteed to be in the hands of a given player and,
+     * if possible, places aces into the guaranteed cards map.
+     *
+     * @param unplayedCards The cards that are still unplayed.
+     * @param card The card that was played.
+     * @param cardPlayer The player that played the card.
+     */
     private fun updateAcesPerPlayer(
         unplayedCards: List<Card>,
         card: Card,
@@ -347,6 +377,12 @@ class CardDistributionsHandler {
         }
     }
 
+    /**
+     * Updates the number of cards for a given suit that are guaranteed to be in the hands of a given player.
+     *
+     * @param cardPlayer The player that played the card.
+     * @param card The card that was played.
+     */
     private fun updateCardsPerSuit(
         cardPlayer: PlayerId,
         card: Card
@@ -369,106 +405,4 @@ class CardDistributionsHandler {
                 "suitsNotInHand: $suitsNotInHand\n"
 
     }
-
-//    companion object {
-//
-//        /**
-//         * Responsible to update the card distributions known in GameStateHolder based on the newly played card.
-//         *
-//         * @param card The card that was played.
-//         */
-//        fun updateCardDistributions(
-//            card: Card,
-//            trick: Trick,
-//            unplayedCards: List<Card>,
-//            nextPlayer: () -> PlayerId
-//        ) {
-//            // update cards per suit per player:
-//            val cardPlayer = nextPlayer()
-//            if (GameStateHolder.cardsPerSuitPerPlayer != null
-//                && GameStateHolder.cardsPerSuitPerPlayer[cardPlayer] != null) {
-//
-//                val playerMap = GameStateHolder.cardsPerSuitPerPlayer[cardPlayer]!!
-//                val cardsForSuit = playerMap[card.suit] ?: 0
-//                if (cardsForSuit > 0) {
-//                    GameStateHolder.cardsPerSuitPerPlayer += cardPlayer to (playerMap + (card.suit to (cardsForSuit - 1)))
-//                }
-//            }
-//
-//
-//            if (trick.trump == Trump.OBE_ABE
-//                && card.rank == Rank.ACE
-//                && GameStateHolder.acesPerPlayer.isNotEmpty()
-//            ) {
-//                val acesLeft = unplayedCards.filter { it.rank == Rank.ACE } - card
-//                if (acesLeft.isEmpty()) {
-//                    GameStateHolder.acesPerPlayer = mutableMapOf()
-//                    return
-//                }
-//
-//                val acesPerPlayer = GameStateHolder.acesPerPlayer[nextPlayer()] ?: 0
-//                if (acesPerPlayer > 0) GameStateHolder.acesPerPlayer += nextPlayer() to (acesPerPlayer - 1)
-//
-//                // adjust guaranteed cards if they are clear
-//                if (GameStateHolder.acesPerPlayer.containsValue(acesLeft.size) && acesLeft.isNotEmpty()) {
-//                    GameStateHolder.acesPerPlayer.toList().filter { it.second == acesLeft.size }.forEach {
-//                        GameStateHolder.guaranteedCards += it.first to
-//                                ((GameStateHolder.guaranteedCards[it.first] ?: setOf())
-//                                        + acesLeft)
-//                    }
-//                }
-//            } else if (trick.trump == Trump.UNGER_UFE
-//                && card.rank == Rank.SIX
-//                && GameStateHolder.sixesPerPlayer.isNotEmpty()
-//            ) {
-//
-//                val sixesLeft = unplayedCards.filter { it.rank == Rank.SIX } - card
-//                if (sixesLeft.isEmpty()) {
-//                    GameStateHolder.sixesPerPlayer = mutableMapOf()
-//                    return
-//                }
-//
-//                val sixesPerPlayer = GameStateHolder.sixesPerPlayer[nextPlayer()] ?: 0
-//                if (sixesPerPlayer > 0) GameStateHolder.sixesPerPlayer += nextPlayer() to (sixesPerPlayer - 1)
-//
-//                // adjust guaranteed cards if they are clear
-//                if (GameStateHolder.sixesPerPlayer.containsValue(sixesLeft.size)
-//                    && sixesLeft.isNotEmpty()) {
-//                    GameStateHolder.sixesPerPlayer.toList().filter { it.second == sixesLeft.size }.forEach {
-//                        GameStateHolder.guaranteedCards += it.first to
-//                                ((GameStateHolder.guaranteedCards[it.first] ?: setOf())
-//                                        + sixesLeft)
-//                    }
-//                    // TODO: could also still update the cards per suit if the sixes / aces are not already included in the player's cards per suit
-//                }
-//            }
-//
-//            // adjust guaranteed cards if they are clear from number of cards per color
-////        println("cards per suit per player: ${GameStateHolder.cardsPerSuitPerPlayer}")
-//
-//            if (GameStateHolder.cardsPerSuitPerPlayer == null) {
-//                GameStateHolder.cardsPerSuitPerPlayer = mutableMapOf()
-//            }
-//
-//            if (GameStateHolder.cardsPerSuitPerPlayer.isNotEmpty()) {
-//                val suitCardsLeft = unplayedCards.filter { it.suit == card.suit } - card
-//
-//                println("suit (${card.suit}) cards left: $suitCardsLeft")
-//
-//                if (GameStateHolder.cardsPerSuitPerPlayer.values.any { (it[card.suit] ?: 0) > 0 }
-//                    && suitCardsLeft.isNotEmpty()) {
-//
-//                    GameStateHolder.cardsPerSuitPerPlayer
-//                        .toList()
-//                        // TODO: maybe == instead of >= is needed, test this!!!
-//                        .filter { (_, suitOccurrences) -> (suitOccurrences[card.suit] ?: -1) >= suitCardsLeft.size }
-////                            (suitOccurrences.firstOrNull { it.first == card.suit && it.second >= suitCardsLeft.size } != null) }
-//                        .forEach { (id, _) ->
-//                            GameStateHolder.guaranteedCards += id to
-//                                    (GameStateHolder.guaranteedCards[id] ?: setOf()) + suitCardsLeft.toSet()
-//                        }
-//                }
-//            }
-//        }
-//    }
 }
