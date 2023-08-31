@@ -64,17 +64,6 @@ class CardDistributionsHandler {
         return suitsNotInHand.toMap()
     }
 
-//    /**
-//     * Resets all card distributions.
-//     */
-//    fun resetCardDistributions() {
-//        guaranteedCards.clear()
-//        cardsPerSuitPerPlayer.clear()
-//        acesPerPlayer.clear()
-//        sixesPerPlayer.clear()
-//        suitsNotInHand.clear()
-//    }
-
     /**
      * Responsible to update the card distributions known based on the newly played card.
      *
