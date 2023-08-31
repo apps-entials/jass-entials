@@ -6,6 +6,7 @@ import com.github.lucaengel.jass_entials.data.jass.Trump
 import junit.framework.TestCase.assertTrue
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
@@ -112,7 +113,8 @@ class BettingStateTest {
     @Test
     fun startGameReturnsGameStateWithNecessaryInformation() {
         val winningBet = Bet(defaultPlayerDatas[0].id, Trump.UNGER_UFE, BetHeight.SEVENTY)
-        val bettingState = defaultBettingState.copy(bets = listOf(winningBet))
+        val cardDistributionsHandler = CardDistributionsHandler()
+        val bettingState = defaultBettingState.copy(bets = listOf(winningBet), cardDistributionsHandler = cardDistributionsHandler)
 
         val expectedGameState = GameState(
             currentUserId = PlayerId.PLAYER_1,
@@ -121,7 +123,7 @@ class BettingStateTest {
             startingPlayerId = defaultPlayerDatas[0].id,
             currentRound = 0,
             jassType = JassType.SIDI_BARRANI,
-            roundState = RoundState.initial(winningBet.trump, defaultPlayerDatas[0].id),
+            roundState = RoundState.initial(winningBet.trump, defaultPlayerDatas[0].id, cardDistributionsHandler = cardDistributionsHandler),
             winningBet = winningBet,
             playerCards = defaultPlayerDatas.associate { it.id to it.cards },
         )
@@ -163,5 +165,56 @@ class BettingStateTest {
         val bettingState = BettingState().copy(bets = listOf(Bet(defaultPlayerDatas[0].id, Trump.UNGER_UFE, BetHeight.MATCH)))
 
         assertThat(bettingState.availableBets(), `is`(listOf()))
+    }
+
+
+
+    // BetHeight tests
+    @Test
+    fun isOddReturnsTrueForOddNumbers() {
+        //is odd returns true for odd numbers
+        val odds = listOf(
+            BetHeight.FIFTY,
+            BetHeight.SEVENTY,
+            BetHeight.NINETY,
+            BetHeight.HUNDRED_TEN,
+            BetHeight.HUNDRED_THIRTY,
+            BetHeight.HUNDRED_FIFTY
+        )
+        val evens = listOf(
+            BetHeight.FORTY,
+            BetHeight.SIXTY,
+            BetHeight.EIGHTY,
+            BetHeight.HUNDRED,
+            BetHeight.HUNDRED_TWENTY,
+            BetHeight.HUNDRED_FORTY,
+            BetHeight.HUNDRED_FIFTY_SEVEN,
+        )
+
+        odds.forEach {
+            assertTrue(it.isOdd())
+        }
+
+        evens.forEach {
+            println(it)
+            assertFalse(it.isOdd())
+        }
+    }
+
+    @Test
+    fun firstOddAndEvenReturnTheRespectiveElement() {
+        assertThat(BetHeight.FORTY.firstOdd(), `is`(BetHeight.FIFTY))
+        assertThat(BetHeight.FIFTY.firstOdd(), `is`(BetHeight.FIFTY))
+
+        assertThat(BetHeight.FORTY.firstEven(), `is`(BetHeight.FORTY))
+        assertThat(BetHeight.FORTY.firstEven(), `is`(BetHeight.FORTY))
+    }
+
+    @Test
+    fun nHigherReturnsTheNthHighBet() {
+        assertThat(BetHeight.FORTY.nHigher(1), `is`(BetHeight.FIFTY))
+        assertThat(BetHeight.FIFTY.nHigher(0), `is`(BetHeight.FIFTY))
+        assertThat(BetHeight.FORTY.nHigher(6), `is`(BetHeight.HUNDRED))
+        assertThat(BetHeight.HUNDRED.nHigher(-2), `is`(BetHeight.EIGHTY))
     }
 }

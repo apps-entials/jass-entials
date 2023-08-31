@@ -34,7 +34,7 @@ data class GameState(
         startingPlayerId = PlayerId.PLAYER_1,
         currentRound = 0,
         jassType = JassType.SIDI_BARRANI,
-        roundState = RoundState.initial(Trump.CLUBS, PlayerId.PLAYER_1),
+        roundState = RoundState.initial(Trump.CLUBS, PlayerId.PLAYER_1, cardDistributionsHandler = CardDistributionsHandler()),
         winningBet = Bet(PlayerId.PLAYER_1, Trump.CLUBS, BetHeight.NONE),
         playerCards = mapOf(),
     )

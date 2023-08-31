@@ -29,6 +29,7 @@ data class BettingState(
     val betActions: List<Bet.BetAction>,
     val gameState: GameState,
     val score: Score,
+    val cardDistributionsHandler: CardDistributionsHandler = CardDistributionsHandler()
 ){
 
     private val bettingLogic: BettingLogic = when (jassType) {
@@ -74,7 +75,8 @@ data class BettingState(
             startingBetterId = startingBetter,
             jassType = jassType,
             bets = listOf(),
-            score = score
+            score = score,
+            cardDistributionsHandler = CardDistributionsHandler()
         )
     }
 
@@ -95,7 +97,15 @@ data class BettingState(
     fun nextPlayer(placedBet: Bet? = null): BettingState {
 
         val nextBetterId = bettingLogic.nextPlayer(currentBetterId, placedBet, this)
-        return this.copy(
+
+//        // todo: not the nicest solution ever, maybe find a more abstract way to do this
+//        if (placedBet != null && jassType == JassType.SIDI_BARRANI) {
+//            // analyze who has which cards: only need last 4 bets (the ones before have already been analyzed)
+//            val nbBetsInLastPass = newState.betActions.takeLast(3).count { it == Bet.BetAction.BET }
+//            SidiBarraniBiddingCpu.extractKnowledgeFromBets(nbBetsInLastPass, bets)
+//        }
+
+        return copy(
             currentBetterId = nextBetterId,
             bets = if (placedBet != null) bets + placedBet else bets,
             betActions = if (placedBet != null) betActions + Bet.BetAction.BET else betActions + Bet.BetAction.PASS,
@@ -156,6 +166,7 @@ data class BettingState(
                 trump = winningBet.trump,
                 startingPlayerId = startingPlayer,
                 score = score,
+                cardDistributionsHandler = cardDistributionsHandler,
             ),
             winningBet = winningBet,
             playerCards = GameStateHolder.players.associate { it.id to it.cards },
@@ -202,7 +213,7 @@ data class Bet(
  *
  * @param value the points the bet is worth
  */
-enum class BetHeight(private val value: Int) {
+enum class BetHeight(val value: Int) {
     NONE(0),
     FORTY(40),
     FIFTY(50),
@@ -218,6 +229,50 @@ enum class BetHeight(private val value: Int) {
     HUNDRED_FIFTY(150),
     HUNDRED_FIFTY_SEVEN(157),
     MATCH(257);
+
+    /**
+     * Returns the value of this bet height as an integer.
+     *
+     * @return the value of this bet height
+     */
+    fun asInt(): Int {
+        return value
+    }
+
+    fun isOdd(): Boolean {
+        // since FORTY is even and ordinal 1, we check for == 0 for odd
+        return ordinal % 2 == 0
+    }
+
+    fun firstEven(): BetHeight {
+        return if (isOdd()) {
+            nHigher(1)
+        } else {
+            this
+        }
+    }
+
+    fun firstOdd(): BetHeight {
+        return if (isOdd()) {
+            this
+        } else {
+            nHigher(1)
+        }
+    }
+
+    /**
+     * Returns the BetHeight that is n higher than this one. (clamped between FORTY and MATCH)
+     *
+     * @param n the number of steps to go up
+     * @return the new BetHeight
+     */
+    fun nHigher(n: Int): BetHeight {
+        return if (n > 0) {
+            values()[(this.ordinal + n).coerceAtMost(values().size - 1)]
+        } else {
+            values()[(this.ordinal + n).coerceAtLeast(1)]
+        }
+    }
 
     override fun toString(): String {
         return when (this) {
@@ -239,6 +294,32 @@ enum class BetHeight(private val value: Int) {
                 "no bet" -> NONE
                 "match" -> MATCH
                 else -> BetHeight.values().first { it.value == string.toInt() }
+            }
+        }
+
+        /**
+         * Returns the bet height closest to the given number of points.
+         *
+         * @param points the number of points
+         * @return the closest bet height
+         */
+        fun fromPoints(points: Int): BetHeight {
+            return when {
+                points < 40 -> NONE
+                points < 50 -> FORTY
+                points < 60 -> FIFTY
+                points < 70 -> SIXTY
+                points < 80 -> SEVENTY
+                points < 90 -> EIGHTY
+                points < 100 -> NINETY
+                points < 110 -> HUNDRED
+                points < 120 -> HUNDRED_TEN
+                points < 130 -> HUNDRED_TWENTY
+                points < 140 -> HUNDRED_THIRTY
+                points < 150 -> HUNDRED_FORTY
+                points < 157 -> HUNDRED_FIFTY
+                points < 170 -> HUNDRED_FIFTY_SEVEN
+                else -> MATCH
             }
         }
     }

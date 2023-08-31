@@ -71,7 +71,7 @@ class GameStateHolder {
             startingPlayerId = playerData1.id,
             currentRound = 1,
             jassType = JassType.SIDI_BARRANI,
-            roundState = RoundState.initial(trump = Trump.CLUBS, startingPlayerId = playerData2.id)
+            roundState = RoundState.initial(trump = Trump.CLUBS, startingPlayerId = playerData2.id, cardDistributionsHandler = CardDistributionsHandler())
                 .withCardPlayed(Deck.STANDARD_DECK.cards[0])
                 .withCardPlayed(Deck.STANDARD_DECK.cards[1])
                 .withCardPlayed(Deck.STANDARD_DECK.cards[2])
@@ -102,7 +102,33 @@ class GameStateHolder {
                 score = Score.INITIAL,
             )
 
+        /**
+         * The trumps that have already been bet by each team. Used mainly for Coiffeur
+         */
         var prevTrumpsByTeam = mapOf<TeamId, Set<Trump>>()
+
+//        /**
+//         * The cards that are guaranteed to be in the hands of the given players.
+//         */
+//        var guaranteedCards = mutableMapOf<PlayerId, Set<Card>>()
+//
+//        /**
+//         * The number of cards for a given suit that are guaranteed to be in the hands of a given player.
+//         */
+//        var cardsPerSuitPerPlayer = mutableMapOf<PlayerId, Map<Suit, Int>>()
+//
+//        /**
+//         * The number of aces that are guaranteed to be in the hands of a given player. (6's when unger ufe)
+//         */
+//        var acesPerPlayer = mutableMapOf<PlayerId, Int>()
+//
+//        /**
+//         * The number of aces that are guaranteed to be in the hands of a given player. (6's when unger ufe)
+//         */
+//        var sixesPerPlayer = mutableMapOf<PlayerId, Int>()
+//
+//        val cardDistributionsHandler = CardDistributionsHandler()
+
 
 //        /**
 //         * The current jass type.
@@ -129,7 +155,13 @@ class GameStateHolder {
          * @param startingBetter The player that starts the next betting round.
          */
         fun goToNextBettingStateRound(startingBetter: PlayerId) {
-            prevTrumpsByTeam = mapOf()
+//            prevTrumpsByTeam = mutableMapOf()
+//            guaranteedCards = mutableMapOf()
+//            cardsPerSuitPerPlayer = mutableMapOf()
+//            acesPerPlayer = mutableMapOf()
+//            sixesPerPlayer = mutableMapOf()
+
+
             bettingState = bettingState.nextBettingRound(
                 startingBetter = startingBetter,
 //                jassType = jassType,
