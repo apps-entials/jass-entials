@@ -23,7 +23,7 @@ class SidiBarraniBettingLogic : BettingLogic {
                 if (currentPlayerBet == null) Bet.BetAction.PASS
                 else Bet.BetAction.BET
 
-        if (currentPlayerBet != null) {
+        if (currentPlayerBet != null) { // TODO: do we need to take the last 3 bets since we always check when a bet is placed???
             val nbBetsInLastPass = betActions.takeLast(3).count { it == Bet.BetAction.BET }
             bettingState.cardDistributionsHandler.extractKnowledgeFromBets(nbBetsInLastPass, bets)
         }

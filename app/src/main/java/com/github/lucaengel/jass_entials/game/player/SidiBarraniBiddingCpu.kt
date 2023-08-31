@@ -17,6 +17,8 @@ class SidiBarraniBiddingCpu(
     override fun bet(bettingState: BettingState, handCards: List<Card>): Bet? {
         val trumpEvalsWithPartnerBonus = trumpEvaluationsWithPartnerBonus(bettingState, handCards)
 
+        println("trump evaluations with partner bonus: $trumpEvalsWithPartnerBonus")
+
         val bet = schieberBiddingCpu.findBestBet(trumpEvalsWithPartnerBonus, Int.MIN_VALUE)!!
         val evalForBet = trumpEvalsWithPartnerBonus.first { it.trump == bet.trump }
 
@@ -58,6 +60,8 @@ class SidiBarraniBiddingCpu(
             isVorderhand = true
         )
 
+        println("normal evaluations: $trumpEvaluations")
+
         val trumpEvalsWithPartnerBonus = trumpEvaluations.map { eval ->
             if (teamPartnersTrumps.contains(eval.trump)) {
                 eval.copy(
@@ -90,7 +94,19 @@ class SidiBarraniBiddingCpu(
         trump: Trump,
         teamPartnerBets: List<Bet>
     ): Int {
-        return 2 * teamPartnerBets.first { it.trump == trump }.bet.value / 3
+        val guaranteedCardsTeamMate = bettingState.cardDistributionsHandler.guaranteedCards()
+            .getOrDefault(playerId.teamMate(), setOf())
+        val bonus = if (trump.asSuit() == null) {
+            0
+        } else if (guaranteedCardsTeamMate.contains(Card(trump.asSuit()!!, Rank.JACK))) {
+            17
+        } else if (guaranteedCardsTeamMate.contains(Card(trump.asSuit()!!, Rank.NINE))) {
+            12
+        } else {
+            0
+        }
+
+        return bonus + 2 * teamPartnerBets.first { it.trump == trump }.bet.value / 3
     }
 
     /**

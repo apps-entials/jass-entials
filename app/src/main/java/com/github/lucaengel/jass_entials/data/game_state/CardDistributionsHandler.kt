@@ -139,9 +139,15 @@ class CardDistributionsHandler {
                 when (currBet.trump) {
                     Trump.OBE_ABE -> {
                         acesPerPlayer += currBet.playerId to jump
+                        if (jump == 4) {
+                            addAllSuitsOfRankToGuaranteed(currBet.playerId, Rank.ACE)
+                        }
                     }
                     Trump.UNGER_UFE -> {
                         sixesPerPlayer += currBet.playerId to jump
+                        if (jump == 4) {
+                            addAllSuitsOfRankToGuaranteed(currBet.playerId, Rank.SIX)
+                        }
                     }
                     // any suit trump
                     else -> {
@@ -219,8 +225,16 @@ class CardDistributionsHandler {
         }
     }
 
-
-
+    private fun addAllSuitsOfRankToGuaranteed(playerId: PlayerId, rank: Rank) {
+        guaranteedCards += playerId to
+                (guaranteedCards[playerId] ?: setOf()) +
+                setOf(
+                    Card(Suit.HEARTS, rank),
+                    Card(Suit.DIAMONDS, rank),
+                    Card(Suit.CLUBS, rank),
+                    Card(Suit.SPADES, rank),
+                )
+    }
 
 
     /**

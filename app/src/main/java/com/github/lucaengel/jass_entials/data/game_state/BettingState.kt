@@ -230,6 +230,11 @@ enum class BetHeight(val value: Int) {
     HUNDRED_FIFTY_SEVEN(157),
     MATCH(257);
 
+    /**
+     * Returns the value of this bet height as an integer.
+     *
+     * @return the value of this bet height
+     */
     fun asInt(): Int {
         return value
     }

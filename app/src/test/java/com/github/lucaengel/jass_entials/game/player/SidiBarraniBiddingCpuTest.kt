@@ -21,8 +21,8 @@ import org.junit.Test
 
 class SidiBarraniBiddingCpuTest {
 
-    lateinit var defaultBettingState: BettingState
-    lateinit var bettingCpu: SidiBarraniBiddingCpu
+    private lateinit var defaultBettingState: BettingState
+    private lateinit var bettingCpu: SidiBarraniBiddingCpu
 
     private val defaultPlayerDatas = listOf(
         PlayerData().copy(
@@ -413,6 +413,7 @@ class SidiBarraniBiddingCpuTest {
             Card(Suit.HEARTS, Rank.NINE),
             Card(Suit.HEARTS, Rank.ACE),
             Card(Suit.HEARTS, Rank.TEN),
+            Card(Suit.HEARTS, Rank.SIX),
         )
 
         val fillUpCards = listOf(
@@ -457,6 +458,149 @@ class SidiBarraniBiddingCpuTest {
         )
     }
 
+    @Test
+    fun correctSpacingForAceBettingAfterTeammateBetJack() {
+        val trumpCards = listOf(
+            Card(Suit.HEARTS, Rank.ACE),
+            Card(Suit.HEARTS, Rank.QUEEN),
+            Card(Suit.HEARTS, Rank.TEN),
+            Card(Suit.HEARTS, Rank.EIGHT),
+            Card(Suit.HEARTS, Rank.SEVEN),
+        )
+
+        val fillUpCards = listOf(
+            Card(Suit.SPADES, Rank.JACK),
+            Card(Suit.SPADES, Rank.SEVEN),
+
+            Card(Suit.DIAMONDS, Rank.KING),
+            Card(Suit.DIAMONDS, Rank.TEN),
+            Card(Suit.DIAMONDS, Rank.SIX),
+
+            Card(Suit.CLUBS, Rank.QUEEN),
+        )
+        val expectedBetHeights = listOf(
+            BetHeight.SIXTY,
+            BetHeight.EIGHTY,
+            BetHeight.HUNDRED,
+        )
+
+        val teamMateBet = Bet(PlayerId.PLAYER_3, Trump.HEARTS, BetHeight.FORTY)
+        addBetToBettingState(listOf(teamMateBet, null), PlayerId.PLAYER_3)
+        checkForCorrectBetPlaced(
+            startingNbTrumpableCards = 3,
+            trumpableCards = trumpCards,
+            fillUpCards = fillUpCards,
+            expectedBetHeights = expectedBetHeights,
+            expectedTrump = Trump.HEARTS
+        )
+
+        // Betting after opponents bet
+        val opponentBet = Bet(PlayerId.PLAYER_4, Trump.UNGER_UFE, BetHeight.SIXTY)
+        addBetToBettingState(listOf(teamMateBet, opponentBet), PlayerId.PLAYER_3)
+        val newExpectedBetHeights = expectedBetHeights.map { it.nHigher(2) }.dropLast(1) // start at 70
+        val newTrumpCards = trumpCards.dropLast(1)
+        checkForCorrectBetPlaced(
+            startingNbTrumpableCards = 3,
+            trumpableCards = newTrumpCards,
+            fillUpCards = fillUpCards,
+            expectedBetHeights = newExpectedBetHeights,
+            expectedTrump = Trump.HEARTS
+        )
+    }
+
+    @Test
+    fun correctSpacingForAceBettingAfterTeammateBetNell() {
+        val trumpCards = listOf(
+            Card(Suit.HEARTS, Rank.ACE),
+            Card(Suit.HEARTS, Rank.QUEEN),
+            Card(Suit.HEARTS, Rank.TEN),
+            Card(Suit.HEARTS, Rank.EIGHT),
+        )
+
+        val fillUpCards = listOf(
+            Card(Suit.SPADES, Rank.JACK),
+            Card(Suit.SPADES, Rank.SEVEN),
+
+            Card(Suit.DIAMONDS, Rank.KING),
+            Card(Suit.DIAMONDS, Rank.TEN),
+            Card(Suit.DIAMONDS, Rank.SIX),
+
+            Card(Suit.CLUBS, Rank.QUEEN),
+        )
+        val expectedBetHeights = listOf(
+            BetHeight.SEVENTY,
+            BetHeight.NINETY,
+        )
+
+        val teamMateBet = Bet(PlayerId.PLAYER_3, Trump.HEARTS, BetHeight.FIFTY)
+        addBetToBettingState(listOf(teamMateBet, null), PlayerId.PLAYER_3)
+        checkForCorrectBetPlaced(
+            startingNbTrumpableCards = 3,
+            trumpableCards = trumpCards,
+            fillUpCards = fillUpCards,
+            expectedBetHeights = expectedBetHeights,
+            expectedTrump = Trump.HEARTS
+        )
+
+        // Betting after opponents bet
+        val opponentBet = Bet(PlayerId.PLAYER_4, Trump.UNGER_UFE, BetHeight.SEVENTY)
+        addBetToBettingState(listOf(teamMateBet, opponentBet), PlayerId.PLAYER_3)
+        val newExpectedBetHeights = expectedBetHeights.map { it.nHigher(2) }.dropLast(1) // start at 70
+        val newTrumpCards = trumpCards.dropLast(1)
+        checkForCorrectBetPlaced(
+            startingNbTrumpableCards = 3,
+            trumpableCards = newTrumpCards,
+            fillUpCards = fillUpCards,
+            expectedBetHeights = newExpectedBetHeights,
+            expectedTrump = Trump.HEARTS
+        )
+    }
+
+    @Test // TODO: should the player not bet obe abe here??? --> probably not without the king...
+    fun passWhenOnlyAceTrumpForehand() {
+        val trumpCards = listOf(
+            Card(Suit.HEARTS, Rank.ACE),
+            Card(Suit.HEARTS, Rank.QUEEN),
+            Card(Suit.HEARTS, Rank.TEN),
+            Card(Suit.HEARTS, Rank.EIGHT),
+        )
+
+        val fillUpCards = listOf(
+            Card(Suit.SPADES, Rank.EIGHT),
+            Card(Suit.SPADES, Rank.SEVEN),
+
+            Card(Suit.DIAMONDS, Rank.KING),
+            Card(Suit.DIAMONDS, Rank.SEVEN),
+
+            Card(Suit.CLUBS, Rank.QUEEN),
+            Card(Suit.CLUBS, Rank.TEN),
+        )
+        val expectedBetHeights = listOf(
+            BetHeight.SEVENTY,
+            BetHeight.NINETY,
+        )
+
+        checkForCorrectBetPlaced(
+            startingNbTrumpableCards = 3,
+            trumpableCards = trumpCards,
+            fillUpCards = fillUpCards,
+            expectedBetHeights = expectedBetHeights,
+            expectedTrump = null
+        )
+
+        // Betting after opponents bet
+        val opponentBet = Bet(PlayerId.PLAYER_4, Trump.UNGER_UFE, BetHeight.FORTY)
+        val newExpectedBetHeights = expectedBetHeights.map { it.nHigher(2) }.dropLast(1) // start at 70
+        val newTrumpCards = trumpCards.dropLast(1)
+        checkForCorrectBetPlaced(
+            startingNbTrumpableCards = 3,
+            trumpableCards = newTrumpCards,
+            fillUpCards = fillUpCards,
+            expectedBetHeights = newExpectedBetHeights,
+            expectedTrump = null
+        )
+    }
+
     // TODO:
     //  - ope abe and unger ufe after teammate bet is not tested yet
     //  - also not the case where current cpu should not bet...
@@ -497,12 +641,12 @@ class SidiBarraniBiddingCpuTest {
         trumpableCards: List<Card>,
         fillUpCards: List<Card>,
         expectedBetHeights: List<BetHeight>,
-        expectedTrump: Trump
+        expectedTrump: Trump?
     ) {
         // otherwise we will get an index out of bounds exception
         //  --> adapt trumpableCards size to how many bet heights
         //      you want to test
-        assertThat(trumpableCards.size - startingNbTrumpableCards <= expectedBetHeights.size, `is`(true))
+        assertThat(trumpableCards.size - startingNbTrumpableCards == expectedBetHeights.size - 1, `is`(true))
 
         for (i in startingNbTrumpableCards..trumpableCards.size) {
 
@@ -511,7 +655,7 @@ class SidiBarraniBiddingCpuTest {
 
             assertThat(handCards.size, `is`(9))
 
-            val expectedBet =
+            val expectedBet = if (expectedTrump == null) null else
                 Bet(PlayerId.PLAYER_1, expectedTrump, expectedBetHeights[i - startingNbTrumpableCards])
             assertThat(bettingCpu.bet(defaultBettingState, handCards), `is`(expectedBet))
         }
