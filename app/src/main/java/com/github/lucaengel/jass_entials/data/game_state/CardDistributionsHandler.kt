@@ -258,11 +258,6 @@ class CardDistributionsHandler {
                     continue
                 }
 
-
-                println("updating suits not in hand: for trick: $trick")
-                println("player $playerId should be at index ${idx + 1} and played $card")
-
-
                 suitsNotInHand += playerId to suitsNotInHand.getOrDefault(playerId, setOf()).plus(suit)
             }
         }
