@@ -124,6 +124,7 @@ fun SelectGameView(finishActivity: () -> Unit = {}) {
 //        println("made elems non null!!!")
 
 
+        GameStateHolder.prevRoundScores = listOf()
         when (gameType) {
             JassType.SCHIEBER -> {
                 GameStateHolder.bettingState = GameStateHolder.bettingState
