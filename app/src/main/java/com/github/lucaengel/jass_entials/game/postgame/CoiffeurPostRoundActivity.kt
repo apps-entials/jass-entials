@@ -162,7 +162,7 @@ fun CoiffeurScoreSheet() {
                     .size == 2 * Trump.values().size
 
         if (isCoiffeurOver) {
-            val winningTeamId = gameState.roundState.winningTeam()
+            val winningTeamId = totalScore.winningTeam()
             val winnerText = if (winningTeamId != null) {
                 "$winningTeamId won!"
             } else {
