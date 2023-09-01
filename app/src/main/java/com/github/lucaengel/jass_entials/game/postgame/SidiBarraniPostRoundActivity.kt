@@ -486,7 +486,6 @@ class SidiBarraniPostRoundActivity : ComponentActivity() {
         ) {
             Box(
                 modifier = Modifier
-                    .width(rowHeight)
                     .height(rowHeight),
                 contentAlignment = Alignment.Center,
             ) {
@@ -502,7 +501,7 @@ class SidiBarraniPostRoundActivity : ComponentActivity() {
             Text(
                 text = "${bet.bet}",
                 modifier = Modifier
-                    .padding(0.dp, 0.dp, 0.dp, 0.dp),
+                    .padding(5.dp, 0.dp, 0.dp, 0.dp),
             )
         }
     }
