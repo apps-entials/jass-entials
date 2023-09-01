@@ -38,7 +38,6 @@ class DelayedCpuPlayer(
                 sleepFuture.complete(null)
             }
             CompletableFuture.runAsync {
-//                Thread.sleep(threadSleepTime)
                 cardFuture.complete(cpuPlayer.cardToPlay(roundState, handCards).join())
 
             }
