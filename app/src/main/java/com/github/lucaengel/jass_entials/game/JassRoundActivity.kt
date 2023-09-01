@@ -97,6 +97,8 @@ fun JassRound() {
             // Store current game state
             GameStateHolder.gameState = gameState
             GameStateHolder.players = players
+            GameStateHolder.prevRoundScores = GameStateHolder.prevRoundScores + Pair(gameState.winningBet, gameState.roundState.score())
+
 
             val postGameActivity = if (gameState.jassType == JassType.COIFFEUR) {
                 Intent(context, CoiffeurPostRoundActivity::class.java)

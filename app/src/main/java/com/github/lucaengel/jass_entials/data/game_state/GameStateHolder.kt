@@ -172,8 +172,6 @@ class GameStateHolder {
 //                jassType = jassType,
                 score = gameState.roundState.score().nextRound(),
             )
-
-            prevRoundScores = prevRoundScores + Pair(gameState.winningBet, gameState.roundState.score())
         }
     }
 }

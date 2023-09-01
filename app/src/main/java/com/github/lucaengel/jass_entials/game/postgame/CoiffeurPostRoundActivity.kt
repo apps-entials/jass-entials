@@ -23,9 +23,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -33,7 +33,6 @@ import com.github.lucaengel.jass_entials.data.game_state.Bet
 import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
 import com.github.lucaengel.jass_entials.data.game_state.Score
 import com.github.lucaengel.jass_entials.data.game_state.TeamId
-import com.github.lucaengel.jass_entials.data.jass.JassType
 import com.github.lucaengel.jass_entials.data.jass.Trump
 import com.github.lucaengel.jass_entials.game.SelectGameActivity
 import com.github.lucaengel.jass_entials.game.pregame.PreRoundBettingActivity
@@ -57,18 +56,22 @@ class CoiffeurPostRoundActivity : ComponentActivity() {
 /**
  * Composable for the Coiffeur score sheet.
  */
-@Preview(device = Devices.AUTOMOTIVE_1024p, widthDp = 720, heightDp = 360)
+@Preview(/*device = Devices.AUTOMOTIVE_1024p, widthDp = 720, heightDp = 360*/)
 @Composable
 fun CoiffeurScoreSheet() {
     val context = LocalContext.current
 
     val gameState = GameStateHolder.gameState
-    val roundScores = GameStateHolder.prevRoundScores + (gameState.winningBet to gameState.roundState.score())
+    val roundScores = GameStateHolder.prevRoundScores// + (gameState.winningBet to gameState.roundState.score())
     val bettingState = GameStateHolder.bettingState
 
-    val columnWidth = 100.dp
-    val rowHeight = 20.dp
-    val rowWidth = 300.dp + (rowHeight * 2)
+    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+
+    val rowWidth = screenWidth
+    val rowHeight = (screenHeight / 11).coerceAtMost(30.dp)
+    val columnWidth = (rowWidth - (rowHeight * 3)) / 3
+
     Column(
         modifier = Modifier.fillMaxWidth().fillMaxHeight(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -77,16 +80,16 @@ fun CoiffeurScoreSheet() {
         Row (
             modifier = Modifier.width(rowWidth),
             horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Spacer(modifier = Modifier.weight(1f))
 
             Text(
                 text = "Trump",
                 modifier = Modifier.width(columnWidth),
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                maxLines = 1,
             )
-
-//            Spacer(modifier = Modifier.weight(1f))
 
             Divider(modifier = Modifier
                 .width(rowHeight)
@@ -94,15 +97,12 @@ fun CoiffeurScoreSheet() {
                 .align(Alignment.CenterVertically)
             )
 
-//            Spacer(modifier = Modifier.weight(1f))
-
             Text(
-                text = gameState.currentUserId.teamId().name,
+                text = gameState.currentUserId.teamId().toString(),
                 modifier = Modifier.width(columnWidth),
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                maxLines = 1,
             )
-
-//            Spacer(modifier = Modifier.weight(1f))
 
             Divider(modifier = Modifier
                 .width(rowHeight)
@@ -110,15 +110,14 @@ fun CoiffeurScoreSheet() {
                 .align(Alignment.CenterVertically)
             )
 
-//            Spacer(modifier = Modifier.weight(1f))
-
             Text(
-                text = gameState.currentUserId.nextPlayer().teamId().name,
+                text = gameState.currentUserId.nextPlayer().teamId().toString(),
                 modifier = Modifier.width(columnWidth),
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                maxLines = 1,
             )
 
-//            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.weight(1f))
         }
 
         Divider(modifier = Modifier.width(rowWidth))
@@ -137,20 +136,36 @@ fun CoiffeurScoreSheet() {
             Divider(modifier = Modifier.width(rowWidth))
         }
 
-        val isSidiBarraniOver = gameState.jassType == JassType.SIDI_BARRANI && (
-                (GameStateHolder.pointLimits[JassType.SIDI_BARRANI] ?: 1000) <= gameState.roundState.score().gamePoints(TeamId.TEAM_1)
-                        || (GameStateHolder.pointLimits[JassType.SIDI_BARRANI] ?: 1000) <= gameState.roundState.score().gamePoints(TeamId.TEAM_2)
-                )
+        val totalScore = roundScores.foldRight(Score.INITIAL) { (bet, score), acc ->
+            val teamId = bet.playerId.teamId()
+            acc.withPointsAdded(teamId, score.roundPoints(teamId))
+        }
+        TrumpScoreRow(
+            rowWidth = rowWidth,
+            rowHeight = rowHeight,
+            columnWidth = columnWidth,
+            trump = Trump.HEARTS,
+            leftTeam = gameState.currentUserId.teamId(),
+            roundScores = listOf(Bet() to totalScore),
+            isTotalPointsRow = true,
+        )
 
-        if (isSidiBarraniOver) {
+        Divider(modifier = Modifier.width(rowWidth))
+
+        val isCoiffeurOver = GameStateHolder.prevRoundScores
+                    .map { it.first.trump to it.first.playerId.teamId() }
+                    .toSet()
+                    .size == 2 * Trump.values().size
+
+        if (isCoiffeurOver) {
             val winningTeamId = gameState.roundState.winningTeam()
             val winnerText = if (winningTeamId != null) {
-                "$winningTeamId won the game!"
+                "$winningTeamId won!"
             } else {
                 "it was a draw!"
             }
 
-            Text(text = "The game is over, $winnerText")
+            Text(text = "The game is over, $winnerText", maxLines = 2)
             Button(
                 onClick = {
                     val intent = Intent(context, SelectGameActivity::class.java)
@@ -186,28 +201,34 @@ fun TrumpScoreRow(
     columnWidth: Dp,
     trump: Trump,
     leftTeam: TeamId,
-    roundScores: List<Pair<Bet, Score>>
+    roundScores: List<Pair<Bet, Score>>,
+    isTotalPointsRow: Boolean = false,
 ) {
+
     Row (
         modifier = Modifier
             .width(rowWidth),
         horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
+
+        Spacer(modifier = Modifier.weight(1f))
 
         Box(modifier = Modifier
             .width(columnWidth)
             .height(rowHeight)
             .align(Alignment.CenterVertically)
         ) {
-            Image(
-                painter = painterResource(id = trump.asPicture()),
-                contentDescription = trump.toString(),
-                modifier = Modifier
-                    .height(rowHeight)
-                    .align(Alignment.Center),
-//                    .align(Alignment.CenterVertically),
-                alignment = Alignment.Center,
-            )
+            if (!isTotalPointsRow) {
+                Image(
+                    painter = painterResource(id = trump.asPicture()),
+                    contentDescription = trump.toString(),
+                    modifier = Modifier
+                        .height(rowHeight)
+                        .align(Alignment.Center),
+                    alignment = Alignment.Center,
+                )
+            }
         }
 
         Divider(modifier = Modifier
@@ -216,7 +237,10 @@ fun TrumpScoreRow(
             .align(Alignment.CenterVertically)
         )
 
-        Text(text = roundScores.firstOrNull { it.first.playerId.teamId() == leftTeam }?.second?.gamePoints(leftTeam)?.toString() ?: "---",
+        val scoreLeftTeam = if (isTotalPointsRow) roundScores.firstOrNull()?.second else roundScores.firstOrNull { it.first.playerId.teamId() == leftTeam }?.second
+        val defaultText = if (isTotalPointsRow) "0" else "---"
+
+        Text(text = (if (isTotalPointsRow) scoreLeftTeam?.gamePoints(leftTeam) else scoreLeftTeam?.roundPoints(leftTeam))?.toString() ?: defaultText,
             modifier = Modifier.width(columnWidth),
             textAlign = androidx.compose.ui.text.style.TextAlign.Center
         )
@@ -227,9 +251,13 @@ fun TrumpScoreRow(
             .align(Alignment.CenterVertically)
         )
 
-        Text(text = roundScores.firstOrNull { it.first.playerId.teamId() != leftTeam }?.second?.gamePoints(leftTeam.otherTeam())?.toString() ?: "---",
+        val rightTeam = leftTeam.otherTeam()
+        val scoreRightTeam = if (isTotalPointsRow) roundScores.firstOrNull()?.second else roundScores.firstOrNull { it.first.playerId.teamId() == rightTeam }?.second
+        Text(text = (if (isTotalPointsRow) scoreRightTeam?.gamePoints(rightTeam) else scoreRightTeam?.roundPoints(rightTeam))?.toString() ?: defaultText,
             modifier = Modifier.width(columnWidth),
             textAlign = androidx.compose.ui.text.style.TextAlign.Center
         )
+
+        Spacer(modifier = Modifier.weight(1f))
     }
 }
