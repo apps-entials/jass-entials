@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
@@ -35,6 +36,7 @@ import com.github.lucaengel.jass_entials.data.game_state.Score
 import com.github.lucaengel.jass_entials.data.game_state.TeamId
 import com.github.lucaengel.jass_entials.data.jass.Trump
 import com.github.lucaengel.jass_entials.game.SelectGameActivity
+import com.github.lucaengel.jass_entials.game.betting.CoiffeurBettingLogic
 import com.github.lucaengel.jass_entials.game.pregame.PreRoundBettingActivity
 import com.github.lucaengel.jass_entials.ui.theme.JassentialsTheme
 
@@ -73,7 +75,9 @@ fun CoiffeurScoreSheet() {
     val columnWidth = (rowWidth - (rowHeight * 3)) / 3
 
     Column(
-        modifier = Modifier.fillMaxWidth().fillMaxHeight(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
@@ -138,7 +142,7 @@ fun CoiffeurScoreSheet() {
 
         val totalScore = roundScores.foldRight(Score.INITIAL) { (bet, score), acc ->
             val teamId = bet.playerId.teamId()
-            acc.withPointsAdded(teamId, score.roundPoints(teamId))
+            acc.withPointsAdded(teamId, score.roundPoints(teamId) * (bet.trump.ordinal + 1))
         }
         TrumpScoreRow(
             rowWidth = rowWidth,
@@ -214,19 +218,33 @@ fun TrumpScoreRow(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        Box(modifier = Modifier
-            .width(columnWidth)
-            .height(rowHeight)
-            .align(Alignment.CenterVertically)
-        ) {
+        Row (
+            modifier = Modifier
+                .width(columnWidth)
+                .height(rowHeight),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+        ){
             if (!isTotalPointsRow) {
-                Image(
-                    painter = painterResource(id = trump.asPicture()),
-                    contentDescription = trump.toString(),
+                Box(modifier = Modifier
+                    .width(rowHeight)
+                    .height(rowHeight)
+                    .align(Alignment.CenterVertically),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Image(
+                        painter = painterResource(id = trump.asPicture()),
+                        contentDescription = trump.toString(),
+                        modifier = Modifier
+                            .height(rowHeight),
+                        alignment = Alignment.Center,
+                    )
+                }
+
+                Text(
+                    text = " x ${CoiffeurBettingLogic.factorForTrump(trump)}",
                     modifier = Modifier
-                        .height(rowHeight)
-                        .align(Alignment.Center),
-                    alignment = Alignment.Center,
+                        .padding(5.dp, 0.dp, 0.dp, 0.dp),
                 )
             }
         }

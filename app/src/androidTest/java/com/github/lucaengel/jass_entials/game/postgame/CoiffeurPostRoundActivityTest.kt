@@ -69,9 +69,9 @@ class CoiffeurPostRoundActivityTest {
                 .assertExists()
 
             // total score:
-            composeTestRule.onNodeWithText("210", useUnmergedTree = true)
+            composeTestRule.onNodeWithText("${100 * (Trump.CLUBS.ordinal + 1) + 110 * (Trump.UNGER_UFE.ordinal + 1)}", useUnmergedTree = true)
                 .assertExists()
-            composeTestRule.onNodeWithText("165", useUnmergedTree = true)
+            composeTestRule.onNodeWithText("${80 * (Trump.DIAMONDS.ordinal + 1) + 85 * (Trump.HEARTS.ordinal + 1)}", useUnmergedTree = true)
                 .assertExists()
 
 
@@ -116,9 +116,9 @@ class CoiffeurPostRoundActivityTest {
                 .assertExists()
 
             // Total score
-            composeTestRule.onNodeWithText("${6*100 + 1+2+3+4+5}", useUnmergedTree = true)
+            composeTestRule.onNodeWithText("${21*100 + 1*2 + 2*3 + 3*4 + 4*5 + 5*6}", useUnmergedTree = true)
                 .assertExists()
-            composeTestRule.onNodeWithText("${6*80 + 1+2+3+4+5}", useUnmergedTree = true)
+            composeTestRule.onNodeWithText("${21*80 + 1*2 + 2*3 + 3*4 + 4*5 + 5*6}", useUnmergedTree = true)
                 .assertExists()
 
             composeTestRule.onNodeWithText("Choose a new Jass game", useUnmergedTree = true)
