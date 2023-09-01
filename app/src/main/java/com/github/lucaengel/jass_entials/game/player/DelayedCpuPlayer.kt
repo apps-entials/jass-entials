@@ -38,7 +38,6 @@ class DelayedCpuPlayer(
                 sleepFuture.complete(null)
             }
             CompletableFuture.runAsync {
-//                Thread.sleep(threadSleepTime)
                 cardFuture.complete(cpuPlayer.cardToPlay(roundState, handCards).join())
 
             }
@@ -58,6 +57,11 @@ class DelayedCpuPlayer(
 
     override fun bet(bettingState: BettingState, handCards: List<Card>): CompletableFuture<BettingState> {
         val betFuture = CompletableFuture<BettingState>()
+
+        betFuture.exceptionally { e ->
+            println("DelayedCpuPlayer.bet: exception = $e")
+            throw e
+        }
 
         // TODO: This is a temporary solution for testing to not have the cpu wait
         //  consider refactoring this to a more elegant solution

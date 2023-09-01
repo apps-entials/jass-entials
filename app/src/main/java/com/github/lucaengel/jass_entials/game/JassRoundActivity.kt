@@ -29,8 +29,10 @@ import com.github.lucaengel.jass_entials.data.cards.PlayerData
 import com.github.lucaengel.jass_entials.data.game_state.GameState
 import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
 import com.github.lucaengel.jass_entials.data.game_state.PlayerId
+import com.github.lucaengel.jass_entials.data.jass.JassType
 import com.github.lucaengel.jass_entials.game.JassComposables.Companion.CurrentTrick
 import com.github.lucaengel.jass_entials.game.player.DelayedCpuPlayer
+import com.github.lucaengel.jass_entials.game.postgame.CoiffeurPostRoundActivity
 import com.github.lucaengel.jass_entials.game.postgame.PostRoundActivity
 import com.github.lucaengel.jass_entials.ui.theme.JassentialsTheme
 
@@ -95,8 +97,14 @@ fun JassRound() {
             // Store current game state
             GameStateHolder.gameState = gameState
             GameStateHolder.players = players
+            GameStateHolder.prevRoundScores = GameStateHolder.prevRoundScores + Pair(gameState.winningBet, gameState.roundState.score())
 
-            val postGameActivity = Intent(context, PostRoundActivity::class.java)
+
+            val postGameActivity = if (gameState.jassType == JassType.COIFFEUR) {
+                Intent(context, CoiffeurPostRoundActivity::class.java)
+            } else {
+                Intent(context, PostRoundActivity::class.java)
+            }
             context.startActivity(postGameActivity)
         }
     }

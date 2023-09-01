@@ -38,16 +38,16 @@ enum class Trump {
         }
     }
 
-//    override fun toString(): String {
-//        return when (this) {
-//            DIAMONDS -> Suit.DIAMONDS.symbol()
-//            HEARTS -> Suit.HEARTS.symbol()
-//            SPADES -> Suit.SPADES.symbol()
-//            CLUBS -> Suit.CLUBS.symbol()
-//            UNGER_UFE -> "\u2191"
-//            OBE_ABE -> "\u2193"
-//        }
-//    }
+    override fun toString(): String {
+        return when (this) {
+            DIAMONDS -> Suit.DIAMONDS.symbol()
+            HEARTS -> Suit.HEARTS.symbol()
+            SPADES -> Suit.SPADES.symbol()
+            CLUBS -> Suit.CLUBS.symbol()
+            UNGER_UFE -> "\u2191"
+            OBE_ABE -> "\u2193"
+        }
+    }
 
     fun asSuit(): Suit? {
         return Trump.asSuit(this)

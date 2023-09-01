@@ -107,6 +107,11 @@ class GameStateHolder {
          */
         var prevTrumpsByTeam = mapOf<TeamId, Set<Trump>>()
 
+        /**
+         * The RoundStates of the previous rounds of the current game.
+         */
+        var prevRoundScores = listOf<Pair<Bet, Score>>()
+
 //        /**
 //         * The cards that are guaranteed to be in the hands of the given players.
 //         */
