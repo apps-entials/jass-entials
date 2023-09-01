@@ -59,14 +59,19 @@ class DelayedCpuPlayer(
     override fun bet(bettingState: BettingState, handCards: List<Card>): CompletableFuture<BettingState> {
         val betFuture = CompletableFuture<BettingState>()
 
+        betFuture.exceptionally { e ->
+            println("DelayedCpuPlayer.bet: exception = $e")
+            throw e
+        }
+
         // TODO: This is a temporary solution for testing to not have the cpu wait
         //  consider refactoring this to a more elegant solution
         if (GameStateHolder.runCpuAsynchronously) {
             CompletableFuture.runAsync {
                 Thread.sleep((if (bettingState.jassType == JassType.SIDI_BARRANI) 6 else 3) * threadSleepTime)
 
-            }
                 betFuture.complete(cpuPlayer.bet(bettingState, handCards).join())
+            }
         } else {
             // this is where tests run
             betFuture.complete(cpuPlayer.bet(bettingState, handCards).join())
