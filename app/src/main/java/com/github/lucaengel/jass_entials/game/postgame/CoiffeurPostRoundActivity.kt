@@ -208,7 +208,6 @@ fun TrumpScoreRow(
     roundScores: List<Pair<Bet, Score>>,
     isTotalPointsRow: Boolean = false,
 ) {
-
     Row (
         modifier = Modifier
             .width(rowWidth),
