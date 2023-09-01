@@ -62,6 +62,10 @@ class CpuPlayer(
             && (Random.nextFloat() > 0.2 || bettingState.availableActions().size == 1)) {
 
             return CompletableFuture.completedFuture(bettingState.nextPlayer())
+
+        } else if (bettingState.availableBets().isEmpty()
+            || bettingState.availableTrumps().isEmpty()) {
+            return CompletableFuture.completedFuture(bettingState.nextPlayer())
         } else {
             return CompletableFuture.completedFuture(
                 bettingState.nextPlayer(

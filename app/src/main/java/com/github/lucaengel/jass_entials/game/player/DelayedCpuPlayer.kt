@@ -65,8 +65,8 @@ class DelayedCpuPlayer(
             CompletableFuture.runAsync {
                 Thread.sleep((if (bettingState.jassType == JassType.SIDI_BARRANI) 6 else 3) * threadSleepTime)
 
-                betFuture.complete(cpuPlayer.bet(bettingState, handCards).join())
             }
+                betFuture.complete(cpuPlayer.bet(bettingState, handCards).join())
         } else {
             // this is where tests run
             betFuture.complete(cpuPlayer.bet(bettingState, handCards).join())
