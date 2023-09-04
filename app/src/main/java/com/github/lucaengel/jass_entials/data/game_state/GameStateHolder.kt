@@ -82,7 +82,7 @@ class GameStateHolder {
                         .withPointsAdded(TeamId.TEAM_2, 57)
                         .withBonusAddedToGameScore(TeamId.TEAM_1, 100)
                 ),
-            winningBet = Bet(playerData2.id, Trump.CLUBS, BetHeight.HUNDRED),
+            winningBet = Bet(playerData1.id, Trump.CLUBS, BetHeight.HUNDRED),
             playerCards = Deck.STANDARD_DECK.dealCards(),
         )
 

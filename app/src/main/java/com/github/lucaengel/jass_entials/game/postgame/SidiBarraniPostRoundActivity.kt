@@ -480,7 +480,7 @@ class SidiBarraniPostRoundActivity : ComponentActivity() {
     ) {
         Row(
             modifier = Modifier
-                .width(columnWidth),
+                .width(columnWidth - 5.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
         ) {
