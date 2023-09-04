@@ -78,7 +78,7 @@ class SidiBarraniPostRoundActivity : ComponentActivity() {
 
         val rowWidth = screenWidth
         val rowHeight = (screenHeight / 11).coerceAtMost(45.dp) // 30.dp
-        val columnWidth = (rowWidth/* - (rowHeight * 3)*/) / 3
+        val columnWidth = (rowWidth/* - (rowHeight * 3)*/) / 3 -2.dp
 
         Column(
             modifier = Modifier
@@ -96,7 +96,7 @@ class SidiBarraniPostRoundActivity : ComponentActivity() {
 
                 Text(
                     text = "",
-                    modifier = Modifier.width(columnWidth),
+                    modifier = Modifier.width(columnWidth + 10.dp),
                     textAlign = TextAlign.Center,
                     maxLines = 1,
                 )
@@ -104,13 +104,13 @@ class SidiBarraniPostRoundActivity : ComponentActivity() {
                 Divider(
                     modifier = Modifier
                         .height(rowHeight)
-                        .width(1.dp)
+                        .width(3.dp)
                         .align(Alignment.CenterVertically)
                 )
 
                 Text(
                     text = gameState.currentUserId.teamId().toString(),
-                    modifier = Modifier.width(columnWidth),
+                    modifier = Modifier.width(columnWidth - 5.dp),
                     textAlign = TextAlign.Center,
                     maxLines = 1,
                 )
@@ -118,13 +118,13 @@ class SidiBarraniPostRoundActivity : ComponentActivity() {
                 Divider(
                     modifier = Modifier
                         .height(rowHeight)
-                        .width(1.dp)
+                        .width(3.dp)
                         .align(Alignment.CenterVertically)
                 )
 
                 Text(
                     text = gameState.currentUserId.nextPlayer().teamId().toString(),
-                    modifier = Modifier.width(columnWidth),
+                    modifier = Modifier.width(columnWidth - 5.dp),
                     textAlign = TextAlign.Center,
                     maxLines = 1,
                 )
@@ -132,7 +132,7 @@ class SidiBarraniPostRoundActivity : ComponentActivity() {
                 Spacer(modifier = Modifier.weight(1f))
             }
 
-            Divider(modifier = Modifier.width(rowWidth))
+            Divider(modifier = Modifier.width(rowWidth).height(3.dp))
 
             TrumpRow(
                 leftTeam = gameState.currentUserId.teamId(),
@@ -200,7 +200,7 @@ class SidiBarraniPostRoundActivity : ComponentActivity() {
                 pointType = PointType.OLD_GAME_POINTS,
             )
 
-            Divider(modifier = Modifier.width(rowWidth))
+            Divider(modifier = Modifier.width(rowWidth).height(3.dp))
 
             PointsRow(
                 leftTeam = gameState.currentUserId.teamId(),
@@ -278,7 +278,7 @@ class SidiBarraniPostRoundActivity : ComponentActivity() {
                     PointType.TOTAL_ROUND_POINTS -> "Round Points"
                     PointType.OLD_GAME_POINTS -> "Previous Points"
                 },
-                modifier = Modifier.width(columnWidth),
+                modifier = Modifier.width(columnWidth + 10.dp),
                 textAlign = TextAlign.Center,
                 maxLines = 2,
             )
@@ -286,7 +286,7 @@ class SidiBarraniPostRoundActivity : ComponentActivity() {
             Divider(
                     modifier = Modifier
                         .height(rowHeight)
-                        .width(1.dp)
+                        .width(3.dp)
                         .align(Alignment.CenterVertically)
                 )
 
@@ -306,7 +306,7 @@ class SidiBarraniPostRoundActivity : ComponentActivity() {
                     PointType.OLD_GAME_POINTS -> "${score.gamePoints(leftTeam) - (score.roundPoints(leftTeam) + bettingPointsLeftTeam)}"
                     PointType.GAME_POINTS -> "${score.gamePoints(leftTeam)}"
                 },
-                modifier = Modifier.width(columnWidth),
+                modifier = Modifier.width(columnWidth - 5.dp),
                 textAlign = TextAlign.Center,
                 maxLines = 1,
             )
@@ -314,7 +314,7 @@ class SidiBarraniPostRoundActivity : ComponentActivity() {
             Divider(
                     modifier = Modifier
                         .height(rowHeight)
-                        .width(1.dp)
+                        .width(3.dp)
                         .align(Alignment.CenterVertically)
                 )
 
@@ -335,7 +335,7 @@ class SidiBarraniPostRoundActivity : ComponentActivity() {
                     PointType.OLD_GAME_POINTS -> "${score.gamePoints(rightTeam) - (score.roundPoints(rightTeam) + bettingPointsRightTeam)}"
                     PointType.BETTING_POINTS -> "$bettingPointsRightTeam"
                 },
-                modifier = Modifier.width(columnWidth),
+                modifier = Modifier.width(columnWidth - 5.dp),
                 textAlign = TextAlign.Center,
                 maxLines = 1,
             )
@@ -363,7 +363,7 @@ class SidiBarraniPostRoundActivity : ComponentActivity() {
 
             Text(
                 text = "Winning Bet",
-                modifier = Modifier.width(columnWidth),
+                modifier = Modifier.width(columnWidth + 10.dp),
                 textAlign = TextAlign.Center,
                 maxLines = 1,
             )
@@ -371,7 +371,7 @@ class SidiBarraniPostRoundActivity : ComponentActivity() {
             Divider(
                     modifier = Modifier
                         .height(rowHeight)
-                        .width(1.dp)
+                        .width(3.dp)
                         .align(Alignment.CenterVertically)
                 )
 
@@ -384,7 +384,7 @@ class SidiBarraniPostRoundActivity : ComponentActivity() {
             } else {
                 Text(
                     text = "---",
-                    modifier = Modifier.width(columnWidth),
+                    modifier = Modifier.width(columnWidth - 5.dp),
                     textAlign = TextAlign.Center,
                     maxLines = 1,
                 )
@@ -393,7 +393,7 @@ class SidiBarraniPostRoundActivity : ComponentActivity() {
             Divider(
                     modifier = Modifier
                         .height(rowHeight)
-                        .width(1.dp)
+                        .width(3.dp)
                         .align(Alignment.CenterVertically)
                 )
 
@@ -406,7 +406,7 @@ class SidiBarraniPostRoundActivity : ComponentActivity() {
             } else {
                 Text(
                     text = "---",
-                    modifier = Modifier.width(columnWidth),
+                    modifier = Modifier.width(columnWidth - 5.dp),
                     textAlign = TextAlign.Center,
                     maxLines = 1,
                 )
@@ -435,7 +435,7 @@ class SidiBarraniPostRoundActivity : ComponentActivity() {
 
             Text(
                 text = "Doubled by",
-                modifier = Modifier.width(columnWidth),
+                modifier = Modifier.width(columnWidth  + 10.dp),
                 textAlign = TextAlign.Center,
                 maxLines = 1,
             )
@@ -443,13 +443,13 @@ class SidiBarraniPostRoundActivity : ComponentActivity() {
             Divider(
                     modifier = Modifier
                         .height(rowHeight)
-                        .width(1.dp)
+                        .width(3.dp)
                         .align(Alignment.CenterVertically)
                 )
 
             Text(
                 text = if (bet.doubledBy?.teamId() == leftTeam) "${GameStateHolder.players[bet.doubledBy.ordinal].firstName} ${GameStateHolder.players[bet.doubledBy.ordinal].lastName}" else "---",
-                modifier = Modifier.width(columnWidth),
+                modifier = Modifier.width(columnWidth - 5.dp),
                 textAlign = TextAlign.Center,
                 maxLines = 1,
             )
@@ -457,13 +457,13 @@ class SidiBarraniPostRoundActivity : ComponentActivity() {
             Divider(
                     modifier = Modifier
                         .height(rowHeight)
-                        .width(1.dp)
+                        .width(3.dp)
                         .align(Alignment.CenterVertically)
                 )
 
             Text(
                 text = if (bet.doubledBy?.teamId() == leftTeam.otherTeam()) "${GameStateHolder.players[bet.doubledBy.ordinal].firstName} ${GameStateHolder.players[bet.doubledBy.ordinal].lastName}" else "---",
-                modifier = Modifier.width(columnWidth),
+                modifier = Modifier.width(columnWidth - 5.dp),
                 textAlign = TextAlign.Center,
                 maxLines = 1,
             )

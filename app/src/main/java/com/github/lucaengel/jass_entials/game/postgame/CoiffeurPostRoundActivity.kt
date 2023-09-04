@@ -23,7 +23,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -72,7 +71,7 @@ fun CoiffeurScoreSheet() {
 
     val rowWidth = screenWidth
     val rowHeight = (screenHeight / 11).coerceAtMost(30.dp)
-    val columnWidth = (rowWidth - (rowHeight * 3)) / 3
+    val columnWidth = (rowWidth/* - (rowHeight * 3)*/) / 3 -2.dp
 
     Column(
         modifier = Modifier
@@ -96,8 +95,8 @@ fun CoiffeurScoreSheet() {
             )
 
             Divider(modifier = Modifier
-                .width(rowHeight)
-                .rotate(90f)
+                .height(rowHeight)
+                .width(3.dp)
                 .align(Alignment.CenterVertically)
             )
 
@@ -109,8 +108,8 @@ fun CoiffeurScoreSheet() {
             )
 
             Divider(modifier = Modifier
-                .width(rowHeight)
-                .rotate(90f)
+                .height(rowHeight)
+                .width(3.dp)
                 .align(Alignment.CenterVertically)
             )
 
@@ -124,7 +123,7 @@ fun CoiffeurScoreSheet() {
             Spacer(modifier = Modifier.weight(1f))
         }
 
-        Divider(modifier = Modifier.width(rowWidth))
+        Divider(modifier = Modifier.width(rowWidth).height(3.dp))
 
         Trump.values().map { trump ->
 
@@ -137,13 +136,14 @@ fun CoiffeurScoreSheet() {
                 roundScores = roundScores.filter { it.first.trump == trump }
             )
 
-            Divider(modifier = Modifier.width(rowWidth))
+            Divider(modifier = Modifier.width(rowWidth).height(if (trump == Trump.values().last()) 3.dp else 1.dp))
         }
 
         val totalScore = roundScores.foldRight(Score.INITIAL) { (bet, score), acc ->
             val teamId = bet.playerId.teamId()
             acc.withPointsAdded(teamId, score.roundPoints(teamId) * (bet.trump.ordinal + 1))
         }
+
         TrumpScoreRow(
             rowWidth = rowWidth,
             rowHeight = rowHeight,
@@ -154,7 +154,7 @@ fun CoiffeurScoreSheet() {
             isTotalPointsRow = true,
         )
 
-        Divider(modifier = Modifier.width(rowWidth))
+//        Divider(modifier = Modifier.width(rowWidth))
 
         val isCoiffeurOver = GameStateHolder.prevRoundScores
                     .map { it.first.trump to it.first.playerId.teamId() }
@@ -248,10 +248,11 @@ fun TrumpScoreRow(
             }
         }
 
-        Divider(modifier = Modifier
-            .width(rowHeight)
-            .rotate(90f)
-            .align(Alignment.CenterVertically)
+        Divider(
+            modifier = Modifier
+                .height(rowHeight)
+                .width(3.dp)
+                .align(Alignment.CenterVertically)
         )
 
         val scoreLeftTeam = if (isTotalPointsRow) roundScores.firstOrNull()?.second else roundScores.firstOrNull { it.first.playerId.teamId() == leftTeam }?.second
@@ -262,10 +263,11 @@ fun TrumpScoreRow(
             textAlign = androidx.compose.ui.text.style.TextAlign.Center
         )
 
-        Divider(modifier = Modifier
-            .width(rowHeight)
-            .rotate(90f)
-            .align(Alignment.CenterVertically)
+        Divider(
+            modifier = Modifier
+                .height(rowHeight)
+                .width(3.dp)
+                .align(Alignment.CenterVertically)
         )
 
         val rightTeam = leftTeam.otherTeam()
