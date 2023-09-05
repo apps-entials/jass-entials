@@ -75,8 +75,14 @@ class GameStateHolder {
                 .withCardPlayed(Deck.STANDARD_DECK.cards[0])
                 .withCardPlayed(Deck.STANDARD_DECK.cards[1])
                 .withCardPlayed(Deck.STANDARD_DECK.cards[2])
-                .withCardPlayed(Deck.STANDARD_DECK.cards[3]),
-            winningBet = Bet(playerData2.id, Trump.CLUBS, BetHeight.FORTY),
+                .withCardPlayed(Deck.STANDARD_DECK.cards[3])
+                .copy(
+                    score = Score.INITIAL
+                        .withPointsAdded(TeamId.TEAM_1, 100)
+                        .withPointsAdded(TeamId.TEAM_2, 57)
+                        .withBonusAddedToGameScore(TeamId.TEAM_1, 100)
+                ),
+            winningBet = Bet(playerData1.id, Trump.CLUBS, BetHeight.HUNDRED),
             playerCards = Deck.STANDARD_DECK.dealCards(),
         )
 

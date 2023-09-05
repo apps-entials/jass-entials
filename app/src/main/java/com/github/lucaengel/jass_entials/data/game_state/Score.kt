@@ -61,6 +61,18 @@ data class Score(
         }
     }
 
+    fun withBonusAddedToGameScore(teamId: TeamId, bonus: Int): Score {
+        return if (teamId == TeamId.TEAM_1) {
+            this.copy(
+                gamePointsTeam1 = this.gamePointsTeam1 + bonus
+            )
+        } else{
+            this.copy(
+                gamePointsTeam2 = this.gamePointsTeam2 + bonus
+            )
+        }
+    }
+
     /**
      * Returns the winning team or null if the score is equal.
      *

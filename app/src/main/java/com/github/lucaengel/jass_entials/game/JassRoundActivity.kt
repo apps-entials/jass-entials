@@ -33,7 +33,8 @@ import com.github.lucaengel.jass_entials.data.jass.JassType
 import com.github.lucaengel.jass_entials.game.JassComposables.Companion.CurrentTrick
 import com.github.lucaengel.jass_entials.game.player.DelayedCpuPlayer
 import com.github.lucaengel.jass_entials.game.postgame.CoiffeurPostRoundActivity
-import com.github.lucaengel.jass_entials.game.postgame.PostRoundActivity
+import com.github.lucaengel.jass_entials.game.postgame.SchieberPostRoundActivity
+import com.github.lucaengel.jass_entials.game.postgame.SidiBarraniPostRoundActivity
 import com.github.lucaengel.jass_entials.ui.theme.JassentialsTheme
 
 /**
@@ -100,12 +101,35 @@ fun JassRound() {
             GameStateHolder.prevRoundScores = GameStateHolder.prevRoundScores + Pair(gameState.winningBet, gameState.roundState.score())
 
 
-            val postGameActivity = if (gameState.jassType == JassType.COIFFEUR) {
-                Intent(context, CoiffeurPostRoundActivity::class.java)
-            } else {
-                Intent(context, PostRoundActivity::class.java)
+
+            val postGameActivity = when (gameState.jassType) {
+                JassType.SCHIEBER ->
+                    SchieberPostRoundActivity::class.java
+                JassType.COIFFEUR ->
+                    CoiffeurPostRoundActivity::class.java
+                JassType.SIDI_BARRANI -> {
+                    // add bet points to score
+                    val bet = gameState.winningBet
+                    val madeEnoughPoints = gameState.roundState.score().roundPoints(bet.playerId.teamId()) >= bet.bet.asInt()
+                    val betPoints = if (gameState.winningBet.doubledBy != null) bet.bet.asInt() * 2 else bet.bet.asInt()
+
+                    gameState = gameState.copy(
+                        roundState = gameState.roundState.copy(
+                            score = gameState.roundState.score()
+                                .withBonusAddedToGameScore(bet.playerId.teamId().let {
+                                    if (madeEnoughPoints) it
+                                    else it.otherTeam() }
+                                    , betPoints
+                                )
+                        )
+                    )
+                    GameStateHolder.gameState = gameState
+
+                    SidiBarraniPostRoundActivity::class.java
+                }
             }
-            context.startActivity(postGameActivity)
+
+            context.startActivity(Intent(context, postGameActivity))
         }
     }
 
