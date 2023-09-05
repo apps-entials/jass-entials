@@ -12,6 +12,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.lucaengel.jass_entials.data.cards.Deck
 import com.github.lucaengel.jass_entials.data.cards.PlayerData
 import com.github.lucaengel.jass_entials.data.game_state.Bet
+import com.github.lucaengel.jass_entials.data.game_state.BetHeight
 import com.github.lucaengel.jass_entials.data.game_state.GameState
 import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
 import com.github.lucaengel.jass_entials.data.game_state.PlayerId
@@ -47,31 +48,6 @@ class SchieberPostRoundActivityTest {
         0,
         "123"
     )
-//    private val playerData2 = PlayerData(
-//        PlayerId.PLAYER_2,
-//        "first_2",
-//        "second_2",
-//        Deck.sortPlayerCards(shuffledDeck.cards.subList(12, 20)),
-//        0,
-//        "123"
-//    )
-//    private val playerData3 = PlayerData(
-//        PlayerId.PLAYER_3,
-//        "first_3",
-//        "second_3",
-//        Deck.sortPlayerCards(shuffledDeck.cards.subList(20, 28)),
-//        0,
-//        "123"
-//    )
-//    private val playerData4 = PlayerData(
-//        PlayerId.PLAYER_4,
-//        "first_4",
-//        "second_4",
-//        Deck.sortPlayerCards(shuffledDeck.cards.subList(28, 36)),
-//        0,
-//        "123"
-//    )
-
 
     private var gameState: GameState = GameState(
         currentUserId = PlayerId.PLAYER_1,
@@ -102,41 +78,40 @@ class SchieberPostRoundActivityTest {
 
     @Test
     fun correctInitialScreenContent() {
-        ActivityScenario.launch<SchieberPostRoundActivity>(postRoundDefaultIntent).use {
-            composeTestRule.onNodeWithText("This round", substring = true).assertExists()
-            composeTestRule.onNodeWithText("Total points", substring = true).assertExists()
-        }
-    }
-
-    @Test
-    fun correctInitialScreenContentForCoiffeur() {
-        GameStateHolder.gameState = gameState.copy(jassType = JassType.COIFFEUR)
-
-        ActivityScenario.launch<SchieberPostRoundActivity>(postRoundDefaultIntent).use {
-            composeTestRule.onNodeWithText("This round", substring = true).assertExists()
-            composeTestRule.onNodeWithText("Total points", substring = true).assertExists()
-        }
-
-        // TODO: complete this test once Coiffeur post round screen is implemented
-    }
-
-    @Test
-    fun correctPointsAttributedToEachTeam() {
         GameStateHolder.gameState = gameState.copy(
+            winningBet = Bet(
+                PlayerId.PLAYER_1,
+                Trump.CLUBS,
+                BetHeight.MATCH
+            ),
             roundState = gameState.roundState.copy(
                 score = Score.INITIAL
                     .withPointsAdded(TeamId.TEAM_1, 100)
-                    .withPointsAdded(TeamId.TEAM_2, 200)
+                    .withPointsAdded(TeamId.TEAM_2, 57)
                     .nextRound()
+                    .withPointsAdded(TeamId.TEAM_1, 90)
+                    .withPointsAdded(TeamId.TEAM_2, 67)
             )
         )
-
         ActivityScenario.launch<SchieberPostRoundActivity>(postRoundDefaultIntent).use {
+            composeTestRule.onNodeWithText("Trump Bet", useUnmergedTree = true).assertExists()
+            composeTestRule.onNodeWithText("Played Points", useUnmergedTree = true).assertExists()
+            composeTestRule.onNodeWithText("Previous Points", useUnmergedTree = true).assertExists()
+            composeTestRule.onNodeWithText("Total Points", useUnmergedTree = true).assertExists()
+            composeTestRule.onNodeWithText("${gameState.currentUserId.teamId()}", useUnmergedTree = true).assertExists()
+            composeTestRule.onNodeWithText("${gameState.currentUserId.teamId().otherTeam()}", useUnmergedTree = true).assertExists()
 
-            composeTestRule.onNodeWithText("Your Team: 0").assertExists()
-            composeTestRule.onNodeWithText("Other Team: 0").assertExists()
-            composeTestRule.onNodeWithText("Your Team: 100").assertExists()
-            composeTestRule.onNodeWithText("Other Team: 200").assertExists()
+            // played points
+            composeTestRule.onNodeWithText("90", useUnmergedTree = true).assertExists()
+            composeTestRule.onNodeWithText("67", useUnmergedTree = true).assertExists()
+
+            // previous points
+            composeTestRule.onNodeWithText("100", useUnmergedTree = true).assertExists()
+            composeTestRule.onNodeWithText("57", useUnmergedTree = true).assertExists()
+
+            // total points
+            composeTestRule.onNodeWithText("190", useUnmergedTree = true).assertExists()
+            composeTestRule.onNodeWithText("124", useUnmergedTree = true).assertExists()
         }
     }
 

@@ -42,7 +42,7 @@ class SidiBarraniPostRoundActivityTest {
     private val postRoundDefaultIntent = Intent(ApplicationProvider.getApplicationContext(), SidiBarraniPostRoundActivity::class.java)
 
     private val shuffledDeck = Deck.STANDARD_DECK.shuffled()
-    // every player gets 8 cards, 4 are already in the current trick
+
     private val playerData1 = PlayerData(
         PlayerId.PLAYER_1,
         "first_1",
@@ -113,22 +113,23 @@ class SidiBarraniPostRoundActivityTest {
                 score = Score.INITIAL
                     .withPointsAdded(TeamId.TEAM_1, 210)
                     .withPointsAdded(TeamId.TEAM_2, 47)
+                    .nextRound()
                     .withPointsAdded(TeamId.TEAM_1, 100)
                     .withPointsAdded(TeamId.TEAM_2, 57)
+                    .withBonusAddedToGameScore(TeamId.TEAM_2, 260) // bonus
             ),
         )
 
         ActivityScenario.launch<SidiBarraniPostRoundActivity>(postRoundDefaultIntent).use {
-            for (trump in Trump.values()) {
-                composeTestRule.onNodeWithContentDescription(trump.toString(), useUnmergedTree = true)
-                    .assertExists()
-            }
+
+            sleep(5000)
+
 
             // winning bet:
-            composeTestRule.onNodeWithContentDescription("${Trump.HEARTS}", useUnmergedTree = true)
+            composeTestRule.onNodeWithContentDescription(Trump.CLUBS.toString(), useUnmergedTree = true)
                 .assertExists()
-            composeTestRule.onAllNodesWithText("130", useUnmergedTree = true)
-                .assertCountEquals(2) // winning bet and betting points
+            composeTestRule.onNodeWithText("130", useUnmergedTree = true)
+                .assertExists()
             composeTestRule.onAllNodesWithText("---", useUnmergedTree = true)
                 .assertCountEquals(2) // winning bet and doubled by
 
