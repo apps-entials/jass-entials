@@ -33,7 +33,7 @@ import com.github.lucaengel.jass_entials.data.jass.JassType
 import com.github.lucaengel.jass_entials.game.JassComposables.Companion.CurrentTrick
 import com.github.lucaengel.jass_entials.game.player.DelayedCpuPlayer
 import com.github.lucaengel.jass_entials.game.postgame.CoiffeurPostRoundActivity
-import com.github.lucaengel.jass_entials.game.postgame.PostRoundActivity
+import com.github.lucaengel.jass_entials.game.postgame.SchieberPostRoundActivity
 import com.github.lucaengel.jass_entials.game.postgame.SidiBarraniPostRoundActivity
 import com.github.lucaengel.jass_entials.ui.theme.JassentialsTheme
 
@@ -103,6 +103,8 @@ fun JassRound() {
 
 
             val postGameActivity = when (gameState.jassType) {
+                JassType.SCHIEBER ->
+                    SchieberPostRoundActivity::class.java
                 JassType.COIFFEUR ->
                     CoiffeurPostRoundActivity::class.java
                 JassType.SIDI_BARRANI -> {
@@ -125,8 +127,6 @@ fun JassRound() {
 
                     SidiBarraniPostRoundActivity::class.java
                 }
-                else ->
-                    PostRoundActivity::class.java
             }
 
             context.startActivity(Intent(context, postGameActivity))

@@ -50,7 +50,7 @@
             android:theme="@style/Theme.Jassentials" >
         </activity>
         <activity
-            android:name=".game.postgame.PostRoundActivity"
+            android:name=".game.postgame.SchieberPostRoundActivity"
             android:exported="true"
             android:label="SidiBarrani Postgame Activity"
             android:theme="@style/Theme.Jassentials" >

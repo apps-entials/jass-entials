@@ -30,12 +30,12 @@ import org.junit.runner.RunWith
 import java.lang.Thread.sleep
 
 @RunWith(AndroidJUnit4::class)
-class PostRoundActivityTest {
+class SchieberPostRoundActivityTest {
 
     @get:Rule
     val composeTestRule = createEmptyComposeRule()
 
-    private val postRoundDefaultIntent = Intent(ApplicationProvider.getApplicationContext(), PostRoundActivity::class.java)
+    private val postRoundDefaultIntent = Intent(ApplicationProvider.getApplicationContext(), SchieberPostRoundActivity::class.java)
 
     private val shuffledDeck = Deck.STANDARD_DECK.shuffled()
     // every player gets 8 cards, 4 are already in the current trick
@@ -102,7 +102,7 @@ class PostRoundActivityTest {
 
     @Test
     fun correctInitialScreenContent() {
-        ActivityScenario.launch<PostRoundActivity>(postRoundDefaultIntent).use {
+        ActivityScenario.launch<SchieberPostRoundActivity>(postRoundDefaultIntent).use {
             composeTestRule.onNodeWithText("This round", substring = true).assertExists()
             composeTestRule.onNodeWithText("Total points", substring = true).assertExists()
         }
@@ -112,7 +112,7 @@ class PostRoundActivityTest {
     fun correctInitialScreenContentForCoiffeur() {
         GameStateHolder.gameState = gameState.copy(jassType = JassType.COIFFEUR)
 
-        ActivityScenario.launch<PostRoundActivity>(postRoundDefaultIntent).use {
+        ActivityScenario.launch<SchieberPostRoundActivity>(postRoundDefaultIntent).use {
             composeTestRule.onNodeWithText("This round", substring = true).assertExists()
             composeTestRule.onNodeWithText("Total points", substring = true).assertExists()
         }
@@ -131,7 +131,7 @@ class PostRoundActivityTest {
             )
         )
 
-        ActivityScenario.launch<PostRoundActivity>(postRoundDefaultIntent).use {
+        ActivityScenario.launch<SchieberPostRoundActivity>(postRoundDefaultIntent).use {
 
             composeTestRule.onNodeWithText("Your Team: 0").assertExists()
             composeTestRule.onNodeWithText("Other Team: 0").assertExists()
@@ -142,7 +142,7 @@ class PostRoundActivityTest {
 
     @Test
     fun startNextRoundButtonOpensNextSidiBarraniBiddingActivity() {
-        ActivityScenario.launch<PostRoundActivity>(postRoundDefaultIntent).use {
+        ActivityScenario.launch<SchieberPostRoundActivity>(postRoundDefaultIntent).use {
 
             composeTestRule.onNodeWithText("Start next round")
                 .assertExists()
@@ -166,71 +166,9 @@ class PostRoundActivityTest {
             )
         )
 
-        ActivityScenario.launch<PostRoundActivity>(postRoundDefaultIntent).use {
+        ActivityScenario.launch<SchieberPostRoundActivity>(postRoundDefaultIntent).use {
 
             composeTestRule.onNodeWithText("${TeamId.TEAM_1} won the game!", substring = true)
-                .assertExists()
-
-            composeTestRule.onNodeWithText("Choose a new Jass game")
-                .assertExists()
-                .performClick()
-
-            Intents.intended(
-                IntentMatchers.hasComponent(SelectGameActivity::class.java.name)
-            )
-        }
-    }
-
-    @Test
-    fun endScreenIsShownWhenRoundIsDoneForSidi() {
-        GameStateHolder.pointLimits += JassType.SIDI_BARRANI to 500
-
-        GameStateHolder.gameState = gameState.copy(
-            roundState = gameState.roundState.copy(
-                score = Score.INITIAL
-                    .withPointsAdded(TeamId.TEAM_1, 1000)
-                    .withPointsAdded(TeamId.TEAM_2, 0)
-                    .nextRound()
-            ),
-            jassType = JassType.SIDI_BARRANI
-        )
-
-        ActivityScenario.launch<PostRoundActivity>(postRoundDefaultIntent).use {
-
-            composeTestRule.onNodeWithText("${TeamId.TEAM_1} won the game!", substring = true)
-                .assertExists()
-
-            composeTestRule.onNodeWithText("Choose a new Jass game")
-                .assertExists()
-                .performClick()
-
-            Intents.intended(
-                IntentMatchers.hasComponent(SelectGameActivity::class.java.name)
-            )
-        }
-    }
-
-    @Test
-    fun endScreenIsShownWhenRoundIsDoneForCoiffeur() {
-        GameStateHolder.pointLimits += JassType.COIFFEUR to 500
-        GameStateHolder.prevTrumpsByTeam = mapOf(
-            TeamId.TEAM_1 to setOf(Trump.CLUBS, Trump.DIAMONDS, Trump.HEARTS, Trump.SPADES, Trump.UNGER_UFE, Trump.OBE_ABE),
-            TeamId.TEAM_2 to setOf(Trump.CLUBS, Trump.DIAMONDS, Trump.HEARTS, Trump.SPADES, Trump.UNGER_UFE, Trump.OBE_ABE)
-        )
-
-        GameStateHolder.gameState = gameState.copy(
-            roundState = gameState.roundState.copy(
-                score = Score.INITIAL
-                    .withPointsAdded(TeamId.TEAM_1, 1000)
-                    .withPointsAdded(TeamId.TEAM_2, 1000)
-                    .nextRound()
-            ),
-            jassType = JassType.COIFFEUR
-        )
-
-        ActivityScenario.launch<PostRoundActivity>(postRoundDefaultIntent).use {
-
-            composeTestRule.onNodeWithText("it was a draw!", substring = true)
                 .assertExists()
 
             composeTestRule.onNodeWithText("Choose a new Jass game")

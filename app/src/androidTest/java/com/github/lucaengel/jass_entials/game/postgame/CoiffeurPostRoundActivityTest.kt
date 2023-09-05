@@ -8,13 +8,21 @@ import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.intent.Intents
+import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.github.lucaengel.jass_entials.data.cards.Deck
+import com.github.lucaengel.jass_entials.data.cards.PlayerData
 import com.github.lucaengel.jass_entials.data.game_state.Bet
 import com.github.lucaengel.jass_entials.data.game_state.BetHeight
+import com.github.lucaengel.jass_entials.data.game_state.GameState
 import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
 import com.github.lucaengel.jass_entials.data.game_state.PlayerId
+import com.github.lucaengel.jass_entials.data.game_state.RoundState
 import com.github.lucaengel.jass_entials.data.game_state.Score
+import com.github.lucaengel.jass_entials.data.game_state.TeamId
+import com.github.lucaengel.jass_entials.data.jass.JassType
 import com.github.lucaengel.jass_entials.data.jass.Trump
+import com.github.lucaengel.jass_entials.game.SelectGameActivity
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -30,15 +38,38 @@ class CoiffeurPostRoundActivityTest {
 
     private val defaultIntent = Intent(ApplicationProvider.getApplicationContext(), CoiffeurPostRoundActivity::class.java)
 
+    private val shuffledDeck = Deck.STANDARD_DECK.shuffled()
+    private val playerData1 = PlayerData(
+        PlayerId.PLAYER_1,
+        "first_1",
+        "second_1",
+        Deck.sortPlayerCards(shuffledDeck.cards.subList(4, 12)),
+        0,
+        "123"
+    )
+
+    private var gameState: GameState = GameState(
+        currentUserId = PlayerId.PLAYER_1,
+        playerEmails = listOf(),
+        currentPlayerId= playerData1.id,
+        startingPlayerId= playerData1.id,
+        currentRound = 1,
+        jassType = JassType.SIDI_BARRANI,
+        roundState = RoundState.initial(trump = Trump.CLUBS, startingPlayerId = playerData1.id),
+        winningBet = Bet(),
+        playerCards = Deck.STANDARD_DECK.dealCards(),
+    )
 
     @Before
     fun setUp() {
+        Intents.init()
         GameStateHolder.prevRoundScores = listOf()
     }
 
     @After
     fun tearDown() {
         sleep(1000)
+        Intents.release()
     }
 
     @Test
@@ -51,9 +82,7 @@ class CoiffeurPostRoundActivityTest {
             Pair(Bet(PlayerId.PLAYER_4, Trump.HEARTS, BetHeight.MATCH), Score(72, 85, 72, 85)),
         )
 
-        ActivityScenario.launch<PostRoundActivity>(defaultIntent).use {
-            Intents.init()
-
+        ActivityScenario.launch<CoiffeurPostRoundActivity>(defaultIntent).use {
             for (trump in Trump.values()) {
                 composeTestRule.onNodeWithContentDescription(trump.toString(), useUnmergedTree = true)
                     .assertExists()
@@ -77,8 +106,6 @@ class CoiffeurPostRoundActivityTest {
 
             composeTestRule.onNodeWithText("Start next round", useUnmergedTree = true)
                 .assertExists()
-
-            Intents.release()
         }
     }
 
@@ -103,15 +130,13 @@ class CoiffeurPostRoundActivityTest {
             )
         }.flatten()
 
-        GameStateHolder.gameState = GameStateHolder.gameState.copy(
-            roundState = GameStateHolder.gameState.roundState.copy(
+        GameStateHolder.gameState = gameState.copy(
+            roundState = gameState.roundState.copy(
                 score = GameStateHolder.prevRoundScores.last().second
             )
         )
 
-        ActivityScenario.launch<PostRoundActivity>(defaultIntent).use {
-            Intents.init()
-
+        ActivityScenario.launch<CoiffeurPostRoundActivity>(defaultIntent).use {
             composeTestRule.onNodeWithText("The game is over, ${PlayerId.PLAYER_1.teamId()} won!", useUnmergedTree = true)
                 .assertExists()
 
@@ -124,8 +149,47 @@ class CoiffeurPostRoundActivityTest {
             composeTestRule.onNodeWithText("Choose a new Jass game", useUnmergedTree = true)
                 .assertExists()
                 .performClick()
+        }
+    }
 
-            Intents.release()
+
+    @Test
+    fun endScreenIsShownWhenRoundIsDoneForCoiffeur() {
+        GameStateHolder.pointLimits += JassType.COIFFEUR to 500
+        GameStateHolder.prevTrumpsByTeam = mapOf(
+            TeamId.TEAM_1 to setOf(Trump.CLUBS, Trump.DIAMONDS, Trump.HEARTS, Trump.SPADES, Trump.UNGER_UFE, Trump.OBE_ABE),
+            TeamId.TEAM_2 to setOf(Trump.CLUBS, Trump.DIAMONDS, Trump.HEARTS, Trump.SPADES, Trump.UNGER_UFE, Trump.OBE_ABE)
+        )
+
+        GameStateHolder.prevRoundScores = Trump.values().flatMap {
+            listOf(
+                Pair(Bet(PlayerId.PLAYER_1, it, BetHeight.MATCH), Score(100, 57, 0, 0)),
+                Pair(Bet(PlayerId.PLAYER_2, it, BetHeight.MATCH), Score(57, 100, 0, 0)),
+            )
+        }
+
+        GameStateHolder.gameState = gameState.copy(
+            roundState = gameState.roundState.copy(
+                score = Score.INITIAL
+                    .withPointsAdded(TeamId.TEAM_1, 600)
+                    .withPointsAdded(TeamId.TEAM_2, 600)
+                    .nextRound()
+            ),
+            jassType = JassType.COIFFEUR
+        )
+
+        ActivityScenario.launch<CoiffeurPostRoundActivity>(defaultIntent).use {
+
+            composeTestRule.onNodeWithText("it was a draw!", substring = true)
+                .assertExists()
+
+            composeTestRule.onNodeWithText("Choose a new Jass game")
+                .assertExists()
+                .performClick()
+
+            Intents.intended(
+                IntentMatchers.hasComponent(SelectGameActivity::class.java.name)
+            )
         }
     }
 }

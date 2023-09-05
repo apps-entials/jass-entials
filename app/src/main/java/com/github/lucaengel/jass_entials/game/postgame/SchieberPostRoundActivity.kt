@@ -43,7 +43,7 @@ import com.github.lucaengel.jass_entials.ui.theme.JassentialsTheme
 /**
  * Activity for the Sidi Barrani post round screen.
  */
-class PostRoundActivity : ComponentActivity() {
+class SchieberPostRoundActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -177,12 +177,11 @@ class PostRoundActivity : ComponentActivity() {
                 pointType = PointType.GAME_POINTS,
             )
 
-            val isSchieberOver = gameState.jassType == JassType.SCHIEBER && (
-                    (GameStateHolder.pointLimits[JassType.SCHIEBER]
-                        ?: 1000) <= gameState.roundState.score().gamePoints(TeamId.TEAM_1)
-                            || (GameStateHolder.pointLimits[JassType.SCHIEBER]
-                        ?: 1000) <= gameState.roundState.score().gamePoints(TeamId.TEAM_2)
-                    )
+            val isSchieberOver =
+                (GameStateHolder.pointLimits[JassType.SCHIEBER]
+                    ?: 1000) <= gameState.roundState.score().gamePoints(TeamId.TEAM_1)
+                        || (GameStateHolder.pointLimits[JassType.SCHIEBER]
+                    ?: 1000) <= gameState.roundState.score().gamePoints(TeamId.TEAM_2)
 
             if (isSchieberOver) {
                 val winningTeamId = gameState.roundState.winningTeam()
