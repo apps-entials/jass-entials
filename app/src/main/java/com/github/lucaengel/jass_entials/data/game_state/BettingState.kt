@@ -75,6 +75,7 @@ data class BettingState(
             startingBetterId = startingBetter,
             jassType = jassType,
             bets = listOf(),
+            betActions = listOf(),
             score = score,
             cardDistributionsHandler = CardDistributionsHandler()
         )
