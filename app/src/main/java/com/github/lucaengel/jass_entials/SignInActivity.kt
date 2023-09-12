@@ -24,6 +24,7 @@ import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.github.lucaengel.jass_entials.auth.GoogleAuthenticator
 import com.github.lucaengel.jass_entials.game.SelectGameActivity
 import com.github.lucaengel.jass_entials.ui.theme.JassentialsTheme
+import com.google.android.gms.ads.MobileAds
 
 /**
  * The activity where the user can sign in with Google or as a guest.
@@ -57,6 +58,9 @@ class SignInActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         authenticator = GoogleAuthenticator()
+
+        // TODO: is tagForChildDirectedTreatment  or tag_for_under_age_of_consent needed?
+        MobileAds.initialize(this) {}
 
         setContent {
             JassentialsTheme {

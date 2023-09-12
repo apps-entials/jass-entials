@@ -36,6 +36,7 @@ import com.github.lucaengel.jass_entials.game.postgame.CoiffeurPostRoundActivity
 import com.github.lucaengel.jass_entials.game.postgame.SchieberPostRoundActivity
 import com.github.lucaengel.jass_entials.game.postgame.SidiBarraniPostRoundActivity
 import com.github.lucaengel.jass_entials.ui.theme.JassentialsTheme
+import com.google.android.gms.ads.MobileAds
 
 /**
  * Activity for the Jass round screen.
@@ -45,7 +46,8 @@ class JassRoundActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-
+        // TODO: is tagForChildDirectedTreatment  or tag_for_under_age_of_consent needed?
+        MobileAds.initialize(this) {}
 
         setContent {
             JassentialsTheme {

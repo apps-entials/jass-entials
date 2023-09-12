@@ -12,6 +12,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Jassentials"
         tools:targetApi="31" >
+        <!--AdMob app id-->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-3303927575142790~9056996936"/>
         <activity
             android:name=".SignInActivity"
             android:exported="true"

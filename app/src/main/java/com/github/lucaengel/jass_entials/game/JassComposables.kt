@@ -25,10 +25,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
 import com.github.lucaengel.jass_entials.data.cards.Card
 import com.github.lucaengel.jass_entials.data.cards.CardType
@@ -39,6 +41,9 @@ import com.github.lucaengel.jass_entials.data.game_state.GameStateHolder
 import com.github.lucaengel.jass_entials.data.game_state.PlayerId
 import com.github.lucaengel.jass_entials.data.jass.JassType
 import com.github.lucaengel.jass_entials.game.betting.CoiffeurBettingLogic
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdSize
+import com.google.android.gms.ads.AdView
 import kotlin.math.absoluteValue
 
 /**
@@ -101,7 +106,32 @@ class JassComposables {
 
                     }
                 }
+
+                AdmobBanner(modifier = Modifier.fillMaxWidth())
             }
+        }
+
+        @Composable
+        fun AdmobBanner(modifier: Modifier = Modifier) {
+//            println("is s10e test device: ${AdRequest.isTestDevice()}")
+            println("is s10e test device: ${AdRequest.Builder().build().isTestDevice(LocalContext.current)}")
+
+            AndroidView(
+                modifier = modifier,
+                factory = { context ->
+                    AdView(context).apply {
+                        setAdSize(AdSize.BANNER)
+                        // TODO: adapt this later for production ads
+                        // test ad unit id:
+                        adUnitId = "ca-app-pub-3940256099942544/6300978111"
+
+                        // actual ad unit id:
+//                        adUnitId = "ca-app-pub-3303927575142790/9481299070"
+
+                        loadAd(AdRequest.Builder().build())
+                    }
+                }
+            )
         }
 
         /**
