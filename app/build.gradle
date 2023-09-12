@@ -84,6 +84,9 @@ dependencies {
     implementation 'com.google.firebase:firebase-firestore'
     implementation 'com.firebaseui:firebase-ui-auth:7.2.0'
 
+    // Ads
+    implementation 'com.google.android.gms:play-services-ads:22.3.0'
+
     debugImplementation 'androidx.compose.ui:ui-tooling'
     debugImplementation 'androidx.compose.ui:ui-test-manifest'
 }
