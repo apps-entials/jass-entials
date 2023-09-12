@@ -15,7 +15,7 @@ class SchieberBiddingCpu(
     companion object {
         private const val FIRST_PLAYER_THRESHOLD = 58
 
-        private const val SECOND_PLAYER_THRESHOLD = 0
+        private const val SECOND_PLAYER_THRESHOLD = 52
 
         private val THRESHOLDS = listOf(FIRST_PLAYER_THRESHOLD, SECOND_PLAYER_THRESHOLD, Int.MIN_VALUE)
 
@@ -46,22 +46,23 @@ class SchieberBiddingCpu(
         if (bettingState.availableActions().contains(Bet.BetAction.BET)) println("contains bet action")
         if (bettingState.availableActions().contains(Bet.BetAction.START_GAME)) println("contains start game action")
         if (!bettingState.availableActions().contains(Bet.BetAction.BET)
-            || bettingState.bets.size > 2) {
+            || bettingState.betActions.size > 2) { // TODO: this second condition might not be needed
             return null
         }
+
+        println("bet actions: ${bettingState.betActions}")
 
         val evaluations = evaluateTrumps(
             handCards = handCards,
             trumps = Trump.values().toList(),
-            isVorderhand = bettingState.bets.isEmpty()
+            isVorderhand = bettingState.betActions.isEmpty()
         )
 
         println("hand cards : $handCards")
         println("evaluations: $evaluations")
-        // TODO: make sure the player cannot pass when bettingState.bets.size == 2
         return findBestBet(
             evaluations = evaluations,
-            threshold = THRESHOLDS[bettingState.bets.size]
+            threshold = THRESHOLDS[bettingState.betActions.size.coerceAtMost(THRESHOLDS.size - 1)]
         )
 
     }
@@ -70,6 +71,7 @@ class SchieberBiddingCpu(
         evaluations: List<TrumpEvaluation>,
         threshold: Int
     ): Bet? {
+        println("threshold: $threshold")
         val trumpEvaluation = evaluations.filter { it.points >= threshold }.shuffled()
             .maxByOrNull { it.points }
             ?: return null
